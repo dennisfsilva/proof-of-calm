@@ -362,6 +362,16 @@ describe('spellJoiners', () => {
     }
     expect(disagree).toEqual([]);
   });
+
+  it('spellJoiners and printedText agree on whole strings, a combining mark NFC composes included', () => {
+    const asTable = (text: string) => printedText(text, []).replace(/U\+([0-9A-F]{4,6}) /g, '\\x{$1}');
+    for (const text of ['Rückgänge', 'Café café', 'q́', 'a⁠é b c']) {
+      expect(spellJoiners(text)).toBe(asTable(text));
+    }
+    expect(spellJoiners('„Rückgänge“')).toBe('„Ru\\x{0308}ckga\\x{0308}nge“');
+    expect(spellJoiners('café')).toBe('cafe\\x{0301}');
+    expect(spellJoiners('q́')).toBe('q́');
+  });
 });
 
 describe('parseDraft', () => {

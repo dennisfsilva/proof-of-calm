@@ -18,16 +18,32 @@ const HIDDEN = /(?! )[\p{Z}\p{Cf}\p{Cc}\p{Default_Ignorable_Code_Point}‐‑]/g
 
 // A combining mark that NFC composes with the character before it prints by its code point (`RuU+0308 ckgang`): the
 // decomposed letter looks like the composed one a shape or a list holds, and neither matches it.
-const printedMarks = (text: string) =>
+const printedMarks = (text: string, spell: (char: string) => string) =>
   text.replace(/\P{M}\p{M}+/gu, (run) => {
     const [base = '', ...marks] = [...run];
-    return run.normalize('NFC') === run ? run : base + marks.map(codePoint).join('');
+    return run.normalize('NFC') === run ? run : base + marks.map(spell).join('');
   });
+
+/**
+ * The one definition of the characters a detail names by code point: each hidden or look-alike character that `keep`
+ * does not keep, and each combining mark NFC composes with the character before it, goes through `spell`; everything
+ * else stays as written. The details spell by `U+HHHH `; the content review's table (`spellJoiners` in
+ * tools/content-review/body.ts) by `\x{HHHH}`, so the two quote one value alike.
+ */
+export const spellNamed = (
+  text: string,
+  spell: (char: string) => string,
+  keep: (char: string, at: number) => boolean,
+) =>
+  printedMarks(
+    text.replace(HIDDEN, (char, at: number) => (keep(char, at) ? char : spell(char))),
+    spell,
+  );
 
 /** A quoted text as a detail prints it: each hidden or look-alike character not in `shown` by its code point, as
  * printedGap prints it (`fellU+2009 50 %`), everything else as written. */
 export const printedText = (text: string, shown: readonly string[]) =>
-  printedMarks(text.replace(HIDDEN, (char) => (shown.includes(char) ? char : codePoint(char))));
+  spellNamed(text, codePoint, (char) => shown.includes(char));
 
 /** A quoted text of a Learn module's chart section: as printedText prints it, but a joiner of `joiners` prints as
  * written only directly before a percent sign, and any hidden character a match of the global `joined` covers prints
@@ -38,9 +54,5 @@ export const printedPercentText = (text: string, joiners: readonly string[], joi
       Array.from({ length: match.length }, (_, offset) => index + offset),
     ),
   );
-  return printedMarks(
-    text.replace(HIDDEN, (char, at: number) =>
-      kept.has(at) || (joiners.includes(char) && text[at + 1] === '%') ? char : codePoint(char),
-    ),
-  );
+  return spellNamed(text, codePoint, (char, at) => kept.has(at) || (joiners.includes(char) && text[at + 1] === '%'));
 };
