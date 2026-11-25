@@ -11,7 +11,7 @@
     ],
     "rates": [{ "label": "Taxa sobre as mais-valias", "value": "Sem revisão para o seu país" }],
     "allowances": ["Sem revisão para o seu país."],
-    "holdingRuleText": "A aplicação não considera nenhuma exclusão por período de detenção: cada venda pode ser um facto tributável.",
+    "holdingRuleText": "A Proof of Calm não aplica nenhuma exclusão por período de detenção para o seu país: cada venda pode ser um facto tributável.",
     "lotRuleText": "Sem revisão para o seu país.",
     "losses": "Sem revisão para o seu país.",
     "reporting": [
