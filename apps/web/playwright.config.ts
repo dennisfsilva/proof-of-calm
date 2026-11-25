@@ -17,7 +17,9 @@ const phoneAndDesktop = /(language|import-failure)\.spec\.ts$/;
 // The long-date layout specs lay pt-PT's and German's screens out where they are narrowest: android-small and
 // zoom-125 only.
 const narrowOnly = /language-layout(-de)?\.spec\.ts$/;
-const elsewhere = [requestOnly, phoneAndDesktop];
+// The Log at the cap throttles the CPU through Chromium's DevTools protocol: one Chromium project, desktop.
+const desktopOnly = /log-cap\.spec\.ts$/;
+const elsewhere = [requestOnly, phoneAndDesktop, desktopOnly];
 const notNarrow = [...elsewhere, narrowOnly];
 
 // The suite runs against the production build served by tools/serve/vercel-local.ts, which applies
@@ -50,7 +52,11 @@ export default defineConfig({
         hasTouch: true,
       },
     },
-    { name: 'iphone', testIgnore: [requestOnly, narrowOnly], use: { ...devices['iPhone 13'], viewport: phone } },
+    {
+      name: 'iphone',
+      testIgnore: [requestOnly, narrowOnly, desktopOnly],
+      use: { ...devices['iPhone 13'], viewport: phone },
+    },
     {
       name: 'tablet',
       testIgnore: notNarrow,
