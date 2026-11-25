@@ -12,7 +12,7 @@
     "placeholder": "Diese Seite erscheint vollständig, bevor {product} öffnet. Bis dahin ist der Dienst nicht verfügbar und erhebt keine Daten.",
     "risk": {
       "title": "Risikohinweise",
-      "lead": "{product} ist Software für einen Plan, den Sie selbst festlegen. Es gibt keine Finanz-, Anlage- oder Steuerberatung; die Coins, Beträge und Tage eines Plans sind die, die Sie festlegen. Die meisten Kryptowerte sind sehr volatil; Sie können das gesamte investierte Geld verlieren. Verwenden Sie nur Geld, das Sie jahrelang nicht brauchen.",
+      "lead": "{product} ist Software für einen Plan, den Sie selbst festlegen. Die Software gibt keine Finanz-, Anlage- oder Steuerberatung; die Coins, Beträge und Tage eines Plans sind die, die Sie festlegen. Die meisten Kryptowerte sind sehr volatil; Sie können das gesamte investierte Geld verlieren. Verwenden Sie nur Geld, das Sie jahrelang nicht brauchen.",
       "dca": {
         "title": "Was ein Plan leistet und was nicht",
         "p1": "Ein Plan legt den Betrag und den Zeitplan jedes Kaufs fest, daher entscheidet nicht der Kurs eines einzelnen Tages, was Sie im Durchschnitt zahlen. {product} trägt jeden Kauf mit Datum, Betrag und Einheiten ein und zeigt, wo Sie im Plan stehen.",
@@ -33,7 +33,7 @@
       },
       "tax": {
         "title": "Steuern",
-        "p1": "Ein Verkauf, ein Tausch oder eine Zahlung mit Coins kann Steuern zur Folge haben, und die Regeln sind in jedem Land anders und ändern sich. {product} zeigt für die Länder, die es abdeckt, die Haltefristen mit ihren Quellen und dem Datum ihrer letzten Überprüfung, außer solange eine Regel überprüft wird. Gilt für Ihren Plan eine Regel mit Haltefrist, zeigt {product} für jeden Kauf den ersten Tag nach der Haltefrist. Das sind Informationen, keine Steuerberatung. Eine Steuerberatung oder Ihre Steuerbehörde kann Ihnen sagen, was in Ihrem Fall gilt."
+        "p1": "Ein Verkauf, ein Tausch oder eine Zahlung mit Coins kann Steuern zur Folge haben, und die Regeln sind in jedem Land anders und ändern sich. {product} zeigt für jedes Land, das es abdeckt, die Regel mit ihren Quellen und dem Datum ihrer letzten Überprüfung, außer solange eine Regel überprüft wird. Gilt für Ihren Plan eine Regel mit Haltefrist, zeigt {product} für jeden Kauf den ersten Tag nach der Haltefrist. Das sind Informationen, keine Steuerberatung. Ihre Steuerberatung oder Ihre Steuerbehörde kann Ihnen sagen, was in Ihrem Fall gilt."
       },
       "scams": {
         "title": "Betrug",
