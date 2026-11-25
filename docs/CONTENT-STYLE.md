@@ -1477,7 +1477,7 @@ The Learn modules' terms (the term read of 2026-11-25; counsel's read wins where
 | the window's last month | `Schlussmonat`, beside the plan's `Schlussdatum` |
 | high, low (a cycle's) | `Hoch`, plural `Hochs`, `Tief`; `bisheriges Hoch` and `bisheriges Tief` for the running cycle's |
 | ETFs, interest rates | `börsengehandelte Fonds`, `Zinsen` |
-| a measurement window | `Zeitfenster`, only for one; the plan's is `Verkaufsfenster` at first mention, then `Fenster` |
+| a measurement window | `Zeitfenster`, only for one, never for the plan's `Verkaufsfenster` |
 | a control named in prose | `die Schaltfläche „Prüfen“` |
 | a dated notice | `datierter Hinweis`; the noun is allowed, only `Hinweis:` as a prefix is not |
 | a starting point (the tax-year file) | `Arbeitsgrundlage` |
