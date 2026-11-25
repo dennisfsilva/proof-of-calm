@@ -2,11 +2,11 @@
   "name": "USA",
   "filingNote": "Steuerjahr ist das Kalenderjahr. Form\u00a01040 ist bis 15.\u00a0April des Folgejahres einzureichen; eine automatische 6\u2011monatige Verlängerung verschiebt die Frist für die Erklärung, nicht die für die Zahlung.",
   "holdingRuleConditions": [
-    "Nur der Bundessteuersatz. Die meisten Bundesstaaten besteuern den Gewinn zu eigenen Sätzen: 42 erheben eine Einkommensteuer (Tax Foundation, 2026, mittlere Sicherheit). Prüfen Sie die Regeln Ihres Bundesstaats.",
-    "Ein Tausch oder ein mit Krypto bezahlter Kauf startet für die erhaltenen Einheiten eine neue Haltefrist (IRS FAQ Q16 und Q29).",
+    "Nur der Bundessteuersatz. Die meisten Bundesstaaten besteuern den Gewinn zu eigenen Sätzen: 42 erheben eine Einkommensteuer (Tax Foundation, 2026, mittlere Belastbarkeit). Prüfen Sie die Regeln Ihres Bundesstaats.",
+    "Mit einem Tausch oder einem mit digitalen Vermögenswerten bezahlten Kauf beginnt für die erhaltenen Einheiten eine neue Haltefrist (IRS FAQ Q16 und Q29).",
     "Für geschenkte Einheiten gilt die Haltefrist der schenkenden Person weiter, wenn Aufzeichnungen sie belegen, und geerbte Einheiten sind sofort langfristig (IRS FAQ Q33 und IRS Publication\u00a0544)."
   ],
-  "lotRuleNote": "Sie bestimmen, welche Einheiten ein Verkauf betrifft, wenn Ihre Aufzeichnungen sie und ihre Kosten ausweisen, geführt je Konto, Wallet oder Adresse. Sonst gilt first in, first out (IRS FAQ Q39 bis Q41).",
+  "lotRuleNote": "Sie bestimmen, welche Einheiten ein Verkauf betrifft, wenn Ihre Aufzeichnungen sie und ihre Kosten ausweisen, geführt pro Konto, Wallet oder Adresse. Sonst gilt die Fifo-Methode (first in, first out; IRS FAQ Q39 bis Q41).",
   "card": {
     "classification": "Bundessteuerlich Eigentum, keine Währung. Ein Verkauf, ein Tausch oder eine Ausgabe von Kapitalvermögen ergibt Gewinn oder Verlust; Belohnungen, Mining, Staking und Entgelt für Dienste sind ordentliches Einkommen (IRS, Digital assets).",
     "taxableEvents": [
@@ -26,7 +26,7 @@
         "note": "Übertragungen zwischen eigenen oder selbst kontrollierten Wallets oder Konten sind keine Transaktionen, auch bei Meldung einer Plattform. Transaktionsgebühren in digitalen Vermögenswerten sind Transaktionen (IRS, Digital assets; FAQ Q38)."
       },
       {
-        "note": "Geschenke sind kein Einkommen; bei späterem Gewinn zählt die Basis der Schenkenden, bei Verlust die niedrigere aus ihr und dem Schenkungswert (FAQ Q31, Q32). Erbschaften: sofort langfristig, Basis meist der Wert am Todestag (Pub.\u00a0544, 551)."
+        "note": "Geschenke sind kein Einkommen; bei Gewinn gilt die Basis der schenkenden Person, bei Verlust die kleinere aus ihr und dem Schenkungswert (FAQ Q31, Q32). Erbschaften sind sofort langfristig, Basis meist der Wert am Todestag (Pub.\u00a0544, 551)."
       },
       {
         "note": "Belohnungen aus Mining und Staking sind Einkommen in Form\u00a01040 Schedule\u00a01 (IRS, Digital assets). Ein Airdrop nach einem Hard Fork ist ordentliches Einkommen zum Marktwert bei Erhalt; dieser wird zur Basis der Einheiten (FAQ Q24 und Q25)."
@@ -55,7 +55,7 @@
       "Ein Nettokapitalverlust mindert anderes Einkommen um bis zu USD\u00a03,000 im Jahr, USD\u00a01,500 bei getrennter Veranlagung Verheirateter (Topic\u00a0409)."
     ],
     "holdingRuleText": "Nach mehr als einem Jahr Haltedauer ist ein Gewinn oder Verlust langfristig, mit den niedrigeren Sätzen für Kapitalgewinne. Bei einem Jahr oder weniger ist er kurzfristig, besteuert als ordentliches Einkommen. Die Frist beginnt am Tag nach dem Erwerb und endet am Tag des Verkaufs oder Tauschs (IRS FAQ Q6). Eine am 15.\u00a0März\u00a02026 gekaufte Einheit ist bei einem Verkauf ab 16.\u00a0März\u00a02027 langfristig.",
-    "lotRuleText": "Sie bestimmen, welche Einheiten ein Verkauf betrifft, wenn Ihre Aufzeichnungen sie und ihre Kosten ausweisen, geführt je Konto, Wallet oder Adresse. Sonst gilt first in, first out (IRS FAQ Q39 bis Q41).",
+    "lotRuleText": "Sie bestimmen, welche Einheiten ein Verkauf betrifft, wenn Ihre Aufzeichnungen sie und ihre Kosten ausweisen, geführt pro Konto, Wallet oder Adresse. Sonst gilt die Fifo-Methode (first in, first out; IRS FAQ Q39 bis Q41).",
     "losses": "Kurz- und langfristige Gewinne und Verluste werden verrechnet; ein Nettoverlust mindert anderes Einkommen um höchstens USD\u00a03,000 (USD\u00a01,500 für getrennt veranlagte Verheiratete), der Rest wird auf spätere Jahre vorgetragen (Topic\u00a0409).",
     "reporting": [
       "Form\u00a01040 fragt alle Steuerpflichtigen, ob es im Jahr einen Erhalt, einen Verkauf, einen Tausch oder eine andere Veräußerung eines digitalen Vermögenswerts gab (IRS, Digital assets).",
@@ -66,7 +66,7 @@
       "Der Broker muss die Basis nur für Einheiten melden, die nach 2025 im Verwahrkonto des Verkaufs erworben wurden; bei eingebuchten ist das freiwillig, die Basis liefern Ihre Aufzeichnungen (Instructions for Form\u00a01099-DA, 2026)."
     ],
     "caveats": [
-      "Einkommensteuer der Bundesstaaten: 42 Staaten erheben eine, mit Höchstsätzen von 2.5% bis 13.3%; die übrigen 8 erheben keine, und Washington besteuert nur Kapitalgewinne (Tax Foundation, 2026; mittlere Sicherheit).",
+      "Einkommensteuer der Bundesstaaten: 42 Staaten erheben eine, mit Höchstsätzen von 2.5% bis 13.3%; die übrigen 8 erheben keine, und Washington besteuert nur Kapitalgewinne (Tax Foundation, 2026; mittlere Belastbarkeit).",
       "Einheiten bei einem Broker: Ihre Aufzeichnungen oder eine dort hinterlegte Dauerweisung bestimmen bis 31.\u00a0Dezember\u00a02026 die verkauften Einheiten (Notice\u00a02026-\u206020 §\u00a03.03 und §\u00a04.02). Danach endet die Erleichterung (Notice\u00a02026-\u206020 §\u00a05).",
       "Ein NFT ist ein Sammlerstück, wenn das Recht oder der Wert dahinter eines ist (Notice\u00a02023-\u206027); langfristige Gewinne aus Sammlerstücken werden mit bis zu 28% besteuert (Topic\u00a0409).",
       "Anhängige Gesetzentwürfe auf Bundesebene zur Besteuerung digitaler Vermögenswerte.",
@@ -75,6 +75,6 @@
       "Schenkungen und Erbschaften.",
       "Die Net investment income tax über ihren Schwellenwerten."
     ],
-    "summary60": "Die USA besteuern Kryptowerte als Eigentum. Ein Verkauf, ein Tausch oder eine Zahlung ist steuerpflichtig, ein Transfer zwischen eigenen Wallets nicht. Nach mehr als einem Jahr Haltedauer gelten die niedrigeren langfristigen Sätze, bei einem Jahr oder weniger ordentliche Sätze bis 37%. Verkäufe werden Käufen je Wallet zugeordnet. Verluste mindern Gewinne, dann USD\u00a03,000 Einkommen im Jahr. Nur Bundesrecht."
+    "summary60": "Die USA besteuern Kryptowerte als Eigentum. Ein Verkauf, ein Tausch oder eine Zahlung ist steuerpflichtig, eine Übertragung zwischen eigenen Wallets nicht. Nach über einem Jahr Haltedauer gelten die niedrigeren langfristigen Sätze, bei einem Jahr oder weniger ordentliche Sätze bis 37%. Verkäufe werden Käufen pro Wallet zugeordnet. Verluste mindern Gewinne, dann anderes Einkommen um USD\u00a03,000 im Jahr. Nur Bundesrecht."
   }
 }
