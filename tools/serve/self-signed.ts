@@ -24,7 +24,7 @@ function oid(dotted: string): Buffer {
   for (const arc of rest) {
     const groups = [arc % 0x80];
     for (let value = Math.floor(arc / 0x80); value > 0; value = Math.floor(value / 0x80)) {
-      groups.unshift(0x80 | value % 0x80);
+      groups.unshift(0x80 | (value % 0x80));
     }
     bytes.push(...groups);
   }

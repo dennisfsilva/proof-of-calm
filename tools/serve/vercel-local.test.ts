@@ -1,10 +1,10 @@
-import { spawn } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { request as httpRequest, type IncomingHttpHeaders, type Server } from 'node:http';
+import { connect as http2Connect } from 'node:http2';
+import { get as httpsGet } from 'node:https';
 import type { AddressInfo } from 'node:net';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { brotliCompressSync, brotliDecompressSync, constants } from 'node:zlib';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import {
@@ -14,6 +14,7 @@ import {
   loadApi,
   shouldCompress,
   sourceToRegExp,
+  start,
   VERCEL_BROTLI_QUALITY,
 } from './vercel-local.ts';
 
@@ -374,7 +375,7 @@ describe('createVercelLocal', () => {
     writeFileSync(join(root, 'secret.txt'), 'outside the build');
     const api = { source: '/api/(.*)', headers: [{ key: 'Cache-Control', value: 'public, max-age=60' }] };
     const config = { ...CONFIG, headers: [...CONFIG.headers, api] };
-    server = createVercelLocal({ dir: join(root, 'dist'), config, api: FIXTURE_API });
+    server = createVercelLocal({ dir: join(root, 'dist'), config, api: FIXTURE_API }) as Server;
     await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
     port = (server.address() as AddressInfo).port;
   });
@@ -525,43 +526,88 @@ describe('loadApi', () => {
   });
 });
 
-describe('the command', () => {
-  it('loads .env.local before the function, serves dist through vercel.json and says when it is ready', async () => {
-    // apps/web's layout, which the defaults name.
-    const root = mkdtempSync(join(tmpdir(), 'poc-vercel-command-'));
+/** One request over HTTP/2 to the self-signed origin, the body left compressed. */
+function askH2(origin: string, path: string, headers: Record<string, string> = {}): Promise<Answer> {
+  return new Promise((resolve, reject) => {
+    const session = http2Connect(origin, { rejectUnauthorized: false });
+    session.on('error', reject);
+    const stream = session.request({ ':path': path, ...headers });
+    const chunks: Buffer[] = [];
+    let answer: Omit<Answer, 'body'> = { status: 0, headers: {} };
+    stream.on('response', (head) => {
+      const { ':status': status, ...rest } = head;
+      answer = { status: Number(status), headers: rest as IncomingHttpHeaders };
+    });
+    stream.on('data', (chunk: Buffer) => chunks.push(chunk));
+    stream.on('end', () => {
+      session.close();
+      resolve({ ...answer, body: Buffer.concat(chunks) });
+    });
+    stream.on('error', reject);
+    stream.end();
+  });
+}
+
+describe('start, the command', () => {
+  // apps/web's layout, which the defaults name; the function reads its key when its module loads, and
+  // answers with a hop-by-hop header, which an HTTP/2 response must drop.
+  let root = '';
+  const running: { close(callback: () => void): unknown }[] = [];
+
+  beforeAll(() => {
+    root = mkdtempSync(join(tmpdir(), 'poc-vercel-command-'));
     writeBuild(join(root, 'dist'));
     writeFileSync(join(root, 'vercel.json'), JSON.stringify(CONFIG));
     mkdirSync(join(root, 'server-dist'));
     const handler =
-      'const key = process.env.POC_FIXTURE_KEY ?? "unset";\nexport default { fetch: () => new Response(key) };\n';
+      'const key = process.env.POC_FIXTURE_KEY ?? "unset";\n' +
+      'export default { fetch: () => new Response(key, { headers: { Connection: "close" } }) };\n';
     writeFileSync(join(root, 'server-dist', 'api.mjs'), handler);
     writeFileSync(join(root, '.env.local'), 'POC_FIXTURE_KEY=from-env-local\n');
-    const script = fileURLToPath(new URL('./vercel-local.ts', import.meta.url));
-    const child = spawn(process.execPath, [script, '--port', '0'], { cwd: root });
-    try {
-      const origin = await new Promise<string>((resolve, reject) => {
-        let errors = '';
-        child.stderr.on('data', (chunk: Buffer) => {
-          errors += chunk.toString();
-        });
-        child.stdout.on('data', (chunk: Buffer) => {
-          const ready = /Ready on (http:\/\/localhost:\d+)/.exec(chunk.toString());
-          if (ready?.[1] !== undefined) resolve(ready[1]);
-        });
-        child.on('exit', (code) => reject(new Error(`the server exited with ${code}: ${errors}`)));
-      });
-      expect(await (await fetch(`${origin}/api`)).text()).toBe('from-env-local');
-      expect((await fetch(`${origin}/terms`)).status).toBe(200);
-      expect((await fetch(`${origin}/today`, { headers: GB })).status).toBe(451);
-    } finally {
-      if (child.exitCode === null && child.signalCode === null) {
-        await new Promise((resolve) => {
-          child.once('exit', resolve);
-          child.kill();
-        });
-      }
-      rmSync(root, { recursive: true, force: true });
-    }
+  });
+
+  afterAll(async () => {
+    for (const server of running) await new Promise<void>((resolve) => server.close(() => resolve()));
+    delete process.env.POC_FIXTURE_KEY;
+    rmSync(root, { recursive: true, force: true });
+  });
+
+  it('loads .env.local before the function and serves dist through vercel.json over plain http', async () => {
+    const { server, origin } = await start(['--port', '0'], root);
+    running.push(server);
+    expect(origin).toMatch(/^http:\/\/localhost:\d+$/);
+    const port = Number(new URL(origin).port);
+    const api = await ask(port, '/api');
+    expect(api.body.toString()).toBe('from-env-local');
+    expect(api.headers.connection).toBe('close');
+    expect((await ask(port, '/terms')).status).toBe(200);
+    expect((await ask(port, '/today', { headers: GB })).status).toBe(451);
+  });
+
+  it('serves https with HTTP/2 under --tls: brotli, the headers and the full policy, and the function', async () => {
+    const { server, origin } = await start(['--port', '0', '--tls'], root);
+    running.push(server);
+    expect(origin).toMatch(/^https:\/\/localhost:\d+$/);
+    const page = await askH2(origin, '/', { 'accept-encoding': 'br' });
+    expect(page.status).toBe(200);
+    expect(page.headers['content-encoding']).toBe('br');
+    expect(brotliDecompressSync(page.body).toString()).toBe(FILES['index.html']);
+    expect(page.headers['content-length']).toBe(String(page.body.length));
+    expect(page.headers['x-content-type-options']).toBe('nosniff');
+    expect(page.headers['content-security-policy']).toBe(POLICY);
+    const api = await askH2(origin, '/api');
+    expect(api.status).toBe(200);
+    expect(api.body.toString()).toBe('from-env-local');
+    expect(api.headers.connection).toBeUndefined();
+    expect((await askH2(origin, '/today', GB)).status).toBe(451);
+    // HTTP/1.1 by ALPN on the same port, for a client without h2.
+    const h1 = await new Promise<number>((resolve, reject) => {
+      httpsGet(`${origin}/terms`, { rejectUnauthorized: false, agent: false }, (response) => {
+        response.resume();
+        resolve(response.statusCode ?? 0);
+      }).on('error', reject);
+    });
+    expect(h1).toBe(200);
   });
 });
 
