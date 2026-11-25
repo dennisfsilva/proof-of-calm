@@ -2,7 +2,7 @@
 import { countryRules, loadProfile } from '@proofofcalm/content';
 import { type CalendarDate, type Coin, type Entry, ok, type Plan } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { EMPTY_SNAPSHOT } from '../../../lib/adapters';
 import { I18nProvider } from '../../../lib/i18n';
 import { NavigationProvider } from '../../../lib/navigation';
@@ -27,7 +27,7 @@ import { PortfolioScreen } from './portfolio-screen';
 
 // The P/L line's Why? loads the Learn sheet on a press: the namespaces answer from memory and the fixture body
 // loads with this file (lib/services/testing-modules.ts). The sheet's own chunk stays behind Learn's index, as
-// the dependency rule wants, so the press below waits longer for its first import().
+// the dependency rule wants, so a press before the Why? tests resolves it (their `beforeAll`).
 vi.mock('../../../lib/i18n/namespaces', async (original) => {
   const { namespacesInMemory } = await import('../../../lib/services/testing-modules');
   return namespacesInMemory(await original<typeof import('../../../lib/i18n/namespaces')>());
@@ -284,6 +284,16 @@ describe('PortfolioScreen', () => {
     const WHY = 'Why? Your profit and loss';
     const IDEA = "The third fixture's idea, for Portfolio's Why? on the P/L line.";
     const why = () => screen.queryByRole('button', { name: WHY });
+    // The sheet is a `lazy` in Learn's WhyLink and the module's body another, each resolved by React on its first
+    // render through an import() that under Vitest is a round trip to the main process even for a loaded module
+    // (lib/services/testing-modules.ts); under the whole suite's load the press waited on both and once outlasted its
+    // wait (#520). One press before the tests resolves them, so the test's findBy waits on renders only.
+    beforeAll(async () => {
+      await renderScreen(fixtureSnapshot(), 'buy');
+      fireEvent.click(screen.getByRole('button', { name: WHY }));
+      await screen.findByRole('dialog', { name: IDEA }, { timeout: 5_000 });
+      cleanup();
+    }, 30_000);
     /**
      * The link sits in the P/L figure's own cell, after the figure. Its 44 px target makes the row taller than the
      * label, so the label and the figure meet on their baseline, not at the row's top.
@@ -364,7 +374,7 @@ describe('PortfolioScreen', () => {
       const link = screen.getByRole('button', { name: WHY });
       link.focus();
       fireEvent.click(link);
-      expect(await screen.findByRole('dialog', { name: IDEA }, { timeout: 3000 })).toBeDefined();
+      expect(await screen.findByRole('dialog', { name: IDEA })).toBeDefined();
       fireEvent.click(screen.getByRole('button', { name: 'Close' }));
       await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
       await waitFor(() => expect(document.activeElement).toBe(link));
