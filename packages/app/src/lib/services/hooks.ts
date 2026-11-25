@@ -87,9 +87,27 @@ export function useFormatters(): Formatters {
 export function useFormattersOf(rules: CountryLocales | null): Formatters {
   const { language } = useServices();
   return useMemo(() => {
-    const locales = localesFor(language, rules);
-    return createFormatters(locales.numbers, locales.ui);
+    const { numbers, ui } = localesFor(language, rules);
+    return formattersOf(numbers, ui);
   }, [language, rules]);
+}
+
+/**
+ * The formatters of each pair of locales, built once and shared by every mount: each set builds about ten
+ * Intl formatters, and Portfolio's and Today's components each asked for their own at load (a long task's
+ * share at 4× CPU, docs/ENGINEERING.md §4). They hold no state but their Intl caches, so sharing them changes
+ * no output. A device sees a few pairs (its languages by the countries it plans in).
+ */
+const shared = new Map<string, Formatters>();
+
+function formattersOf(numbers: string, ui: string): Formatters {
+  const key = `${numbers}\u0000${ui}`;
+  let format = shared.get(key);
+  if (format === undefined) {
+    format = createFormatters(numbers, ui);
+    shared.set(key, format);
+  }
+  return format;
 }
 
 /**
