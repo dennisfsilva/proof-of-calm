@@ -1,13 +1,13 @@
 {
   "name": "Deutschland",
-  "filingNote": "Kalenderjahr. Die Erklärung für 2026 ist bis 31.\u00a0Juli\u00a02027 abzugeben (mit Steuerberatung bis 29.\u00a0Februar\u00a02028), elektronisch über ELSTER.",
+  "filingNote": "Das Steuerjahr ist das Kalenderjahr. Die Erklärung für 2026 ist bis zum 31.\u00a0Juli\u00a02027 abzugeben (mit Steuerberatung bis zum 29.\u00a0Februar\u00a02028), elektronisch über ELSTER.",
   "holdingRuleConditions": [
-    "Ein Tausch oder ein mit Kryptowerten bezahlter Kauf startet für die erhaltenen Coins eine neue Haltefrist.",
+    "Nach einem Tausch oder einem mit Kryptowerten bezahlten Kauf beginnt für die erhaltenen Coins eine neue Haltefrist.",
     "Bei einer Schenkung gilt die Haltefrist der schenkenden Person weiter."
   ],
-  "lotRuleNote": "Pro Wallet: Das BMF akzeptiert First in, first out oder die Einzelzuordnung, gewählt pro Wallet und pro Kryptowert und einheitlich angewendet, ersatzweise die Durchschnittsmethode (Konfidenz mittel bis hoch).",
+  "lotRuleNote": "Pro Wallet: Das BMF akzeptiert die Fifo-Methode (first in, first out) oder die Einzelzuordnung, gewählt pro Wallet und pro Kryptowert und einheitlich angewendet, ersatzweise die Durchschnittsmethode (Belastbarkeit mittel bis hoch).",
   "card": {
-    "classification": "Privates Veräußerungsgeschäft (§\u00a023 Abs.\u00a01 Satz\u00a01 Nr.\u00a02 EStG) zum progressiven Tarif, nicht zur Abgeltungsteuer; Staking- und Lending-Einkünfte: §\u00a022 Nr.\u00a03 EStG. Grundlage: BMF-Schreiben vom 6.\u00a0März\u00a02025; BFH IX R 3/22 vom 14.\u00a0Februar\u00a02023.",
+    "classification": "Privates Veräußerungsgeschäft (§\u00a023 Abs.\u00a01 Satz\u00a01 Nr.\u00a02 EStG) zum progressiven Tarif, nicht zur Abgeltungsteuer; Staking- und Lending-Einkünfte: §\u00a022 Nr.\u00a03 EStG. Grundlage: BMF-Schreiben vom 6.\u00a0März\u00a02025; BFH IX\u00a0R\u00a03/22 vom 14.\u00a0Februar\u00a02023.",
     "taxableEvents": [
       {
         "note": "Steuerpflichtig, wenn zwischen Kauf und Verkauf ein Jahr oder weniger liegt; nach mehr als einem Jahr steuerfrei."
@@ -49,22 +49,22 @@
       "Freigrenze von EUR\u00a0256 pro Jahr für Einkünfte nach §\u00a022 Nr.\u00a03 (Staking, Lending).",
       "Der Sparer-Pauschbetrag gilt derzeit nicht für Gewinne nach §\u00a023."
     ],
-    "holdingRuleText": "Steuerpflichtig nur, wenn „der Zeitraum zwischen Anschaffung und Veräußerung nicht mehr als ein Jahr beträgt“ (§\u00a023 Abs.\u00a01 Satz\u00a01 Nr.\u00a02 EStG). Der Kauftag zählt nicht mit, und das Jahr endet am gleichen Kalendertag ein Jahr später (§\u00a0108 AO, §§\u00a0187–\u2060188 BGB): gekauft am 15.\u00a0März\u00a02026, liegt ein Verkauf am 15.\u00a0März\u00a02027 noch innerhalb des Jahres; ab 16.\u00a0März\u00a02027 ist er steuerfrei.",
-    "lotRuleText": "First in, first out pro Wallet („walletbezogene Betrachtung“); das BMF akzeptiert FIFO oder die Einzelzuordnung, gewählt pro Wallet und pro Kryptowert; ersatzweise gilt die Durchschnittsmethode.",
-    "losses": "Nur mit Gewinnen nach §\u00a023 verrechenbar, nicht mit Lohn oder Kapitalerträgen; Rücktrag um ein Jahr und unbegrenzter Vortrag innerhalb von §\u00a023. Verluste nach §\u00a022 Nr.\u00a03 mindern nur Einkünfte nach §\u00a022 Nr.\u00a03.",
+    "holdingRuleText": "Steuerpflichtig nur, wenn „der Zeitraum zwischen Anschaffung und Veräußerung nicht mehr als ein Jahr beträgt“ (§\u00a023 Abs.\u00a01 Satz\u00a01 Nr.\u00a02 EStG). Der Kauftag zählt nicht mit, und das Jahr endet am gleichen Kalendertag ein Jahr später (§\u00a0108 AO, §§\u00a0187–\u2060188 BGB). Bei einem Kauf am 15.\u00a0März\u00a02026 liegt ein Verkauf am 15.\u00a0März\u00a02027 noch innerhalb des Jahres; ab dem 16.\u00a0März\u00a02027 ist der Gewinn steuerfrei.",
+    "lotRuleText": "Fifo-Methode (first in, first out) pro Wallet („walletbezogene Betrachtung“); das BMF akzeptiert die Fifo-Methode oder die Einzelzuordnung, gewählt pro Wallet und pro Kryptowert; ersatzweise gilt die Durchschnittsmethode.",
+    "losses": "Nur mit Gewinnen nach §\u00a023 verrechenbar, nicht mit Arbeitslohn oder Kapitalerträgen; Verlustrücktrag um ein Jahr und unbegrenzter Verlustvortrag, beide nur innerhalb von §\u00a023. Verluste nach §\u00a022 Nr.\u00a03 mindern nur Einkünfte nach §\u00a022 Nr.\u00a03.",
     "reporting": [
       "Die Beweislast liegt bei der steuerpflichtigen Person; Steuerberichte aus Software werden anerkannt, wenn sie plausibel und schlüssig sind (BMF-Schreiben vom 6.\u00a0März\u00a02025)."
     ],
     "caveats": [
       "Die genaue Zählung der Tage.",
-      "Die Grenze von EUR\u00a01000.",
-      "Staking und Lending (die Regel der EUR\u00a0256).",
+      "Die Freigrenze von EUR\u00a01000.",
+      "Staking und Lending (die Freigrenze von EUR\u00a0256).",
       "Stichtag und Bestandsschutz der Reform, ein Entwurf, der sich noch ändern kann.",
       "Verluste.",
       "Kirchensteuer.",
       "Die Aufzeichnungen, die das Finanzamt erwartet."
     ],
-    "summary60": "Deutschland: Der Gewinn aus einem Verkauf mehr als ein Jahr nach dem Kauf ist steuerfrei. Innerhalb eines Jahres wird er mit dem persönlichen Einkommensteuersatz besteuert, und ein Tausch und Käufe mit Kryptowerten zählen als Verkäufe. Solche Gewinne von zusammen unter EUR\u00a01000 pro Jahr sind steuerfrei. FIFO pro Wallet. Ein Gesetzentwurf würde die Jahresfrist für Käufe ab 2027 beenden."
+    "summary60": "Deutschland: Der Gewinn aus einem Verkauf mehr als ein Jahr nach dem Kauf ist steuerfrei. Innerhalb eines Jahres wird er mit dem persönlichen Einkommensteuersatz besteuert, und ein Tausch und Käufe mit Kryptowerten zählen als Verkäufe. Solche Gewinne von zusammen unter EUR\u00a01000 pro Jahr sind steuerfrei. Fifo-Methode pro Wallet. Ein Referentenentwurf würde die Jahresfrist für Käufe ab 2027 beenden."
   },
   "pendingChanges": [
     {
