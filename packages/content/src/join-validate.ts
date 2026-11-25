@@ -48,8 +48,9 @@ const JOINS = new RegExp(
 // The prose joins of a language (docs/CONTENT-STYLE.md §4): a closed list of law names, taken from a census of every
 // profile, its month names, with the word that links a date's parts where the language writes one (`1 de janeiro
 // de 2023`), and its unit words where it has any, each joined to the figure before it (`365 days`, `2.º Suplemento`;
-// decided 2026-11-18). A language without an entry gets the code and form joins only.
-type ProseJoins = { names: RegExp; months: RegExp; linker?: string; units?: RegExp };
+// decided 2026-11-18). A language without an entry gets the code and form joins only. `dayPoint` reads a date's day
+// with the point a German date writes after it (`15. März 2027`).
+type ProseJoins = { names: RegExp; months: RegExp; linker?: string; units?: RegExp; dayPoint?: true };
 const ENGLISH_NAMES =
   /§§?|[Aa]rts?\.|[Aa]rticles?|[Ss]ections?|s{1,2}\.|[Nn]os?\.|n\.ºs?|n°|\(EU\)|Orden|Nr\.|c\.|[Ss]entence|[Pp]aragraph|Part|Lei|Ley|Law|L\.|Decreto-Lei|D\.Lgs\.|BGBl\.|TCA|TCGA|SolZG|Act|Bill|Budget|Belastingplan|BMF|Circolare|Notice|Topic|Publication|Pub\.|Proc\.|PIV|Série/u;
 const PROSE_JOINS: Readonly<Record<string, ProseJoins>> = {
@@ -74,6 +75,16 @@ const PROSE_JOINS: Readonly<Record<string, ProseJoins>> = {
     linker: 'de',
     // `Suplemento` only after an ordinal figure (`2.º Suplemento`, CONTENT-STYLE §9): `2 Suplemento` is no unit.
     units: new RegExp(String.raw`dias?|semanas?|mês|meses|anos?|(?<=\d\.º${SPACE}+)Suplemento`, 'u'),
+  },
+  // D2 of #486 (2026-11-25), for the German profile overlays: German's citation names with English's, which a
+  // translation keeps where another country's law is cited; months long and short as lib/format writes them in de,
+  // the day with its point; nouns capitalised, so a lower-case word is never read as a month or a unit.
+  de: {
+    names: new RegExp(`${/§§?|Abs\.|Satz|Nr\.|Art\./u.source}|${ENGLISH_NAMES.source}`, 'u'),
+    months:
+      /Januar|Februar|März|April|Mai|Juni|Juli|August|September|Oktober|November|Dezember|Jan\.|Feb\.|Apr\.|Aug\.|Sept\.|Okt\.|Nov\.|Dez\./u,
+    units: /Tage?|Tagen|Tages|Wochen?|Monate?|Monaten|Monats|Jahre?|Jahren|Jahres|Stunden?|Minuten?/u,
+    dayPoint: true,
   },
   // Decided 2026-11-18, for the source titles only: each language's names from a census of its own titles, without
   // English's; its months in lower case, all twelve. They add no unit word, but their titles are read with every
@@ -116,12 +127,13 @@ const CITATION = new RegExp(String.raw`\d+\([\dA-Za-z]{1,4}\)(?:${WJ}?\([\dA-Za-
 // The gap between two parts of a date: a run, or a run, the linker and a run; without a linker its two groups match
 // nothing, so that every language's dates have the same groups.
 const link = (linker?: string) => (linker === undefined ? `${RUN}()()` : `${RUN}(${linker})${RUN}`);
-const prose = ({ names, months, linker }: ProseJoins) => ({
+const prose = ({ names, months, linker, dayPoint }: ProseJoins) => ({
   names: new RegExp(String.raw`(?<![\p{L}\d.§])(${names.source})${RUN}(${LAW_NUMBER})`, 'gu'),
   units: new RegExp(String.raw`${UNIT_FIGURE}${RUN}(${UNITS.source})(?![\p{L}\d])`, 'gu'),
-  // `D Month YYYY`, `D Month` and `Month YYYY`, or `D de M de YYYY` with a linker; a month alone is no date.
+  // `D Month YYYY`, `D Month` and `Month YYYY`, `D. Monat YYYY` with the day's point, or `D de M de YYYY` with a
+  // linker; a month alone is no date.
   dates: new RegExp(
-    String.raw`(?<![\p{L}\d.,])(?:(\d{1,2})${link(linker)})?(${months.source})(?![\p{L}\d])(?:${link(linker)}(\d{4})(?!\d))?`,
+    String.raw`(?<![\p{L}\d.,])(?:(\d{1,2}${dayPoint ? String.raw`\.` : ''})${link(linker)})?(${months.source})(?![\p{L}\d])(?:${link(linker)}(\d{4})(?!\d))?`,
     'gu',
   ),
 });
