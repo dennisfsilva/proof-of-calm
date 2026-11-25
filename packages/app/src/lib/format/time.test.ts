@@ -42,6 +42,62 @@ describe('time (docs/DESIGN.md §5.9: times show the zone when it matters)', () 
   });
 });
 
+/** `time` as it was written before its offsets were reused (2026-11-25): a fresh look-up of each offset per call. */
+function referenceTime(formattingLocale: string, uiLocale: string) {
+  const made = new Map<string, Intl.DateTimeFormat>();
+  const make = (locale: string, options: Intl.DateTimeFormatOptions) => {
+    const key = JSON.stringify([locale, options]);
+    const format = made.get(key) ?? new Intl.DateTimeFormat(locale, { numberingSystem: 'latn', ...options });
+    made.set(key, format);
+    return format;
+  };
+  const hour = make(formattingLocale, { timeStyle: 'short', timeZone: 'UTC' })
+    .formatToParts(Date.UTC(2000, 0, 1, 9, 5))
+    .find((part) => part.type === 'hour');
+  const style = hour?.value.length === 2 ? '2-digit' : 'numeric';
+  const zoneOf = (format: Intl.DateTimeFormat, ms: number) =>
+    format.formatToParts(ms).find((part) => part.type === 'timeZoneName')?.value;
+  return (at: Instant, timeZone: string, now?: Instant) => {
+    const ms = Date.parse(at);
+    const face = (zone: boolean) =>
+      make(formattingLocale, { timeZone, hour: style, minute: '2-digit', ...(zone ? { timeZoneName: 'short' } : {}) });
+    const offsets = make('en', { timeZone, timeZoneName: 'longOffset' });
+    if (now === undefined || zoneOf(offsets, ms) === zoneOf(offsets, Date.parse(now))) return face(false).format(ms);
+    const name = zoneOf(make(uiLocale, { timeZone, timeZoneName: 'short' }), ms);
+    return face(true)
+      .formatToParts(ms)
+      .map((part) => (part.type === 'timeZoneName' && name !== undefined ? name : part.value))
+      .join('');
+  };
+}
+
+describe('time against its reference (the value chart asks it for about 325 times at load)', () => {
+  it('writes every hour of a year’s 28ths, in four locales and three zones, seen from summer and winter', () => {
+    const pairs = [
+      ['en-IE', 'en-GB'],
+      ['pt-PT', 'pt-PT'],
+      ['de-DE', 'de-DE'],
+      ['en-US', 'en-GB'],
+    ] as const;
+    const nows = [undefined, instant('2026-07-10T10:00:00.000Z'), instant('2026-11-25T18:00:00.000Z')];
+    const hours = Array.from({ length: 12 }, (_, month) =>
+      Array.from({ length: 24 }, (_, hour) => Date.UTC(2026, month, 28, hour)),
+    ).flat();
+    for (const [numbers, ui] of pairs) {
+      const format = createFormatters(numbers, ui);
+      const reference = referenceTime(numbers, ui);
+      for (const timeZone of ['Europe/Lisbon', 'Europe/Berlin', 'America/New_York']) {
+        for (const now of nows) {
+          const at = hours.map((ms) => instant(new Date(ms).toISOString()));
+          expect(at.map((each) => format.time(each, timeZone, now))).toEqual(
+            at.map((each) => reference(each, timeZone, now)),
+          );
+        }
+      }
+    }
+  });
+});
+
 describe('instantDate', () => {
   // Written like a date, its parts joined by no-break spaces (docs/CONTENT-STYLE.md §4).
   it('names the instant’s day in the device’s zone, written like a date', () => {
