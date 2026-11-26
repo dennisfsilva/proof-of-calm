@@ -113,10 +113,16 @@ describe('ValueChart', () => {
     expect(
       screen.getByText(/^Daily closes, 18 Oct 2026 to 20 Oct 2026, as of .+, 20 Oct 2026 · Price data by CoinGecko$/),
     ).toBeTruthy();
-    // The disclosure wears the type of the line beside it (docs/LEGAL.md §4).
+    // The disclosure wears the type of the line beside it (docs/LEGAL.md §4), and that line ends in the credit,
+    // so both are at text-14 (ADR-0050), the widest forms that hold its place too.
     const disclosure = screen.getByText(/^Past performance is not a reliable indicator of future results\./);
     const source = screen.getByText(/^Daily closes/, { ignore: '[aria-hidden="true"]' });
     expect([...source.classList]).toEqual(expect.arrayContaining([...disclosure.classList]));
+    expect(disclosure.classList).toContain('text-14');
+    for (const line of screen.getAllByText(/^Daily closes/, { ignore: false })) {
+      expect([...line.classList]).toEqual(expect.arrayContaining(['text-14']));
+      expect(line.classList).not.toContain('text-13');
+    }
     expect(screen.getByRole('link', { name: 'Risk disclosure' }).getAttribute('href')).toBe('/risk');
     expect(screen.getAllByRole('row')).toHaveLength(4);
   });
