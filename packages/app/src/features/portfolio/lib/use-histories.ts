@@ -1,8 +1,8 @@
 import { COINS } from '@proofofcalm/content';
 import { type CoinId, type CurrencyCode, compareInstants, type Instant, type PriceHistories } from '@proofofcalm/core';
 import { startTransition, useEffect, useState } from 'react';
-import type { ApiFailure } from '../../../lib/ports';
 import { useReopens } from '../../../lib/navigation';
+import type { ApiFailure } from '../../../lib/ports';
 import { useServices } from '../../../lib/services';
 
 // The daily closes the value chart needs (ADR-0036: the device keeps them at most 24 hours): one read per
@@ -33,9 +33,11 @@ export function useHistories(coins: readonly CoinId[], currency: CurrencyCode): 
   const { history } = useServices();
   // The inputs as one value, so a new array of the same coins reads nothing again.
   const key = `${currency} ${coins.join(' ')}`;
-  const [state, setState] = useState<{ readonly key: string; readonly attempt: number; readonly value: HistoriesState }>(
-    { key, attempt: 0, value: LOADING },
-  );
+  const [state, setState] = useState<{
+    readonly key: string;
+    readonly attempt: number;
+    readonly value: HistoriesState;
+  }>({ key, attempt: 0, value: LOADING });
   // The reads so far for the same inputs: a reopen after a failure starts another, which drops the answers
   // of the one before it.
   const reopens = useReopens();
