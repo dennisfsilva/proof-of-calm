@@ -17,9 +17,25 @@ const now = instant('2026-10-20T10:00:00.000Z');
 const holding = { overrides: [], lotScope: 'per-venue', lotRule: 'fifo' } as const;
 const at = (day: string) => instant(`${day}T09:00:00+00:00`);
 const bought = (day: string, coin: CoinId = BTC.id) =>
-  anEntry({ kind: 'extra', slot: null, coin, date: date(day), units: units('0.01'), venue: 'Kraken', createdAt: at(day) });
+  anEntry({
+    kind: 'extra',
+    slot: null,
+    coin,
+    date: date(day),
+    units: units('0.01'),
+    venue: 'Kraken',
+    createdAt: at(day),
+  });
 const sold = (day: string, coin: CoinId = BTC.id) =>
-  anEntry({ kind: 'sell', slot: null, coin, date: date(day), units: units('0.001'), venue: 'Kraken', createdAt: at(day) });
+  anEntry({
+    kind: 'sell',
+    slot: null,
+    coin,
+    date: date(day),
+    units: units('0.001'),
+    venue: 'Kraken',
+    createdAt: at(day),
+  });
 const moved = (day: string, coin: CoinId = BTC.id) =>
   aMove({ coin, date: date(day), units: units('0.002'), received: units('0.0019'), createdAt: at(day) });
 
