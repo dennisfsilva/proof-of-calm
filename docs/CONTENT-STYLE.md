@@ -1197,7 +1197,7 @@ The product's nouns, one Portuguese word each, in every string, the site pages a
 | Price data by CoinGecko | Dados de preços da CoinGecko |
 | could not be read, set aside (rows this device cannot read, §3 Set aside) | `Não foi possível ler`, `pô-lo de parte`; an entry is `movimento`, anything Settings counts `elemento`; `Hoje` bare as the screen's name (`não aparece em Hoje`); the Log names the import's option in guillemets, «Adicionar só o que falta» |
 | Hide this line | Ocultar esta linha |
-| Paid in EUR, set up (the plan), as typed (§3 Summary, the kept entries' question) | `Pago em EUR`, `Pagos em EUR` by the entries' number; `o plano é criado em EUR em vez de GBP`; `tal como foram introduzidos`; `noutro separador do navegador`; `Nada é convertido.` (native-reader question: does `criado` read as set up here, or is `configurado` better?) |
+| Paid in EUR, set up (the plan), as typed (§3 Summary, the kept entries' question) | `Pago em EUR`, `Pagos em EUR` by the entries' number; `Qual foi a moeda de pagamento?`, `Escolha a moeda de pagamento.`, `Um plano tem uma única moeda de pagamento` (never a bare `moeda`, which reads as one coin); `o plano é criado em EUR em vez de GBP`; `tal como foram introduzidos`; `noutro separador do navegador`; `Nada é convertido.` (native-reader question: does `criado` read as set up here, or is `configurado` better?) |
 
 Two terms name the same date in two frames: `o primeiro dia depois do período da regra de detenção`
 is the date in the holding rule's own frame (the hold-phase card, the holding-date tool, the tax-year
