@@ -974,6 +974,13 @@
         "invalidEntries": "{count, plural, one {{figure} entry} other {{figure} entries}} in this import cannot be stored, so nothing was imported. Export a new backup from {product} on the device that made it, then import the new file.",
         "invalidEntriesPasted": "{count, plural, one {{figure} entry} other {{figure} entries}} in the pasted text cannot be stored, so nothing was imported. Export a new backup from {product} on the device that made it, then paste the new text."
       },
+      "kept": {
+        "title": "{count, plural, one {Show {figure} saved entry in {file}?} other {Show {figure} saved entries in {file}?}}",
+        "known": "{count, plural, one {It holds an amount or a fee in {kept}, the currency of your plan that could not be read. This file's plan is in {file}. A plan holds one currency, and nothing is converted. To keep it in {kept}, import a backup in {kept} or set up a plan.} other {They hold amounts or fees in {kept}, the currency of your plan that could not be read. This file's plan is in {file}. A plan holds one currency, and nothing is converted. To keep them in {kept}, import a backup in {kept} or set up a plan.}}",
+        "unknown": "{count, plural, one {Its currency could not be read. This file's plan is in {file}. A plan holds one currency, and nothing is converted. To choose its currency, set up a plan.} other {Their currency could not be read. This file's plan is in {file}. A plan holds one currency, and nothing is converted. To choose their currency, set up a plan.}}",
+        "cancel": "Do not import",
+        "import": "Import in {file}"
+      },
       "exchange": {
         "summary": "Adds {count, plural, one {{figure} entry} other {{figure} entries}}: {kinds}.",
         "kinds": {
