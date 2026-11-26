@@ -5,11 +5,15 @@ import { createNumberInput } from '../../../lib/format';
 import type { Snapshot } from '../../../lib/ports';
 import { useFormatters, useSnapshot } from '../../../lib/services';
 
-/** The set-aside rows an import brought back: entries whose id is live again, and the plan row of the plan shown. */
+/**
+ * The set-aside rows an import brought back: entries whose id is live again, and the plan row of the plan shown.
+ * None while no plan is shown, since Settings offers no export then.
+ */
 function recovered({ plan, entries, setAside }: Snapshot): number {
+  if (plan === null) return 0;
   const live = new Set<string>(liveEntries(entries).map((entry) => entry.id));
   const back = setAside.entries.filter((row) => live.has(row.id)).length;
-  return back + setAside.plans.filter((row) => row.id === plan?.id).length;
+  return back + setAside.plans.filter((row) => row.id === plan.id).length;
 }
 
 /** How many saved items were set aside as unreadable, under Your data, while any is (ADR-0019 Readings, 2026-11-26). */

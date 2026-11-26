@@ -106,6 +106,22 @@ describe('DataSection: the set-aside count after a recovery', () => {
     );
   });
 
+  // With no plan, Settings offers no export, so an entry back in the data is not back in an export.
+  it('with no plan shown, the line keeps the plain words even when an entry is back', async () => {
+    await mount({
+      ...snapshot,
+      plan: null,
+      quarantined: 2,
+      setAside: { plans: [{ id: plan.id, at: NOW, currency: 'EUR' }], entries: [{ id: gone.id, at: NOW }] },
+    });
+    expect(screen.getByText('Nothing to export yet. Set up a plan or import a file.')).toBeTruthy();
+    expect(screen.getByText(LINE).textContent).toBe(
+      '2 saved items could not be read, so Proof of Calm set them aside. They stay on this device as they were ' +
+        'saved, and exports leave them out.',
+    );
+    expect(screen.queryByText(BACK)).toBeNull();
+  });
+
   it('at zero, nothing', async () => {
     await mount({ ...snapshot, quarantined: 0, setAside: { plans: [], entries: [{ id: gone.id, at: NOW }] } });
     expect(screen.queryByText(LINE)).toBeNull();
