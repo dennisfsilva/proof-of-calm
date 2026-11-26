@@ -7,11 +7,15 @@ import {
   type CoinId,
   type Entry,
   type Instant,
+  type Money,
+  type Percent,
   type PriceHistories,
   portfolio,
+  product,
 } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { createFormatters } from '../../../lib/format';
 import { I18nProvider } from '../../../lib/i18n';
 import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
@@ -19,7 +23,7 @@ import { createTestServices, FIXTURE_PRICES } from '../../../lib/services/testin
 import messages from '../../../messages/en/portfolio.json';
 import type { HistoriesState } from '../lib/use-histories';
 import { type ChartState, chartState } from '../lib/value-chart';
-import { Holdings, type RowCharts } from './holdings';
+import { formatPnl, Holdings, type RowCharts, widestPnl } from './holdings';
 import { VALUE_CHART_VIEW_BOX } from './value-chart';
 
 // The holdings table (docs/DESIGN.md §7, §8): one row per coin held, showing value and P/L, each opening
@@ -234,6 +238,38 @@ describe('Holdings', () => {
       const detail = open('BTC');
       expect(detail.querySelector(ROW_CHART)).toBeNull();
       expect(within(detail).queryByRole('img')).toBeNull();
+    });
+  }
+});
+
+// The P/L's cell holds its widest forms, so its Why? wraps the same way priced or not (docs/ENGINEERING.md §4).
+describe('widestPnl', () => {
+  const LOCALES = [
+    ['en-IE', 'en'],
+    ['pt-PT', 'pt-PT'],
+    ['de-DE', 'de'],
+  ] as const;
+  const INVESTED = ['0', '0.5', '9', '99.99', '1700', '9999.99', '10000', '123456.78'];
+  const PERCENTS = ['0.1', '4.5', '-4.5', '99.9', '-100', '999.9', '-0.1'];
+
+  for (const [numbers, ui] of LOCALES) {
+    it(`prints no P/L up to ten times the invested total and 999.9 % wider than its sign's form, in ${numbers}`, () => {
+      const format = createFormatters(numbers, ui);
+      for (const invested of INVESTED) {
+        const [gain, loss] = widestPnl(invested as Money, format, 'EUR');
+        expect(gain).toMatch(/^\+[^1-9]*\(\+[^1-9]*\)$/u);
+        expect(loss).toMatch(/^−[^1-9]*\(−[^1-9]*\)$/u);
+        const money = invested as Money;
+        const shares = ['10', '3.3333', '0.07', '1', '-1', '-0.3333'] as Money[];
+        const amounts = [...shares.map((share) => product<Money>(money, share)), '1', '0.01', '-0.01'] as Money[];
+        for (const amount of amounts) {
+          for (const pct of PERCENTS) {
+            const live = formatPnl({ pnl: amount, pnlPct: pct as Percent }, format, 'EUR') ?? '';
+            const widest = live.startsWith('−') ? loss : gain;
+            expect(live.length, `${live} in ${numbers}`).toBeLessThanOrEqual(widest?.length ?? 0);
+          }
+        }
+      }
     });
   }
 });
