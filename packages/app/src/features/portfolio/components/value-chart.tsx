@@ -153,15 +153,12 @@ export function ValueChart({ currency, range, state }: ValueChartProps) {
       {/* One cell: a line stands at the top of the frame, which keeps its height unseen. The status slot is
           mounted empty with the section, so a line that comes later is spoken once; it sits at the cell's top
           (self-start), since a slot stretched over a drawn chart would take its taps. The column is the section's
-          width (minmax(0, 1fr)): an auto column would take the chart's min-content width, wider than a phone.
-          The frame and every element in it transition nothing: visibility is inherited, and under reduced motion
-          each element's 1 ms duration with the initial `all` list would run a transition when the frame shows or
-          hides, one that never ends inside the closed table (docs/DESIGN.md §6). */}
+          width (minmax(0, 1fr)): an auto column would take the chart's min-content width, wider than a phone. */}
       <div className="grid grid-cols-1">
         <div
           inert={drawn === null}
           aria-hidden={drawn === null || undefined}
-          className={cn('col-start-1 row-start-1 transition-none **:transition-none', drawn === null && 'invisible')}
+          className={cn('col-start-1 row-start-1', drawn === null && 'invisible')}
         >
           {chart}
         </div>
@@ -192,12 +189,8 @@ export function ValueChart({ currency, range, state }: ValueChartProps) {
           </p>
         )}
       </div>
-      {/* With nothing drawn there is no past performance to disclose: the line keeps its place, unseen and unread,
-          and, as the frame, transitions nothing when it shows or hides. */}
-      <p
-        aria-hidden={undisclosed || undefined}
-        className={cn('text-14 text-ink-2 transition-none **:transition-none', undisclosed && 'invisible')}
-      >
+      {/* With nothing drawn there is no past performance to disclose: the line keeps its place, unseen and unread. */}
+      <p aria-hidden={undisclosed || undefined} className={cn('text-14 text-ink-2', undisclosed && 'invisible')}>
         {t('pastPerformance')}{' '}
         <a href="/risk" className="text-ink underline underline-offset-4 hover:text-ink-2">
           {t('riskLink')}
