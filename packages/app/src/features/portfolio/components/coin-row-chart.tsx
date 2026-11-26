@@ -132,7 +132,7 @@ export function CoinRowChart({ coin, colour, currency, chart }: CoinRowChartProp
       <div inert={loading || failed} aria-hidden={loading || failed || undefined}>
         {drawing}
       </div>
-      <p className={cn('text-13 text-ink-2', loading && 'invisible')}>{t('credit')}</p>
+      <p className={cn('text-14 text-ink-2', loading && 'invisible')}>{t('credit')}</p>
     </div>
   );
 }

@@ -174,7 +174,7 @@ function PlanPortfolio({ plan }: { plan: Plan }) {
         </dl>
         {/* One fetch gives every price the screen uses, so the line's time is the oldest of them. */}
         {value.value !== null && prices !== null && (
-          <p className="text-13 text-ink-2">
+          <p className="text-14 text-ink-2">
             <PricesLine prices={prices} online={online} failure={failure} />
           </p>
         )}
