@@ -308,7 +308,7 @@ const languages = [
   { value: 'de', label: 'Deutsch' },
 ];
 
-// The list opened by click and left open for the after-visit axe pass (Settings' language, #271): once the opening
+// The list opened by click and left open for the after-visit axe pass (Settings' language in the pt-PT sweep): once the opening
 // fade has ended, axe finds nothing, and the listbox takes its name from the label (2026-11-26).
 export const OpenList: Story = {
   name: 'Open list',
