@@ -272,6 +272,21 @@ describe('PortfolioScreen', () => {
     expect(screen.getByRole('img', { name: 'Allocation by amount invested: BTC 74%, ETH 26%' })).toBeDefined();
   });
 
+  // #548: the priced block's place is kept, unseen and unread, so nothing below moves when the prices land.
+  it('keeps the priced block’s place before the prices arrive: the figure, the prices line and the P/L row', async () => {
+    await renderScreen(fixtureSnapshot(), 'buy', null);
+    const value = screen.getByText('No price yet for BTC, ETH.').closest('dd');
+    const figure = value?.querySelector('[aria-hidden="true"]');
+    expect(figure?.className).toContain('text-40');
+    expect(figure?.className).toContain('invisible');
+    expect(document.querySelectorAll('[data-line]').length).toBeGreaterThan(1);
+    const pnl = document.querySelector('[data-reserve="pnl"]');
+    expect(pnl?.getAttribute('aria-hidden')).toBe('true');
+    expect(pnl?.className).toContain('invisible');
+    expect(pnl?.querySelector('.min-h-target')).not.toBeNull();
+    expect(pnl?.textContent?.trim()).toBe('');
+  });
+
   it('shows the empty state without a plan', async () => {
     await renderScreen(EMPTY_SNAPSHOT, 'buy', null);
     expect(screen.getByText('No plan yet')).toBeDefined();
