@@ -1131,6 +1131,11 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   read only after two review rounds, and counsel's five and brand's nine findings then took a
   second fix round and moved the branch to the next session (#545); #550's copy went to counsel
   and brand beside its review, so one fix round covered brand's six findings (2026-11-26).
+- A reserve is proved in the pinned container and against the wider-text layout tests, not on
+  Windows: #553's Portfolio reserve passed locally, then CI's container wrapped the P/L row's Why?
+  at zoom-125, and the widest form held to stop that overflowed the P/L's 91 px box in the German
+  and pt-PT wider-text tests, so a widest form held as a minimum width must still fit the
+  narrowest box (#553; 2026-11-26).
 
 ## Known gaps
 
