@@ -159,6 +159,28 @@ describe('LogScreen: the plan row set aside', () => {
     expect(within(text).getByRole('link', { name: 'Settings' }).getAttribute('href')).toBe('/settings');
   });
 
+  // Entries exist on this device even when every one is set aside, so the text is the plan's, not the no-plan one.
+  it('says the plan could not be read while every entry is set aside too, with no line or hide', async () => {
+    const snapshot = withSetAside(
+      [
+        { id: 'gone', at: AT },
+        { id: 'lost', at: AT },
+      ],
+      [{ id: 'plan', at: AT }],
+    );
+    await mount(memoryPlanStore({ ...snapshot, plan: null, entries: [] }));
+    expect(screen.getByText(/^Your plan could not be read, so no entries are listed\./)).toBeTruthy();
+    expect(screen.queryByText(/saved entries could not be read/)).toBeNull();
+    expect(screen.queryByRole('button', { name: HIDE })).toBeNull();
+    expect(screen.queryByText('No entries yet. Set up a plan or import a file.')).toBeNull();
+  });
+
+  it('keeps the no-plan text while the plan row is set aside and no entry exists', async () => {
+    await mount(memoryPlanStore({ ...withSetAside([], [{ id: 'plan', at: AT }]), plan: null, entries: [] }));
+    expect(screen.getByText('No entries yet. Set up a plan or import a file.')).toBeTruthy();
+    expect(screen.queryByText(/Your plan could not be read/)).toBeNull();
+  });
+
   it('keeps the no-plan text while no plan row is set aside', async () => {
     await mount(memoryPlanStore({ ...fixtureSnapshot(), plan: null }));
     expect(screen.queryByText(/Your plan could not be read/)).toBeNull();
