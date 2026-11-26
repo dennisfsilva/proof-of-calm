@@ -32,7 +32,7 @@
     "ruleName": "{kind, select, own {Ihre eigene Haltefrist} generic {die Regel des allgemeinen Profils} other {die Regel {countryFor}}}",
     "logged": "Bereits eingetragene Beträge bleiben, wie eingegeben; nichts wird umgerechnet.",
     "question": {
-      "legend": "{count, plural, one {{figure} Eintrag vom {first} hat einen Betrag oder eine Gebühr in {logged}. In welcher Währung wurde er bezahlt?} other {{figure} Einträge vom {first} bis zum {last} haben Beträge oder Gebühren in {logged}. In welcher Währung wurden sie bezahlt?}}",
+      "legend": "{count, plural, one {{figure} Eintrag vom {first} hat einen Betrag oder eine Gebühr in {logged}. In welcher Währung wurde er bezahlt?} other {{figure} Einträge {span, select, day {vom {first}} other {vom {first} bis zum {last}}} haben Beträge oder Gebühren in {logged}. In welcher Währung wurden sie bezahlt?}}",
       "keep": "{logged} beibehalten",
       "keepLine": "{count, plural, one {Falls Sie umgezogen sind: Der Eintrag wurde in {logged} bezahlt und neue Beträge werden ebenfalls in {logged} eingetragen.} other {Falls Sie umgezogen sind: Die Einträge wurden in {logged} bezahlt und neue Beträge werden ebenfalls in {logged} eingetragen.}}",
       "country": "Auf {countryCurrency} umstellen",
