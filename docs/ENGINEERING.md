@@ -275,7 +275,12 @@ platform without one.
   percent of three, gained and lost, every figure a zero (`widestPnl`), each free to break anywhere, so
   in a box narrower than a form it adds lines to the row but never a width past the box; a P/L past
   ten times the invested total or 999.9 % may still be wider and wrap its Why? (decided 2026-11-26).
-  A failed read keeps the same structure, with its line in the empty frame's place (`docs/DESIGN.md` §6).
+  A state with nothing to draw (a failed read, too few closes, a range with nothing, closes that end
+  before the first entry, nothing held) keeps the same structure, its frame unseen and its line at
+  the frame's top in a `role="status"` slot mounted empty with the section, so the line is spoken once
+  and the ranges never remount (`docs/DESIGN.md` §6); main measured CLS 0.165 at android-small and
+  0.227 at zoom-125 when one close swapped in a shorter tree, and 0 with the structure kept
+  (2026-11-26). A state known before the read, a coin outside the catalogue, reserves nothing.
 - The store's reads at load (profiled 2026-11-25, not cut). At 4× CPU on a cold `/today` and
   `/portfolio` (main 11e29df42, medians of seven), `packages/app/src/lib/adapters/idb/rows.ts`'s own
   code took 1.58 and 1.08 ms and, with what it calls, 20.5 and 16.1 ms, almost all of it zod's and
