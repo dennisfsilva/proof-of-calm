@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 import { cleanup, render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
+import { Fragment } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
-import { Select, SelectContent, SelectItem, SelectLabel, SelectTrigger, SelectValue } from './select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from './select';
 
 // The hashed CSP refuses an inline <style> (docs/SECURITY.md §4). Base UI's Select popup renders one for
 // its `base-ui-disable-scrollbar` class unless a CSPProvider turns style elements off; the Select carries
@@ -30,8 +31,10 @@ describe('Select', () => {
     expect(styles.filter((text) => text.includes('base-ui-disable-scrollbar'))).toEqual([]);
   });
 
-  // Base UI's aligned layout reads the positioner's bottom margin (docs/DESIGN.md §7): the bar's height only when the
-  // list would reach the bar, as a margin it does not need lifts the list off its trigger.
+  // Base UI's aligned layout reads the positioner's margins and minimum height (docs/DESIGN.md §7): the bar's height
+  // only when the list would reach the bar, as a margin it does not need lifts the list off its trigger, and a floor of
+  // up to seven options.
+  const floor = 'isolate z-50 data-[side=none]:min-h-[calc(var(--select-floor)*var(--target))]';
   const positioner = async () => {
     await userEvent.click(screen.getByRole('combobox', { name: 'Country' }));
     await screen.findByRole('option', { name: 'Germany' });
@@ -50,9 +53,39 @@ describe('Select', () => {
     </Select>
   );
 
-  it('leaves the bottom margin to Base UI on a page without the tab bar', async () => {
+  it('leaves the margins to Base UI on a page without the tab bar', async () => {
     render(country);
-    expect((await positioner())?.className).toBe('isolate z-50');
+    const element = await positioner();
+    expect(element?.className).toBe(floor);
+    expect(element?.style.getPropertyValue('--select-floor')).toBe('2');
+  });
+
+  it('counts the options through arrays, Fragments and groups for a floor of at most seven', async () => {
+    render(
+      <Select<string> defaultValue="pt">
+        <SelectLabel>Country</SelectLabel>
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectItem value="pt">Portugal</SelectItem>
+            <Fragment key="south">
+              <SelectItem value="es">Spain</SelectItem>
+              <SelectItem value="fr">France</SelectItem>
+              <SelectItem value="it">Italy</SelectItem>
+            </Fragment>
+          </SelectGroup>
+          {['ie', 'at', 'be', 'nl'].map((code) => (
+            <SelectItem key={code} value={code}>
+              {code}
+            </SelectItem>
+          ))}
+          <SelectItem value="de">Germany</SelectItem>
+        </SelectContent>
+      </Select>,
+    );
+    expect((await positioner())?.style.getPropertyValue('--select-floor')).toBe('7');
   });
 
   it("gives the open list the tab bar's margin when it would reach the bar", async () => {
@@ -67,6 +100,6 @@ describe('Select', () => {
         />
       </>,
     );
-    expect((await positioner())?.className).toBe('isolate z-50 mb-(--bottom-bar)');
+    expect((await positioner())?.className).toBe(`${floor} data-[side=none]:my-(--bottom-bar)`);
   });
 });
