@@ -490,8 +490,9 @@ external links and the Risk link in the mobile export (M3).
 - The manifest's screenshots per form factor and the OG image 1200 × 630 (`docs/DESIGN.md` §9),
   deferred from M1 by its stage audit on 2026-10-27; the OG image shipped on 2026-11-15 (#232), the
   screenshots moved to #21 after counsel's ruling of 2026-11-15 (`docs/GROWTH.md` §2.1); the
-  manifest names the coin-free set of ADR-0009's Reading of 2026-11-23 since 2026-11-26 (#545), and
-  the images ship once snapshots.yml has rendered them and counsel and brand have read them.
+  manifest names the coin-free set of ADR-0009's Reading of 2026-11-23 (#545), and its five images,
+  rendered by snapshots.yml in the pinned container and read by counsel and brand, shipped on
+  2026-11-26 (#559).
 - With counsel, decide whether an installed worker must stop serving the precached shell to a person
   now in the UK (the precached shell never meets the 451 route, and ADR-0029 accepts VPN leakage
   only), and record the decision in ADR-0029's Readings (found by the stage audit's security lens on
