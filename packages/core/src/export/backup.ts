@@ -1,7 +1,8 @@
 // The JSON backup (docs/DOMAIN.md §3.13): export, read back and import as "Replace everything" or "Add
 // missing entries only", as the prototype. Imported rows are stamped `updatedAt = now` (ADR-0019), or 1 ms
 // after the row stored here when the clock is behind it, so that sync keeps them (ADR-0021); what a
-// replace removes stays as a tombstone rather than vanishing. Add missing takes nothing from a file whose amounts are
+// replace removes stays as a tombstone rather than vanishing; with no plan but live entries stored, a replace adds
+// the missing entries instead. Add missing takes nothing from a file whose amounts are
 // in another currency than this plan's, since an amount is never converted (§2.1).
 import { MAX_ENTRIES } from '../constants';
 import { type CalendarDate, dateParts, type Instant, stampAfter } from '../dates/calendar';
@@ -158,7 +159,9 @@ export function applyImport(
   };
   const stamp = (entry: Entry): Entry => ({ ...entry, updatedAt: after(entry.id) });
   const filePlan = { ...file.plan, updatedAt: current.plan === null ? now : stampAfter(now, current.plan.updatedAt) };
-  if (mode === 'replace') {
+  // With no plan shown while live entries are stored (its row set aside, ADR-0019), a replace would tombstone every
+  // entry the file lacks, and a later add could not bring one back: it adds the missing ones instead.
+  if (mode === 'replace' && (current.plan !== null || liveEntries(current.entries).length === 0)) {
     const live = liveEntries(file.entries).length;
     const tooMany = overCap(live, live);
     if (tooMany !== null) return refuse(current, filePlan, tooMany);
