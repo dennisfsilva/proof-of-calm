@@ -602,11 +602,35 @@ Icons from `lucide-react` at 20 px, stroke 1.75, in `ink` or `ink-2`; no filled 
 App icons: `favicon.svg` (adaptive to colour scheme), `favicon.ico` (16, 32, 48 with a larger dot),
 `icon-192.png` and `icon-512.png` (`purpose: any`), `icon-maskable-192.png` and
 `icon-maskable-512.png` (opaque full-bleed paper or charcoal, the ring within the central 80 %),
-`icon-monochrome-512.png`, `apple-touch-icon.png` 180 px opaque without rounded corners, manifest
-screenshots per form factor (planned: M2), the OG image `apps/web/public/og.png` 1200 × 630 (the
+`icon-monochrome-512.png`, `apple-touch-icon.png` 180 px opaque without rounded corners, the
+manifest screenshots below, the OG image `apps/web/public/og.png` 1200 × 630 (the
 mark centred on paper at half the height, no text; every site page's head names it at its absolute
 URL with a large Twitter card), two `theme-color` meta tags for light and dark set to the two
 backgrounds. The Android adaptive-icon safe zone is 66 dp; the PWA uses the maskable icon.
+
+Manifest screenshots (decided 2026-11-26), the set of ADR-0009's Reading of 2026-11-23, which names
+no coin: four narrow images and one wide, in `apps/web/public/screenshots/`, named in
+`apps/web/lib/pwa/manifest.ts` with a label each from `apps/web/messages/en.json` (`manifest.screenshots`).
+
+- The order: the public holding-date page with a result for Portugal first, because it shows the
+  difference first (`docs/GROWTH.md` §4.6); then Portugal's country page, Today with the current
+  month recorded and no price answer (a seeded plan with no sell window, no sale and no template's
+  dates), and the Learn index. The wide image is the holding-date page again.
+- Each image is one viewport at the project's device scale factor, so its size follows from the
+  project alone: narrow is android-small, 360 × 780 at 3 (1080 × 2340 px); wide is desktop,
+  1280 × 800 at 1 (1280 × 800 px). `apps/web/lib/pwa/manifest.test.ts` holds each file to its size
+  and each label to 10 words or fewer, without "your", past the banned-words lint.
+- The capture runs as a step of `.github/workflows/snapshots.yml` in the pinned Playwright container
+  (the header of that workflow): `apps/web/e2e/manifest-capture.spec.ts` with `MANIFEST_CAPTURE=1`,
+  uploaded as the artifact `manifest-screenshots` and committed over the files. Counsel and brand
+  read each image before it ships.
+- The coin count runs on every CI end-to-end run, not only at capture: the same spec opens each
+  screen of the set and counts the catalogue's tickers and names (`packages/content/coins.json`) as
+  whole words in its text, and passes only at zero. Lowercase words such as "near" are English, not
+  coins, so the count is case-sensitive.
+- The images stay inside the GB route with no exception (ADR-0029's Readings, 2026-11-26), with
+  the request test in `apps/web/e2e/uk-block.spec.ts`; the worker's precache (`icons/*.png` among
+  its patterns) and the mobile host leave them out.
 
 ## 10. Checks that enforce this document
 
