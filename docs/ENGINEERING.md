@@ -264,9 +264,12 @@ platform without one.
   structure, busy and hidden, until its data arrives, so nothing below it moves (CLS), as Portfolio's
   value chart does while the daily closes load. A line whose words come with the data holds its place
   with its widest forms, invisible in one grid cell under the real line in both states, since a line
-  of another length wraps onto another number of lines (the chart's source line); the forms are built
-  once for each set of locales, zone, year, clock changes and words, not on every mount. A failed
-  read keeps the same structure, with its line in the empty frame's place (`docs/DESIGN.md` §6).
+  of another length wraps onto another number of lines (the chart's source line, and Today's and
+  Portfolio's prices line, whose forms are drawn from an attribute so the page's text holds the line
+  once); the forms are built once for each set of locales, zone, year, clock changes and words, not on
+  every mount. A value shown before its prices keeps the priced block's place: Portfolio's unpriced
+  value stands over the 40 px figure's line, unseen, and keeps the P/L row's 44 px. A failed read
+  keeps the same structure, with its line in the empty frame's place (`docs/DESIGN.md` §6).
 - The store's reads at load (profiled 2026-11-25, not cut). At 4× CPU on a cold `/today` and
   `/portfolio` (main 11e29df42, medians of seven), `packages/app/src/lib/adapters/idb/rows.ts`'s own
   code took 1.58 and 1.08 ms and, with what it calls, 20.5 and 16.1 ms, almost all of it zod's and
