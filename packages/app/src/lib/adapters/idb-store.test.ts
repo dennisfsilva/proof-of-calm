@@ -593,7 +593,10 @@ describe('idb plan store: quarantine (ADR-0019)', () => {
       entries: [kept],
       prefs,
       quarantined: 3,
-      setAside: { plans: [{ id: plan.id, at: NOW }], entries: [floating, missing].map(({ id }) => ({ id, at: NOW })) },
+      setAside: {
+        plans: [{ id: plan.id, at: NOW, currency: plan.payCurrency }],
+        entries: [floating, missing].map(({ id }) => ({ id, at: NOW })),
+      },
     });
     const [corrupt] = (await raw('meta')).filter(Array.isArray) as Record<string, unknown>[][];
     expect(corrupt).toEqual([

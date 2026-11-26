@@ -1,7 +1,7 @@
 // Rows that fail their schema are set aside, never silently dropped (ADR-0019): moved out of their store
 // into the list kept under meta's "corrupt" key, with what was found and why, and counted in the
 // snapshot so the screens can say so in one line. Only "Delete everything" clears the list.
-import { type Instant, InstantSchema } from '@proofofcalm/core';
+import { type CurrencyCode, CurrencyCodeSchema, type Instant, InstantSchema } from '@proofofcalm/core';
 import * as z from 'zod/mini';
 import type { SetAsideRow, Snapshot } from '../../ports';
 import { issueCodes } from '../checks';
@@ -38,15 +38,25 @@ export function quarantineList(raw: unknown, now: Instant): { readonly list: Qua
   return { list: [record], fixed: true };
 }
 
+/** The pay currency a set-aside plan row's payload names, when that one field reads; nothing else of it is used. */
+const PayCurrencySchema = z.object({ payload: z.object({ payCurrency: CurrencyCodeSchema }) });
+const payCurrency = (raw: unknown): CurrencyCode | null => {
+  const parsed = PayCurrencySchema.safeParse(raw);
+  return parsed.success ? parsed.data.payload.payCurrency : null;
+};
+
 /**
  * The plan and entry rows of the list that were live when set aside (`storedLive`), by their string key with
- * the time, in the list's order: what the screens' lines read. Tombstones, the prefs row and a list kept whole
- * hold nothing a screen would miss. The list itself is read and written as before (ADR-0019 Readings, 2026-11-26).
+ * the time, in the list's order: what the screens' lines read. A plan row adds the pay currency its payload
+ * names, else null (ADR-0053). Tombstones, the prefs row and a list kept whole hold nothing a screen would miss.
+ * The list itself is read and written as before (ADR-0019 Readings, 2026-11-26).
  */
 export function setAsideRows(list: readonly Quarantined[]): Snapshot['setAside'] {
-  const rows = (store: 'plans' | 'entries'): SetAsideRow[] =>
-    list.flatMap((item) =>
-      item.store === store && typeof item.id === 'string' && storedLive(item.raw) ? [{ id: item.id, at: item.at }] : [],
-    );
-  return { plans: rows('plans'), entries: rows('entries') };
+  const rows = (store: 'plans' | 'entries'): Quarantined[] =>
+    list.filter((item) => item.store === store && typeof item.id === 'string' && storedLive(item.raw));
+  const row = (item: Quarantined): SetAsideRow => ({ id: String(item.id), at: item.at });
+  return {
+    plans: rows('plans').map((item) => ({ ...row(item), currency: payCurrency(item.raw) })),
+    entries: rows('entries').map(row),
+  };
 }
