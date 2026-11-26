@@ -12,6 +12,7 @@ import {
   changePayCurrency,
   currencyQuestion,
   endBuying,
+  keptCurrencyQuestion,
   pausePlan,
   resumePlan,
   skipMonth,
@@ -406,6 +407,69 @@ describe('changePayCurrency (docs/DOMAIN.md §6)', () => {
   it('changes the currency of amounts from now on and leaves every amount as typed', () => {
     expect(changePayCurrency(plan, 'CHF', now)).toEqual({ ...plan, payCurrency: 'CHF', updatedAt: now });
     expect(changePayCurrency({ ...plan, monthlyAmount: money('80') }, 'EUR', now).updatedAt).toBe(plan.updatedAt);
+  });
+});
+
+describe('keptCurrencyQuestion (docs/DOMAIN.md §2.1, ADR-0053)', () => {
+  const march = anEntry({ date: date('2026-03-01') });
+  const january = anEntry({ date: date('2026-01-01'), amount: null, fee: money('1') });
+  const held = anEntry({ kind: 'held', date: date('2025-06-01'), amount: null, fee: null, slot: null });
+  const deleted = anEntry({ date: date('2025-01-01'), deletedAt: now });
+
+  it('is null with no live entry holding an amount or a fee, or when the kept currency is the next one', () => {
+    expect(keptCurrencyQuestion([], 'EUR', 'GBP')).toBeNull();
+    expect(keptCurrencyQuestion([held, deleted], null, 'GBP')).toBeNull();
+    expect(keptCurrencyQuestion([deleted], 'EUR', 'GBP')).toBeNull();
+    expect(keptCurrencyQuestion([march, january], 'EUR', 'EUR')).toBeNull();
+  });
+
+  it('asks when the kept currency differs or is unknown, over the money entries’ dates', () => {
+    const entries = [march, held, january, deleted];
+    const asked = { count: 2, first: '2026-01-01', last: '2026-03-01' };
+    expect(keptCurrencyQuestion(entries, 'EUR', 'GBP')).toEqual({ kept: 'EUR', next: 'GBP', ...asked });
+    expect(keptCurrencyQuestion(entries, null, 'EUR')).toEqual({ kept: null, next: 'EUR', ...asked });
+  });
+
+  it('gives a one-day span as first equal to last', () => {
+    // A one-tap fill: two coins bought on one day.
+    const day = date('2026-10-20');
+    expect(keptCurrencyQuestion([anEntry({ date: day }), anEntry({ date: day })], null, 'EUR')).toEqual({
+      kept: null,
+      next: 'EUR',
+      count: 2,
+      first: '2026-10-20',
+      last: '2026-10-20',
+    });
+  });
+
+  it('is null whenever no live entry holds an amount or a fee, whatever the currencies', () => {
+    const entry = fc.record({
+      day: fc.integer({ min: 0, max: 400 }),
+      deleted: fc.boolean(),
+      fee: fc.boolean(),
+      amount: fc.boolean(),
+    });
+    fc.assert(
+      fc.property(
+        fc.array(entry, { maxLength: 6 }),
+        fc.constantFrom('EUR', 'GBP', null),
+        fc.constantFrom('EUR', 'GBP'),
+        (rows, kept, next) => {
+          const entries = rows.map((row) =>
+            anEntry({
+              date: addDays(date('2025-01-01'), row.day),
+              amount: row.amount ? money('10') : null,
+              fee: row.fee ? money('1') : null,
+              deletedAt: row.deleted ? now : null,
+            }),
+          );
+          const paid = rows.filter((row) => !row.deleted && (row.amount || row.fee));
+          const question = keptCurrencyQuestion(entries, kept, next);
+          if (paid.length === 0 || kept === next) expect(question).toBeNull();
+          else expect(question?.count).toBe(paid.length);
+        },
+      ),
+    );
   });
 });
 
