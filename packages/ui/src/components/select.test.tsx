@@ -31,6 +31,39 @@ describe('Select', () => {
     expect(styles.filter((text) => text.includes('base-ui-disable-scrollbar'))).toEqual([]);
   });
 
+  // The open listbox is named by the Select's label (axe's aria-input-field-name, #271); without a label it takes no
+  // reference to a missing element.
+  it('names the open listbox by its label', async () => {
+    render(
+      <Select<string> defaultValue="pt">
+        <SelectLabel>Country</SelectLabel>
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="pt">Portugal</SelectItem>
+        </SelectContent>
+      </Select>,
+    );
+    await userEvent.click(screen.getByRole('combobox', { name: 'Country' }));
+    expect(await screen.findByRole('listbox', { name: 'Country' })).toBeTruthy();
+  });
+
+  it('leaves the listbox without a reference when no label is rendered', async () => {
+    render(
+      <Select<string> defaultValue="pt">
+        <SelectTrigger aria-label="Country">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="pt">Portugal</SelectItem>
+        </SelectContent>
+      </Select>,
+    );
+    await userEvent.click(screen.getByRole('combobox', { name: 'Country' }));
+    expect((await screen.findByRole('listbox')).hasAttribute('aria-labelledby')).toBe(false);
+  });
+
   // Base UI's aligned layout reads the positioner's margins and minimum height (docs/DESIGN.md §7): the bar's height
   // only when the list would reach the bar, as a margin it does not need lifts the list off its trigger, and a floor of
   // up to seven options.
