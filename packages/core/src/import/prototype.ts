@@ -328,6 +328,17 @@ function readSellWindow(merged: JsonObject, lastBuy: CalendarDate, rule: Holding
   return window;
 }
 
+/**
+ * The pay currency an import of this export gives its plan, the settings' `base` (EUR when it names none), read
+ * before the import so the screen can ask about kept entries (ADR-0053). Null when the base does not read, which
+ * the import defaults to EUR with a note, and for a file that is not the page's export.
+ */
+export function prototypePayCurrency(json: unknown): CurrencyCode | null {
+  if (!isRecord(json) || !Array.isArray(json.purchases)) return null;
+  const merged: JsonObject = { ...DEFAULT_SETTINGS, ...(isRecord(json.settings) ? json.settings : {}) };
+  return CURRENCIES.find((currency) => currency === merged.base) ?? null;
+}
+
 /** Prototype JSON → a valid plan, its entries, the device preferences and the report of adjustments. */
 export function importPrototype(
   json: unknown,
@@ -349,7 +360,7 @@ export function importPrototype(
   }
 
   const parts = readSplit(settings, coins, notes);
-  const payCurrency = readCurrency(merged.base, 'EUR', 'payCurrency', notes);
+  const payCurrency = readCurrency(prototypePayCurrency(json), 'EUR', 'payCurrency', notes);
   const displayCurrency = readCurrency(merged.quote, 'USD', 'displayCurrency', notes);
 
   const fromSteps = (settings.initial === undefined || settings.initial === null) && Array.isArray(settings.lumpSteps);
