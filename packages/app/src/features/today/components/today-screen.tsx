@@ -46,6 +46,7 @@ import { PricesLine, useOnline } from './prices-line';
 import { PrimaryAction } from './primary-action';
 import { RedDayFoot } from './red-day-foot';
 import { RuleChangeBanner } from './rule-change-banner';
+import { SetAsideLine } from './set-aside-line';
 
 // Today (docs/DOMAIN.md §3.3 to §3.5, §3.10, §3.11; docs/DESIGN.md §7): the primary action first, the
 // quiet pending list, the portfolio number, the strip with its today marker (the way to Plan) and at
@@ -61,9 +62,13 @@ const link = (href: string) => (chunks: ReactNode) => (
   </Link>
 );
 
-/** No plan yet: one sentence with its two ways in, the same on Today, Plan and Portfolio. */
+/**
+ * No plan yet: one sentence with its two ways in, the same on Today, Plan and Portfolio; while the stored plan
+ * was set aside as unreadable, it says so and that a backup brings it back (ADR-0019 Readings, 2026-11-26).
+ */
 export function NoPlan({ onImport }: { readonly onImport?: (() => void) | undefined }) {
   const t = useTranslations('today');
+  const unread = useSnapshot((snapshot) => snapshot.setAside.plans.length > 0);
   // On Settings, which /settings already shows, importing is an action on the screen: the host passes it.
   const action = (chunks: ReactNode) => (
     <button type="button" onClick={onImport} className="cursor-pointer text-ink underline underline-offset-4">
@@ -73,9 +78,12 @@ export function NoPlan({ onImport }: { readonly onImport?: (() => void) | undefi
   return (
     <Empty>
       <EmptyHeader>
-        <EmptyTitle>{t('empty.title')}</EmptyTitle>
+        <EmptyTitle>{t(unread ? 'empty.setAsideTitle' : 'empty.title')}</EmptyTitle>
         <EmptyDescription>
-          {t.rich('empty.noPlan', { setup: link('/onboarding'), import: onImport ? action : link('/settings') })}
+          {t.rich(unread ? 'empty.setAside' : 'empty.noPlan', {
+            setup: link('/onboarding'),
+            import: onImport ? action : link('/settings'),
+          })}
         </EmptyDescription>
       </EmptyHeader>
     </Empty>
@@ -88,6 +96,7 @@ export function TodayScreen() {
   return (
     <div className={SCREEN}>
       <h1 className="scroll-mt-result text-28">{t('title')}</h1>
+      {plan !== null && <SetAsideLine />}
       {plan === null ? <NoPlan /> : <TodayBody plan={plan} />}
     </div>
   );

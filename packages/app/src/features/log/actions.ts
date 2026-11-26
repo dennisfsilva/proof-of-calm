@@ -19,6 +19,7 @@ import {
   unskipMonth,
 } from '@proofofcalm/core';
 import type { Services } from '../../lib/services';
+import { withSetAsideKey } from '../../lib/store';
 
 // Skip a month and its undo (docs/DOMAIN.md §6 "Skip a month"), and a delete and its undo (§6 "Delete entry"),
 // written through the domain store's queue on the snapshot of their turn, so a month another tab or an earlier
@@ -43,6 +44,8 @@ export type LogActions = {
    * plan's pay currency changed since and an entry holds an amount or a fee (ADR-0053).
    */
   undoDelete(ids: readonly EntityId[], before: SlotsAtDelete): Promise<Result<readonly Entry[], RestoreRefusal>>;
+  /** Hides the set-aside lines on this device while `count` entry rows are set aside (docs/DOMAIN.md §2.3). */
+  hideSetAside(count: number): Promise<void>;
 };
 
 /** Thrown inside the write, so a refused action writes nothing. */
@@ -109,5 +112,7 @@ export function logActions({ domain, clock }: Pick<Services, 'domain' | 'clock'>
       );
       return box.result;
     },
+    hideSetAside: (count) =>
+      domain.writePrefs((prefs) => ({ ...prefs, dismissedBanners: withSetAsideKey(prefs.dismissedBanners, count) })),
   };
 }

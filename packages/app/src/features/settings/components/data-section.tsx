@@ -24,6 +24,7 @@ import { DeletePlanDialog } from './delete-plan-dialog';
 import { type ExchangeDone, ExchangeImport, useExchangeResult } from './exchange-import';
 import { type ExchangeProblem, exchangeProblem, useExchangeProblemText } from './exchange-problem';
 import { PrototypeImport, PrototypePaste, PrototypeReport } from './prototype-import';
+import { SetAsideCount } from './set-aside-count';
 import { TaxYearExport } from './tax-year-export';
 
 // Settings → data (docs/DOMAIN.md §3.13): the export line and the Risk page link beside the two exports
@@ -245,6 +246,7 @@ export function DataSection() {
       ) : (
         <p className="text-ink-2">{t('noPlan')}</p>
       )}
+      <SetAsideCount />
       <DeletePlanDialog
         actions={actions}
         hasPlan={hasPlan}

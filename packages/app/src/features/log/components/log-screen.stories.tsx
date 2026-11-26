@@ -1,5 +1,5 @@
 import { countryRules, loadProfile } from '@proofofcalm/content';
-import type { CalendarDate, Entry } from '@proofofcalm/core';
+import type { CalendarDate, Entry, Instant } from '@proofofcalm/core';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { EMPTY_SNAPSHOT } from '../../../lib/adapters';
@@ -114,6 +114,47 @@ export const OnlySkips: Story = {
     await expect(await canvas.findByText(/^No entries yet\. Your first buy day was /)).toBeVisible();
     await expect(canvas.getByRole('columnheader', { name: 'July\u00a02026' })).toBeVisible();
     await expect(canvas.getByText('Skipped')).toBeVisible();
+  },
+};
+
+const SET_ASIDE_AT = '2026-10-01T08:00:00.000Z' as Instant;
+
+// A saved entry could not be read and is still missing: how to bring it back and Hide this line, which moves
+// focus to the title (ADR-0019 Readings, 2026-11-26).
+export const SetAside: Story = {
+  parameters: {
+    services: services({
+      ...fixtureSnapshot(),
+      quarantined: 1,
+      setAside: { plans: [], entries: [{ id: 'gone', at: SET_ASIDE_AT }] },
+    }),
+  },
+  play: async ({ canvas }) => {
+    await expect(await canvas.findByText(/^1 saved entry could not be read/)).toBeVisible();
+    const hide = canvas.getByRole('button', { name: 'Hide this line' });
+    await expect(
+      Math.min(hide.getBoundingClientRect().width, hide.getBoundingClientRect().height),
+    ).toBeGreaterThanOrEqual(44);
+    await userEvent.click(hide);
+    await waitFor(() => expect(canvas.queryByText(/^1 saved entry could not be read/)).toBeNull());
+    await expect(canvas.getByRole('heading', { level: 1, name: 'Log' })).toHaveFocus();
+  },
+};
+
+// The plan row could not be read and the entries are stored: the empty text says why none is listed.
+export const PlanSetAside: Story = {
+  parameters: {
+    services: services({
+      ...fixtureSnapshot(),
+      plan: null,
+      quarantined: 1,
+      setAside: { plans: [{ id: 'plan', at: SET_ASIDE_AT }], entries: [] },
+    }),
+  },
+  play: async ({ canvas }) => {
+    await expect(
+      await canvas.findByText('Your plan could not be read, so no entries are listed. They stay on this device.'),
+    ).toBeVisible();
   },
 };
 

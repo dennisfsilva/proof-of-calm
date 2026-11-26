@@ -7,4 +7,5 @@ export {
   selectNewer,
   selectQuarantined,
 } from './domain';
+export { withSetAsideKey } from './set-aside';
 export { createUiStore, type LoadedRules, type UiState } from './ui';

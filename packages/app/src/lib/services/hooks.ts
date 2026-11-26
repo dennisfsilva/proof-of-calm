@@ -10,6 +10,7 @@ import { createFormatters, createNumberInput, type Formatters, type NumberInput 
 import { localesFor } from '../i18n/locale';
 import type { Clock, Platform, PricesFailure, PricesState, Snapshot } from '../ports';
 import type { DomainState } from '../store/domain';
+import { type MissingEntries, missingEntries } from '../store/set-aside';
 import type { UiState } from '../store/ui';
 import { useServices } from './provider';
 
@@ -17,6 +18,17 @@ export { useServices };
 
 export function useSnapshot<T>(select: (snapshot: Snapshot) => T): T {
   return useStore(useServices().domain.store, (state) => select(state.snapshot));
+}
+
+/**
+ * The set-aside entries still missing, for Today's and the Log's lines (ADR-0019 Readings, 2026-11-26); none
+ * once the line for this many set-aside rows is hidden. Each read is a stored reference, so nothing renders anew.
+ */
+export function useMissingEntries(): MissingEntries {
+  const setAside = useSnapshot((snapshot) => snapshot.setAside.entries);
+  const entries = useSnapshot((snapshot) => snapshot.entries);
+  const dismissed = useSnapshot((snapshot) => snapshot.prefs.dismissedBanners);
+  return useMemo(() => missingEntries(setAside, entries, dismissed), [setAside, entries, dismissed]);
 }
 
 export function useDomainStatus(): DomainState['status'] {
