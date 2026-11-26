@@ -268,7 +268,12 @@ platform without one.
   Portfolio's prices line, whose forms are drawn from an attribute so the page's text holds the line
   once); the forms are built once for each set of locales, zone, year, clock changes and words, not on
   every mount. A value shown before its prices keeps the priced block's place: Portfolio's unpriced
-  value stands over the 40 px figure's line, unseen, and keeps the P/L row's 44 px. A failed read
+  value stands over the 40 px figure's line, unseen, and keeps the P/L row, the same row unseen and unread
+  (its words drawn from attributes, its Why? a stand-in of the link's size). The P/L holds its widest
+  forms as the prices line does, so its Why? wraps the same way in both states and on every font: the
+  figure's cell holds, invisible, the P/L with one integer figure more than the invested total and a
+  percent of three, gained and lost, every figure a zero (`widestPnl`); a P/L past ten times the
+  invested total or 999.9 % may still be wider and wrap its Why? (decided 2026-11-26). A failed read
   keeps the same structure, with its line in the empty frame's place (`docs/DESIGN.md` §6).
 - The store's reads at load (profiled 2026-11-25, not cut). At 4× CPU on a cold `/today` and
   `/portfolio` (main 11e29df42, medians of seven), `packages/app/src/lib/adapters/idb/rows.ts`'s own
