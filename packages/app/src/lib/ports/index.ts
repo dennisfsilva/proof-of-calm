@@ -60,6 +60,9 @@ export type ApiFailure =
  */
 export type PricesFailure = ApiFailure | { readonly kind: 'local' };
 
+/** A row set aside as unreadable: its stored key and when it was set aside. */
+export type SetAsideRow = { readonly id: string; readonly at: Instant };
+
 /** Everything the screens read, as one immutable value (ADR-0019, ADR-0020). */
 export type Snapshot = {
   readonly plan: Plan | null;
@@ -69,6 +72,11 @@ export type Snapshot = {
   readonly prices: PricesState | null;
   /** Stored rows that failed their schema and were set aside (ADR-0019), for a one-line notice. */
   readonly quarantined: number;
+  /**
+   * The plan and entry rows of that list that were live, by id with the time each was set aside, so a screen
+   * can say which entries are still missing (ADR-0019 Readings, 2026-11-26).
+   */
+  readonly setAside: { readonly plans: readonly SetAsideRow[]; readonly entries: readonly SetAsideRow[] };
   /**
    * Live stored rows a newer build wrote (a later schema or encryption version), left in place unread
    * (ADR-0019 readings): a newer plan takes the screen area, newer entries alone get a line on Today.

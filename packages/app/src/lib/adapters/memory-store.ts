@@ -17,6 +17,7 @@ export const EMPTY_SNAPSHOT: Snapshot = {
   prefs: DEFAULT_PREFS,
   prices: null,
   quarantined: 0,
+  setAside: { plans: [], entries: [] },
   newer: { plans: 0, entries: 0 },
   newerTombstones: 0,
 };
@@ -47,6 +48,7 @@ export function applyChanges(snapshot: Snapshot, changes: Changes): Snapshot {
     prefs: { ...(changes.prefs ?? snapshot.prefs), changedAt },
     prices: changes.prices ?? snapshot.prices,
     quarantined: snapshot.quarantined,
+    setAside: snapshot.setAside,
     newer: snapshot.newer,
     newerTombstones: snapshot.newerTombstones,
   };
