@@ -48,7 +48,7 @@ describe('DataSection: the set-aside count', () => {
 });
 
 // ADR-0019 Readings, 2026-11-26: the count stays until Delete everything, so once an import brings a set-aside
-// entry or the plan back, the line says what is back and that only the unreadable copies stay set aside.
+// entry or the plan back, the line says what is back and, while any is not, how many exports still leave out.
 describe('DataSection: the set-aside count after a recovery', () => {
   const snapshot = fixtureSnapshot();
   const gone = liveEntries(snapshot.entries)[0];
@@ -68,8 +68,8 @@ describe('DataSection: the set-aside count after a recovery', () => {
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Add missing entries only' })));
     await waitFor(() =>
       expect(screen.getByText(LINE).textContent).toBe(
-        '1 saved item could not be read, so Proof of Calm set it aside. It is back in your data and exports ' +
-          'again, and only its unreadable copy stays set aside on this device.',
+        '1 saved item could not be read, so Proof of Calm set it aside. It is back in your data and exports, ' +
+          'and only its unreadable copy stays set aside on this device.',
       ),
     );
   });
@@ -82,7 +82,27 @@ describe('DataSection: the set-aside count after a recovery', () => {
     });
     expect(screen.getByText(LINE).textContent).toBe(
       '3 saved items could not be read, so Proof of Calm set them aside. 2 of them are back in your data and ' +
-        'exports again, and only the unreadable copies stay set aside on this device.',
+        'exports. The other 1 stays on this device as it was saved, and exports leave it out.',
+    );
+  });
+
+  it('when some items are back, the line names the rest and says exports leave them out', async () => {
+    await mount({ ...snapshot, quarantined: 3, setAside: { plans: [], entries: [{ id: gone.id, at: NOW }] } });
+    expect(screen.getByText(LINE).textContent).toBe(
+      '3 saved items could not be read, so Proof of Calm set them aside. 1 of them is back in your data and ' +
+        'exports. The other 2 stay on this device as they were saved, and exports leave them out.',
+    );
+  });
+
+  it('when every item is back, the line says only the unreadable copies stay set aside', async () => {
+    await mount({
+      ...snapshot,
+      quarantined: 2,
+      setAside: { plans: [{ id: plan.id, at: NOW, currency: 'EUR' }], entries: [{ id: gone.id, at: NOW }] },
+    });
+    expect(screen.getByText(LINE).textContent).toBe(
+      '2 saved items could not be read, so Proof of Calm set them aside. All of them are back in your data and ' +
+        'exports, and only the unreadable copies stay set aside on this device.',
     );
   });
 

@@ -21,9 +21,10 @@ export function SetAsideCount() {
   if (count === 0) return null;
   const figure = (value: number) => createNumberInput(f.locales.numbers).format(decimal(String(value)));
   const values = { count, figure: figure(count), product: BRAND.name };
+  // What exports still leave out: the some-back words name it, the all-back words say only the copies stay.
+  const remaining = Math.max(count - back, 0);
+  const recovery = { recovered: back, back: figure(back), remaining, rest: figure(remaining) };
   return (
-    <p className="text-ink-2">
-      {back === 0 ? t('setAside', values) : t('setAsideBack', { ...values, recovered: back, back: figure(back) })}
-    </p>
+    <p className="text-ink-2">{back === 0 ? t('setAside', values) : t('setAsideBack', { ...values, ...recovery })}</p>
   );
 }
