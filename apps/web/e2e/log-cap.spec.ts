@@ -19,12 +19,20 @@ const RULE_MS = 100;
 // A run took 27 to 29 s on this machine with the window (2026-11-25), the seed's 7 s included.
 const TIMEOUT_MS = 420_000;
 /**
- * The inputs this machine measured under half the rule at 6x, asserted under it: none with the window of 100. On
- * 2026-11-25 every input passed 50 ms in some run (docs/ENGINEERING.md §4 has the figures): Show older entries' longest
- * task 65 to 115, Show newer entries' 71 to 114, closing the sheet's 0 to 69, the amount's keystroke 0 with its input 32
- * to 48; Show all, Edit entry and opening Go to year stay over the rule.
+ * The inputs this machine measured under half the rule at 6x, asserted under it. On 2026-11-26 (main b3e526191, a quiet
+ * machine, two runs of three repeats; docs/ENGINEERING.md §4 has the figures) these five stayed under 50 ms in every
+ * repeat, their input and their longest task: opening a row 40 to 48 / 0, the amount's keystroke 16 to 40 / 0, Show all
+ * 16 to 24 / 0, Show older entries 0 to 16 / 0 and Show newer entries 0 / 0, the last two clicked by handle since #547.
+ * Closing the sheet (to 56), choosing the oldest year (to 56 / 74) and opening Go to year (its longest task to 79) passed
+ * 50 ms in some repeat, and Edit entry, Delete entry, the Undo and Save stay recorded only.
  */
-const ASSERTED: ReadonlySet<string> = new Set<string>();
+const ASSERTED: ReadonlySet<string> = new Set<string>([
+  'open a row',
+  'one keystroke in the amount',
+  'Show all',
+  'Show older entries',
+  'Show newer entries',
+]);
 
 /**
  * The fixture plan with extra buys on the days before its first buy day, up to MAX_ENTRIES live entries; `withMove`
