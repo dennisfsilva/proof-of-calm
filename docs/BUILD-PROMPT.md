@@ -1146,10 +1146,13 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   file-level skip on the browser name runs before any launch. A branch carried across sessions
   without a pull request never meets the e2e matrix: that spec had run on two projects for three
   sessions (2026-11-26).
-- A tree kept mounted and shown by dropping `invisible` starts a transition of the inherited
-  `visibility` on every element inside it under the reduced-motion rule's 1 ms `all`, and one inside
-  a closed `<details>` never ends, so the matrix's animation count fails on reduced-motion: such a
-  frame takes `transition-none **:transition-none` (#560's first run; 2026-11-26).
+- Reduced motion shortens durations through the tokens, never by a `transition-duration` on every
+  element: that gave each element that declares no transition a 1 ms one of `all`, so a tree shown by
+  dropping `invisible` started a transition of the inherited `visibility` on every element inside
+  it, and those inside a closed `<details>` never ended, failing the matrix's animation count on
+  reduced-motion. #560 worked around it per frame; the root rule now sets only the animation and
+  scroll lines, held by `packages/ui/test/reduced-motion.test.ts` and the Collapsible story "Shown
+  again under reduced motion" (2026-11-26).
 
 ## Known gaps
 
