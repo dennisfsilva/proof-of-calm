@@ -19,7 +19,7 @@ import { createNumberInput } from '../../../lib/format';
 import type { Messages } from '../../../lib/i18n';
 import { useClock, useFormatters, useServices, useSnapshot } from '../../../lib/services';
 import { type DataRefusal, dataActions, type ImportOutcome, type PrototypeOutcome, type ReportNote } from '../actions';
-import { type ReadImport, readImport } from '../model/import';
+import { type ReadImport, readImport, unreadable } from '../model/import';
 import { DeletePlanDialog } from './delete-plan-dialog';
 import { type ExchangeDone, ExchangeImport, useExchangeResult } from './exchange-import';
 import { type ExchangeProblem, exchangeProblem, useExchangeProblemText } from './exchange-problem';
@@ -51,9 +51,6 @@ type Problem =
   | { readonly code: 'exchange'; readonly problem: ExchangeProblem }
   | (DataRefusal & { readonly pasted: boolean });
 type Chosen = { readonly name: string | null; readonly read: ReadImport };
-/** An unreadable paste is named as text, with a step a paste can take; a file keeps its line. */
-const unreadable = (code: keyof Messages['errors']['backup'], name: string | null) =>
-  code === 'not-recognised' && name === null ? 'not-recognised-pasted' : code;
 
 export function DataSection() {
   const t = useTranslations('settings.data');

@@ -3,6 +3,7 @@
 // one, tested against a database of the previous version (docs/RELEASE.md, "Storage migration").
 import { EntityIdSchema } from '@proofofcalm/core';
 import { type DBSchema, type IDBPDatabase, type IDBPTransaction, openDB } from 'idb';
+import type { Changes } from '../../ports';
 import { ROW_SCHEMA_VERSIONS, type RowVersions, readEntryRow, readPlanRow, type SyncedStore } from './rows';
 
 /**
@@ -13,6 +14,20 @@ export const DATABASE_NAME = 'proof-of-calm';
 
 export const STORE_NAMES = ['plans', 'entries', 'prefs', 'prices', 'history', 'outbox', 'meta'] as const;
 export type StoreName = (typeof STORE_NAMES)[number];
+
+/** The stores a write of these changes touches, and whether it writes synced rows (the plan or entries). */
+export function touches(changes: Changes) {
+  const entries = changes.entries?.length ?? 0;
+  const synced = changes.plan !== undefined || entries > 0;
+  const prefsChanged = changes.prefs !== undefined || changes.changedAt !== undefined;
+  const stores: StoreName[] = [
+    ...(synced ? (['plans'] as const) : []),
+    ...(entries > 0 ? (['entries'] as const) : []),
+    ...(prefsChanged ? (['prefs'] as const) : []),
+    ...(changes.prices === undefined ? [] : (['prices'] as const)),
+  ];
+  return { synced, prefsChanged, stores };
+}
 
 /**
  * Keys and indexes per store. Every value is `unknown` on purpose: what comes back from IndexedDB is
