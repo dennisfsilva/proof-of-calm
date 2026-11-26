@@ -65,12 +65,19 @@ type Perf = {
   events: { name: string; duration: number; interactionId: number }[];
   tasks: { start: number; duration: number }[];
   heading: number | null;
+  inputAt: number | null;
 };
 
-/** Event Timing entries of 16 ms and more, long tasks, and when the Log's heading first shows; set before any script. */
+/**
+ * Event Timing entries of 16 ms and more, long tasks, when the Log's heading first shows and when the first pointer or
+ * key input since the last clear happened; set before any script.
+ */
 function observe(): void {
-  const perf: Perf = { events: [], tasks: [], heading: null };
+  const perf: Perf = { events: [], tasks: [], heading: null, inputAt: null };
   Object.assign(window, { perf });
+  for (const type of ['pointerdown', 'keydown']) {
+    addEventListener(type, (event) => (perf.inputAt ??= event.timeStamp), { capture: true });
+  }
   new PerformanceObserver((list) => {
     for (const entry of list.getEntries() as PerformanceEventTiming[]) {
       perf.events.push({ name: entry.name, duration: entry.duration, interactionId: entry.interactionId });
@@ -100,8 +107,9 @@ const settle = (page: Page) =>
   );
 
 /**
- * The longest Event Timing duration of an interaction `act` makes, in ms (0: none reached 16 ms), and the longest
- * task from the input until `shown` holds and the page settles.
+ * The longest Event Timing duration of an interaction `act` makes, in ms (0: none reached 16 ms), the longest task
+ * from clearing the arrays until `shown` holds and the page settles, and the longest of those that started before the
+ * input, the harness's own work, since the app is idle once settled (0: none).
  */
 async function measure(page: Page, act: () => Promise<void>, shown: () => Promise<void>) {
   await settle(page);
@@ -109,13 +117,18 @@ async function measure(page: Page, act: () => Promise<void>, shown: () => Promis
     const { perf } = window as unknown as { perf: Perf };
     perf.events.length = 0;
     perf.tasks.length = 0;
+    perf.inputAt = null;
   });
   await act();
   await shown();
   await settle(page);
-  const { events, tasks } = await perfOf(page);
-  const input = Math.max(0, ...events.filter((event) => event.interactionId > 0).map((event) => event.duration));
-  return { input, task: Math.max(0, ...tasks.map((task) => task.duration)) };
+  const { events, tasks, inputAt } = await perfOf(page);
+  const durations = (from: Perf['tasks']) => Math.max(0, ...from.map((task) => task.duration));
+  return {
+    input: Math.max(0, ...events.filter((event) => event.interactionId > 0).map((event) => event.duration)),
+    task: durations(tasks),
+    harness: durations(tasks.filter((task) => task.start < (inputAt ?? Number.POSITIVE_INFINITY))),
+  };
 }
 
 /** An annotation of `figures`, in ms, under `what`. */
@@ -228,9 +241,13 @@ test(`the Log at ${MAX_ENTRIES} entries: each input, Show all and its window at 
     'open Go to year': choose,
     'choose the oldest year': oldest,
   };
-  for (const [what, { input, task }] of Object.entries(inputs)) {
+  for (const [what, { input, task, harness }] of Object.entries(inputs)) {
     // An input over the rule that no invisible change fixed stays recorded, not asserted (docs/ENGINEERING.md §4).
-    record(ASSERTED.has(what) ? what : `${what} (not asserted)`, { input, 'longest task': task });
+    record(ASSERTED.has(what) ? what : `${what} (not asserted)`, {
+      input,
+      'longest task': task,
+      'longest task before the input': harness,
+    });
     if (ASSERTED.has(what)) {
       expect(input, `${what} at ${CPU_RATE}x CPU`).toBeLessThan(RULE_MS);
       expect(task, `${what}'s longest task at ${CPU_RATE}x CPU`).toBeLessThan(RULE_MS);
@@ -282,8 +299,8 @@ test(`the Log at ${MAX_ENTRIES} entries: each input, Show all and its window at 
     () => expect(sheet).toBeHidden(loading),
   );
   const writes = { 'Delete entry': remove, "the toast's Undo": undo, 'Save with a changed amount': save };
-  for (const [what, { input, task }] of Object.entries(writes)) {
-    record(`${what} (not asserted)`, { input, 'longest task': task });
+  for (const [what, { input, task, harness }] of Object.entries(writes)) {
+    record(`${what} (not asserted)`, { input, 'longest task': task, 'longest task before the input': harness });
   }
 });
 
@@ -302,10 +319,14 @@ test(`the Log at ${MAX_ENTRIES} entries with a live move: one keystroke in the a
   await expect(sheet).toContainText('Edit the entry', loading);
   const amount = sheet.getByLabel('BTC cost before fees (EUR)');
   await amount.click();
-  const { input, task } = await measure(
+  const { input, task, harness } = await measure(
     page,
     () => amount.press('5'),
     () => expect(amount).toHaveValue(/5/, loading),
   );
-  recorder(testInfo)('one keystroke in the amount with a live move (not asserted)', { input, 'longest task': task });
+  recorder(testInfo)('one keystroke in the amount with a live move (not asserted)', {
+    input,
+    'longest task': task,
+    'longest task before the input': harness,
+  });
 });
