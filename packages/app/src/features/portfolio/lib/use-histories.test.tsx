@@ -1,8 +1,9 @@
 // @vitest-environment jsdom
 import { type CoinId, type CurrencyCode, err, ok, type Result } from '@proofofcalm/core';
-import { act, cleanup, renderHook } from '@testing-library/react';
+import { act, cleanup, fireEvent, renderHook, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
+import { Link, NavigationProvider } from '../../../lib/navigation';
 import type { ApiFailure, CachedHistory, HistorySource } from '../../../lib/ports';
 import { ServicesProvider } from '../../../lib/services';
 import { createTestServices } from '../../../lib/services/testing';
@@ -41,13 +42,21 @@ const closes = (coin: string, currency: CurrencyCode, fetchedAt: string): Answer
 
 const coins = (...ids: string[]) => ids as CoinId[];
 
+/** Mounted on Portfolio beside Portfolio's own tab, which `reopen` presses. */
 function mount(source: HistorySource, initial: { coins: readonly CoinId[]; currency: CurrencyCode }) {
   const services = createTestServices({ historySource: source });
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <ServicesProvider services={services}>{children}</ServicesProvider>
+    <ServicesProvider services={services}>
+      <NavigationProvider location="memory" initialPath="/portfolio">
+        <Link href="/portfolio">Portfolio</Link>
+        {children}
+      </NavigationProvider>
+    </ServicesProvider>
   );
   return renderHook((props) => useHistories(props.coins, props.currency), { wrapper, initialProps: initial });
 }
+
+const reopen = () => act(() => fireEvent.click(screen.getByRole('link', { name: 'Portfolio' })));
 
 describe('useHistories', () => {
   it('loads every coin once and is ready with the oldest fetch time when all have closes', async () => {
@@ -112,5 +121,51 @@ describe('useHistories', () => {
     expect(result.current).toEqual({ status: 'loading' });
     await source.calls[1]?.answer(closes('BTC', 'USD', '2026-10-20T10:00:00.000Z'));
     expect(result.current).toMatchObject({ status: 'ready', histories: { currency: 'USD' } });
+  });
+
+  it('reads every served coin again on a reopen after a failure, and only then', async () => {
+    const source = waitingSource();
+    const { result } = mount(source, { coins: coins('BTC', 'ETH', 'KAS'), currency: 'EUR' });
+    // While loading, a reopen reads nothing.
+    reopen();
+    expect(source.calls).toHaveLength(2);
+    await source.calls[0]?.answer(err({ kind: 'network' }));
+    await source.calls[1]?.answer(closes('ETH', 'EUR', '2026-10-20T10:00:00.000Z'));
+    expect(result.current).toEqual({ status: 'failed', failure: { kind: 'network' } });
+
+    reopen();
+    expect(result.current).toEqual({ status: 'loading' });
+    // The coin outside the catalogue is still never asked for.
+    expect(source.calls.slice(2).map((call) => [call.coin, call.currency])).toEqual([
+      ['BTC', 'EUR'],
+      ['ETH', 'EUR'],
+    ]);
+    // A second reopen while that read is loading reads nothing.
+    reopen();
+    expect(source.calls).toHaveLength(4);
+    await source.calls[2]?.answer(closes('BTC', 'EUR', '2026-10-20T11:00:00.000Z'));
+    await source.calls[3]?.answer(closes('ETH', 'EUR', '2026-10-20T12:00:00.000Z'));
+    expect(result.current).toMatchObject({ status: 'ready', fetchedAt: '2026-10-20T11:00:00.000Z' });
+
+    // While ready, a reopen reads nothing.
+    reopen();
+    expect(source.calls).toHaveLength(4);
+    expect(result.current).toMatchObject({ status: 'ready' });
+  });
+
+  it('drops an answer from before a reopen', async () => {
+    const source = waitingSource();
+    const { result, rerender } = mount(source, { coins: coins('BTC'), currency: 'EUR' });
+    await source.calls[0]?.answer(err({ kind: 'network' }));
+    // The currency changes and back while failed: the read for EUR runs again, still unanswered.
+    rerender({ coins: coins('BTC'), currency: 'USD' });
+    rerender({ coins: coins('BTC'), currency: 'EUR' });
+    expect(result.current).toEqual({ status: 'failed', failure: { kind: 'network' } });
+    reopen();
+    expect(source.calls).toHaveLength(4);
+    await source.calls[2]?.answer(closes('BTC', 'EUR', '2026-10-20T10:00:00.000Z'));
+    expect(result.current).toEqual({ status: 'loading' });
+    await source.calls[3]?.answer(closes('BTC', 'EUR', '2026-10-20T11:00:00.000Z'));
+    expect(result.current).toMatchObject({ status: 'ready', fetchedAt: '2026-10-20T11:00:00.000Z' });
   });
 });

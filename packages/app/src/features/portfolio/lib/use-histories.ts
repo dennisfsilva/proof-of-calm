@@ -2,6 +2,7 @@ import { COINS } from '@proofofcalm/content';
 import { type CoinId, type CurrencyCode, compareInstants, type Instant, type PriceHistories } from '@proofofcalm/core';
 import { startTransition, useEffect, useState } from 'react';
 import type { ApiFailure } from '../../../lib/ports';
+import { useReopens } from '../../../lib/navigation';
 import { useServices } from '../../../lib/services';
 
 // The daily closes the value chart needs (ADR-0036: the device keeps them at most 24 hours): one read per
@@ -10,6 +11,8 @@ import { useServices } from '../../../lib/services';
 // line's is. An answer that arrives after the coins or the currency changed is dropped. A coin outside the
 // catalogue (an imported page file may carry one, docs/DOMAIN.md §3.13) is never asked for: the history route
 // serves the catalogue only (ADR-0036), so it has no closes, which the chart says, rather than a failed read.
+// After a failure, pressing Portfolio's own tab reads again, as the failure line says (`useReopens`);
+// such a press while loading or ready reads nothing.
 // The answer renders as a transition, which React splits into slices that yield to the browser, so the
 // drawn chart and its table never mount in one long task (docs/ENGINEERING.md §4).
 
@@ -30,10 +33,18 @@ export function useHistories(coins: readonly CoinId[], currency: CurrencyCode): 
   const { history } = useServices();
   // The inputs as one value, so a new array of the same coins reads nothing again.
   const key = `${currency} ${coins.join(' ')}`;
-  const [state, setState] = useState<{ readonly key: string; readonly value: HistoriesState }>({
-    key,
-    value: LOADING,
-  });
+  const [state, setState] = useState<{ readonly key: string; readonly attempt: number; readonly value: HistoriesState }>(
+    { key, attempt: 0, value: LOADING },
+  );
+  // The reads so far for the same inputs: a reopen after a failure starts another, which drops the answers
+  // of the one before it.
+  const reopens = useReopens();
+  const [retry, setRetry] = useState({ reopens, attempt: 0 });
+  const { attempt } = retry;
+  const shown = state.key === key && state.attempt === attempt ? state.value : LOADING;
+  if (retry.reopens !== reopens) {
+    setRetry({ reopens, attempt: shown.status === 'failed' ? attempt + 1 : attempt });
+  }
 
   useEffect(() => {
     // No coins leaves a trailing space, which splits into one empty id: drop it.
@@ -45,7 +56,7 @@ export function useHistories(coins: readonly CoinId[], currency: CurrencyCode): 
       if (!current) return;
       const failed = results.find((result) => !result.ok);
       if (failed !== undefined && !failed.ok) {
-        startTransition(() => setState({ key, value: { status: 'failed', failure: failed.error } }));
+        startTransition(() => setState({ key, attempt, value: { status: 'failed', failure: failed.error } }));
         return;
       }
       const loaded = results.flatMap((result) => (result.ok ? [result.value] : []));
@@ -56,12 +67,12 @@ export function useHistories(coins: readonly CoinId[], currency: CurrencyCode): 
         currency: wanted,
         coins: Object.fromEntries(loaded.map((each) => [each.coin, each.closes])),
       };
-      startTransition(() => setState({ key, value: { status: 'ready', histories, fetchedAt } }));
+      startTransition(() => setState({ key, attempt, value: { status: 'ready', histories, fetchedAt } }));
     });
     return () => {
       current = false;
     };
-  }, [history, key]);
+  }, [history, key, attempt]);
 
-  return state.key === key ? state.value : LOADING;
+  return shown;
 }
