@@ -84,7 +84,7 @@ packages/app/src/
 │   ├── errors/         the single error surface: core error codes → copy (its own messages/); reporting hook
 │   ├── pwa/            the hand-written service-worker registration on the platform events (`register.ts`, ADR-0045 §5) and the first idle period the host waits for before it (`idle.ts`, ADR-0045's deviation of 2026-10-26); the toast that shows its update prompt, handed to the host by the shell
 │   ├── theme/          the theme-before-paint script and its CSP hash, the `poc.appearance` mirror's key, schema and writer (`before-paint.ts`, ADR-0045 §3)
-│   └── navigation/     `APP_ROUTES` (`routes.ts`, the list the hosts' routes and the UK route are generated from), `NavigationProvider`, Link and the router over wouter, its only importer (ADR-0045 §9)
+│   └── navigation/     `APP_ROUTES` (`routes.ts`, the list the hosts' routes and the UK route are generated from), `NavigationProvider`, Link and the router over wouter, its only importer (ADR-0045 §9), and `useReopens`, the count of presses of a link to the shown path, which Portfolio's failed read of the closes takes as its retry
 └── messages/           en.json merged from the features’ and lib modules’ message files (it types the keys) and en/<namespace>.json, one per namespace for per-route loading (ADR-0045 §8), written by `pnpm --filter @proofofcalm/tools messages` and committed (a test fails when one is stale); pt-PT/<namespace>.json for each namespace, a key not yet translated filled from English (ADR-0045's deviation of 2026-11-15 and its correction of 2026-11-16); de/<namespace>.json the same way (ADR-0045's deviation of 2026-11-19)
 ```
 
