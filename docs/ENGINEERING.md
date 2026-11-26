@@ -323,7 +323,10 @@ platform without one.
   and layout, no scan of the entries; opening Go to year (suspected: the Base UI Select popup with
   about 28 years); Delete entry, the Undo and Save, by their longest task (suspected: the writes'
   `transactions()` over every entry); one keystroke with a live move stored, which runs the move line
-  on every keystroke.
+  on every keystroke. The move line now runs the save and `movesLeftShort` only while a live move of a
+  coin the save writes is dated on or after the earliest date it writes, since a move's shortfall
+  reads only the entries dated on or before it (`moveShortLines`; `form.move-gate.test.ts` counts
+  both calls, and `form.move-gate.property.test.ts` checks its lines against the ungated ones).
 - An upstream outage may fail the production check. It measures what production serves: a 502 that
   reaches the browser is a fault people see, and `errors-in-console` names it. Since Portfolio's
   layout holds on that path (`lighthouse-vercel` run 40917845879 on a20d28d9, 2026-10-29, measured
