@@ -1101,6 +1101,23 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   long list in mid-window sat 61 px off its trigger) was the mechanism DC1's verdict replaced, so
   its second round built the verdict and main never held the offset between two merges (#528,
   2026-11-26).
+- A design check's judge runs in the browser every claim a design makes about a data path. DC-Q's
+  judge ran designer A's claim that an import with no plan showing replaces, and found the entries
+  recorded after the backup tombstoned on main, a silent loss no branch review had reached; the fix
+  merged before the notice that sends people to that import (#540, #541; 2026-11-26).
+- A fix that sends a case down another code path checks the invariants that path keeps for its
+  usual inputs: #540's first review round found the add-missing path returning the file's skips
+  beside the kept entries, and the result line leaving out what the path dropped (both confirmed;
+  2026-11-26).
+- A profile taken with on-stack replacement on can put a hot callee's samples in its caller's self
+  time: the Log at the cap's profile read `transactions()` as `LogScreen`'s own time until a run
+  with `--js-flags=--no-use-osr` gave them back (#537's comment 7180595696; 2026-11-26).
+- A gate that skips work on a condition is measured on both of its sides: the Log at the cap seeds
+  its move on the oldest entry's date, so the spec measured only the skipped path of #539's gate
+  (2026-11-26).
+- A measured window opens after the harness has resolved its locators: Playwright's `getByRole`
+  made a 75–101 ms task inside the Log at the cap's window before the Delete and Undo clicks
+  (2026-11-26).
 
 ## Known gaps
 
