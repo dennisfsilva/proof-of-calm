@@ -337,7 +337,7 @@ platform without one.
 WCAG 2.2 AA. Visible focus everywhere; every control labelled; colour never the only cue (P/L carries
 a sign, statuses carry text); `prefers-reduced-motion` respected (no movement, instant transitions);
 `prefers-color-scheme` respected with a manual override; charts have an `aria-label` summary and a
-table alternative; dialogs trap focus and restore it; live regions for toasts; the whole monthly loop
+table alternative; dialogs trap focus and restore it; live regions for toasts and for the lines a form shows before Save (`docs/DESIGN.md` §6); the whole monthly loop
 works with a keyboard and with a screen reader.
 
 ## 6. Security in code
