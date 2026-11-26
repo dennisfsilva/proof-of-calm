@@ -9,29 +9,28 @@ import colours from './brand-colors.json';
 
 type FormFactor = 'narrow' | 'wide';
 
-/** A viewport of android-small (360 × 780 at 3) or desktop (1280 × 800 at 1), as e2e/manifest-capture.spec.ts takes it. */
-const SIZES: Record<FormFactor, string> = { narrow: '1080x2340', wide: '1280x800' };
-
 /**
  * The screenshots of the richer install dialog: the set of ADR-0009's Reading of 2026-11-23, which names no coin,
  * the holding-date page first because it shows the difference first (docs/DESIGN.md §9). The files are rendered in
  * the pinned Playwright container by snapshots.yml and stay inside the GB route (ADR-0029 Readings, 2026-11-26).
+ * `sizes` is each frame of e2e/manifest-capture.spec.ts in device pixels: android-small is 360 CSS pixels wide at
+ * a scale factor of 3, desktop 1280 at 1, and each frame's height ends in a gap between blocks.
  */
 function screenshots() {
   const t = siteTranslator('manifest');
-  const shot = (name: string, form_factor: FormFactor, label: string) => ({
+  const shot = (name: string, form_factor: FormFactor, sizes: string, label: string) => ({
     src: `/screenshots/${name}-${form_factor}.png`,
-    sizes: SIZES[form_factor],
+    sizes,
     type: 'image/png',
     form_factor,
     label,
   });
   return [
-    shot('holding-date', 'narrow', t('screenshots.holdingDate')),
-    shot('country-pt', 'narrow', t('screenshots.countryPt')),
-    shot('today', 'narrow', t('screenshots.today')),
-    shot('learn', 'narrow', t('screenshots.learn')),
-    shot('holding-date', 'wide', t('screenshots.holdingDate')),
+    shot('holding-date', 'narrow', '1080x2340', t('screenshots.holdingDate')),
+    shot('country-pt', 'narrow', '1080x2469', t('screenshots.countryPt')),
+    shot('today', 'narrow', '1080x2340', t('screenshots.today')),
+    shot('learn', 'narrow', '1080x2448', t('screenshots.learn')),
+    shot('holding-date', 'wide', '1280x720', t('screenshots.holdingDate')),
   ];
 }
 
