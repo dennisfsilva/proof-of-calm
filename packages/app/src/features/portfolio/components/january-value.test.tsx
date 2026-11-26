@@ -113,7 +113,8 @@ describe('JanuaryValue', () => {
     const expected = snapshotValue(dutch(), ENTRIES, ready.histories, EVE);
     // 0.02215 × 50,000 + 0.119 × 2,000.
     expect(expected.total).toBe('1345.5');
-    expect(screen.getByText('Value on 1 January 2030')).toBeDefined();
+    // The label of the figure the credited estimate prices: 14 px, like that line (docs/DESIGN.md §5).
+    expect(screen.getByText('Value on 1 January 2030').classList).toContain('text-14');
     expect(text()).toContain(dutchFormat.money(expected.total as Decimal, 'EUR' as CurrencyCode).replace(/\s/g, ' '));
     const estimate = screen.getByText(
       'Estimate from the daily closes of 31 Dec 2029 for BTC and ETH · Price data by CoinGecko',
