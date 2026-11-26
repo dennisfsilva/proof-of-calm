@@ -7,6 +7,8 @@ import {
   isNegative,
   isPositive,
   isZero,
+  type Money,
+  type Percent,
   type Plan,
   type Portfolio,
   type Position,
@@ -67,6 +69,21 @@ export function formatPnl(
   currency: Plan['payCurrency'],
 ) {
   return pnlParts(position, format, currency)?.join(' ') ?? null;
+}
+
+/**
+ * The P/L at its widest, gained and lost (docs/ENGINEERING.md §4): an amount one integer digit longer than the
+ * invested total and a percent of three, every figure a zero, as wide as any other under `nums`. No P/L up to
+ * ten times the invested total and 999.9 % prints wider; a P/L past that may.
+ */
+export function widestPnl(invested: Money, format: Formatters, currency: Plan['payCurrency']): readonly string[] {
+  const amount = `1${'0'.repeat((invested.replace('-', '').split('.')[0] ?? '').length)}`;
+  return ['', '-'].map((sign) =>
+    (formatPnl({ pnl: `${sign}${amount}` as Money, pnlPct: `${sign}100` as Percent }, format, currency) ?? '').replace(
+      /\d/gu,
+      '0',
+    ),
+  );
 }
 
 /** What the rows' charts follow: the value chart's state, the closes and range it drew from, the coins' colours. */
