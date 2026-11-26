@@ -216,11 +216,12 @@ describe('TodayScreen', () => {
 
   it('the portfolio number: invested without prices, the value with its prices line once priced', async () => {
     await mount(fixtureSnapshot(), at('2026-10-20'));
-    expect(screen.getByText('Invested')).toBeDefined();
+    // The label above the figure is never smaller than the prices line under it: both are 14 px.
+    expect(screen.getByText('Invested').classList).toContain('text-14');
     expect(screen.queryByText(/^Prices as of/)).toBeNull();
     cleanup();
     await mount(fixtureSnapshot(), at('2026-10-20'), true);
-    expect(screen.getByText('Portfolio value')).toBeDefined();
+    expect(screen.getByText('Portfolio value').classList).toContain('text-14');
     // The prices line carries CoinGecko's credit, so it is set at 14 px (ADR-0050).
     expect(screen.getByText(/^Prices as of .* · Price data by CoinGecko$/).classList).toContain('text-14');
   });

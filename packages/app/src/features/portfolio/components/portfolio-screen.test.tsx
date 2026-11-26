@@ -89,6 +89,8 @@ describe('PortfolioScreen', () => {
       expect(screen.getByRole('heading', { level: 1, name: 'Portfolio' })).toBeDefined();
       // BTC 0.02215 at 60,000.12 and ETH 0.119 at 2,500.5; 1,700 invested and 150 back from a sale.
       expect(text()).toContain('Value1626,56 €');
+      // The label above the figure is set like the prices line under it and the facts' labels: 14 px.
+      expect(screen.getByText('Value', { selector: 'dt' }).classList).toContain('text-14');
       // The prices line carries CoinGecko's credit, so it is set at 14 px (ADR-0050).
       expect(screen.getByText(PRICES_AS_OF[phase]).classList).toContain('text-14');
       expect(text()).toContain('P/L+76,56 € (+4,5%)');
