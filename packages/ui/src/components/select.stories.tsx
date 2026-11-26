@@ -302,6 +302,53 @@ export const MidScreenLongList: Story = {
   play: async ({ canvas }) => opensInView(canvas.getByRole('combobox', { name: 'Country' }), 7),
 };
 
+const languages = [
+  { value: 'en', label: 'English' },
+  { value: 'pt-PT', label: 'Português (Portugal)' },
+  { value: 'de', label: 'Deutsch' },
+];
+
+// The list opened by click and left open for the after-visit axe pass (Settings' language, #271): once the opening
+// fade has ended, axe finds nothing, and the listbox takes its name from the label (2026-11-26).
+export const OpenList: Story = {
+  name: 'Open list',
+  render: () => (
+    <Select defaultValue="en">
+      <SelectLabel>Language</SelectLabel>
+      <SelectTrigger>
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
+        {languages.map(({ value, label }) => (
+          <SelectItem key={value} value={value}>
+            {label}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  ),
+  play: async ({ canvas, canvasElement }) => {
+    const trigger = canvas.getByRole('combobox', { name: 'Language' });
+    await userEvent.click(trigger);
+    const document = canvasElement.ownerDocument;
+    await waitFor(() => expect(document.querySelectorAll('[data-slot="select-item"]')).toHaveLength(languages.length));
+    const popup = document.querySelector('[data-slot="select-content"]');
+    if (popup === null) throw new Error('No open list');
+    await settled(popup);
+    // The focus guards Base UI places around the open list stay; axe runs once their count holds over three frames.
+    let last = -1;
+    for (let still = 0, frames = 0; still < 3 && frames < 300; frames += 1) {
+      await frame();
+      const count = document.querySelectorAll('[data-base-ui-focus-guard]').length;
+      still = count === last ? still + 1 : 0;
+      last = count;
+    }
+    await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    // The listbox carries the label's name itself, not only through axe's exemption for a combobox's popup.
+    await expect(document.querySelector('[role="listbox"]')).toHaveAccessibleName('Language');
+  },
+};
+
 export const Open: Story = {
   render: () => (
     <Select defaultValue="EUR" defaultOpen>
