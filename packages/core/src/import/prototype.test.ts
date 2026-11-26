@@ -4,7 +4,13 @@ import { exportBackup } from '../export/backup';
 import { planTotals } from '../plan/totals';
 import { EntrySchema } from '../schema/entry';
 import type { EntityId } from '../schema/ids';
-import { importPrototype, type PrototypeImport, type PrototypeImportInput, recogniseImport } from './prototype';
+import {
+  importPrototype,
+  type PrototypeImport,
+  type PrototypeImportInput,
+  prototypePayCurrency,
+  recogniseImport,
+} from './prototype';
 
 const now = instant('2026-10-17T09:00:00Z');
 const fresh = [id(), id(), id(), id()];
@@ -439,5 +445,25 @@ describe('recogniseImport', () => {
     );
     expect(recogniseImport(exported())).toBe('prototype');
     for (const other of [null, 'text', [], { purchases: {} }]) expect(recogniseImport(other)).toBeNull();
+  });
+});
+
+describe('prototypePayCurrency (docs/DOMAIN.md §7, ADR-0053)', () => {
+  it('reads the pay currency the import gives the plan from the settings’ base, EUR when the file names none', () => {
+    const gbp = { ...exported(), settings: { ...exported().settings, base: 'GBP' } };
+    expect(prototypePayCurrency(gbp)).toBe('GBP');
+    expect(imported(gbp).plan.payCurrency).toBe('GBP');
+    expect(prototypePayCurrency(exported())).toBe('EUR');
+    const { base: _, ...unnamed } = exported().settings;
+    expect(prototypePayCurrency({ ...exported(), settings: unnamed })).toBe('EUR');
+    expect(prototypePayCurrency({ purchases: [] })).toBe('EUR');
+  });
+
+  it('gives null for a base it cannot read, and for a file that is not the page’s export', () => {
+    for (const base of ['SEK', null, 978, 'eur']) {
+      expect(prototypePayCurrency({ ...exported(), settings: { ...exported().settings, base } })).toBeNull();
+    }
+    for (const other of [null, 'text', [], { settings: { base: 'EUR' } }])
+      expect(prototypePayCurrency(other)).toBeNull();
   });
 });
