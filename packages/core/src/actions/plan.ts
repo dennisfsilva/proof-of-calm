@@ -143,6 +143,12 @@ export type CurrencyQuestion = {
  */
 export function currencyQuestion(plan: Plan, entries: readonly Entry[], rules: CountryRules): CurrencyQuestion | null {
   if (plan.payCurrency === rules.currency) return null;
+  const span = paidSpan(entries);
+  return span === null ? null : { logged: plan.payCurrency, country: rules.currency, ...span };
+}
+
+/** The live entries with an amount or a fee, the ones a currency labels: their count and first and last dates. */
+function paidSpan(entries: readonly Entry[]): Pick<CurrencyQuestion, 'count' | 'first' | 'last'> | null {
   const [head, ...rest] = liveEntries(entries).filter((entry) => entry.amount !== null || entry.fee !== null);
   if (head === undefined) return null;
   let first = head.date;
@@ -151,7 +157,30 @@ export function currencyQuestion(plan: Plan, entries: readonly Entry[], rules: C
     if (compareDates(date, first) < 0) first = date;
     if (compareDates(date, last) > 0) last = date;
   }
-  return { logged: plan.payCurrency, country: rules.currency, count: rest.length + 1, first, last };
+  return { count: rest.length + 1, first, last };
+}
+
+/**
+ * What onboarding asks before it writes a plan beside entries kept with no plan (ADR-0053): the currency they were
+ * last shown in (`kept`, null when unknown), the new plan's (`next`), and the entries with an amount or a fee, the
+ * dates one-day when first equals last. Null when no live entry holds an amount or a fee, or when `kept` is `next`.
+ */
+export type KeptCurrencyQuestion = {
+  readonly kept: CurrencyCode | null;
+  readonly next: CurrencyCode;
+  readonly count: number;
+  readonly first: CalendarDate;
+  readonly last: CalendarDate;
+};
+
+export function keptCurrencyQuestion(
+  entries: readonly Entry[],
+  kept: CurrencyCode | null,
+  next: CurrencyCode,
+): KeptCurrencyQuestion | null {
+  if (kept === next) return null;
+  const span = paidSpan(entries);
+  return span === null ? null : { kept, next, ...span };
 }
 
 /**
