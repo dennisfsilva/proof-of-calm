@@ -3,13 +3,14 @@ import { countryRules, loadProfile } from '@proofofcalm/content';
 import { DEFAULT_PREFS, type Entry } from '@proofofcalm/core';
 import { aMove, anEntry, aPlan, date, ETH, instant, units } from '@proofofcalm/core/testing';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EMPTY_SNAPSHOT, memoryPlanStore } from '../../../lib/adapters';
 import { I18nProvider } from '../../../lib/i18n';
 import { ServicesProvider } from '../../../lib/services';
 import { createTestServices, TEST_PRICES } from '../../../lib/services/testing';
 import errors from '../../../messages/en/errors.json';
 import log from '../../../messages/en/log.json';
+import { SETTLE_MS } from './form-status';
 import { MoveForm } from './move-form';
 
 // The move form (ADR-0054, research move-step Q2, Q3, Q9, Q11) over the test services: 0.03 BTC bought at Kraken on
@@ -51,6 +52,9 @@ const type = (label: string, value: string) => fireEvent.change(field(label), { 
 const radio = (name: string) => screen.getByRole('radio', { name });
 const checked = () => screen.queryAllByRole('radio').filter((each) => each.getAttribute('aria-checked') === 'true');
 const save = () => act(async () => void fireEvent.click(screen.getByRole('button', { name: 'Save' })));
+/** The lines before Save as shown (DESIGN §6): none of them is a live region. */
+const lines = () =>
+  [...document.querySelectorAll('[data-form-line]')].map((each) => each.textContent?.replace(/[  ]/gu, ' '));
 
 /** Fills a move from Kraken to Ledger on 20 Feb 2026 that sends `sent`. */
 function fill(sent: string, to = 'Ledger') {
@@ -109,10 +113,10 @@ describe('MoveForm', () => {
     await open(lots, { perVenue: true });
     fill('0,04');
     const line = [
-      'The Log shows 0,03 BTC at Kraken on 20 Feb 2026.',
-      'The Log looks for the other 0,01 BTC in the units you held outside Ledger on that day.',
+      'The Log shows 0,03 BTC at Kraken on 20 Feb 2026.',
+      'The Log looks for the other 0,01 BTC in the units you held outside Ledger on that day.',
     ];
-    expect(screen.getByRole('status').textContent).toBe(line.join(' '));
+    expect(lines()).toEqual([line.join(' ')]);
     cleanup();
     await open(lots);
     fill('0.04');
@@ -124,7 +128,7 @@ describe('MoveForm', () => {
     const march = aMove({ date: date('2026-03-10'), units: units('0.03'), received: units('0.03') });
     const { onDone } = await open([...lots, march], { perVenue: true });
     fill('0,05');
-    expect(screen.getAllByRole('status').map((each) => each.textContent?.replace(/\u00a0/gu, ' '))).toEqual([
+    expect(lines()).toEqual([
       'The Log shows 0,03 BTC at Kraken on 20 Feb 2026. The Log looks for the other 0,02 BTC in the units you held outside Ledger on that day.',
       'After this move, your move to Ledger on 10 Mar 2026 sends 0,03 BTC more than the Log shows outside Ledger that day. If both record the same withdrawal, leave only one of them in the Log. If not, check the units that move sends.',
     ]);
@@ -142,9 +146,9 @@ describe('MoveForm', () => {
     const withLedger = [...lots, bought('0.01', '2026-02-01', 'Ledger')];
     await open(withLedger, { perVenue: true });
     fill('0,06');
-    expect(screen.getByRole('status').textContent?.replace(/\u00a0/gu, ' ')).toBe(
+    expect(lines()).toEqual([
       'The Log shows 0,03 BTC at Kraken on 20 Feb 2026. Outside Ledger, the Log shows 0,05 BTC in all on that day, 0,01 BTC fewer than this move sends.',
-    );
+    ]);
     // Under global lots the fee is covered outside Ledger: no line.
     cleanup();
     await open(withLedger);
@@ -161,16 +165,17 @@ describe('MoveForm', () => {
     fill('0.5');
     type('Units received', '0.4999');
     expect(radio('Kraken').textContent?.replace(/ /gu, ' ')).toContain('0,2 BTC');
-    expect(screen.getByRole('status').textContent?.replace(/\u00a0/gu, ' ')).toBe(
+    expect(lines()).toEqual([
+      'Network fee 0,0001 BTC',
       'The Log shows 0,2 BTC at Kraken on 20 Feb 2026. Outside Ledger, the Log shows 0,2 BTC in all on that day, 0,3 BTC fewer than this move sends.',
-    );
+    ]);
     // A sale of all of Ledger's lot leaves 1 BTC at Kraken, which covers the move: no line.
     cleanup();
     const covered = [bought('1', '2026-01-10', 'Kraken'), bought('1', '2026-02-10', 'Ledger')];
     await open([...covered, { ...sale, units: units('1') }]);
     fill('0.5');
     type('Units received', '0.4999');
-    expect(screen.queryByRole('status')).toBeNull();
+    expect(lines()).toEqual(['Network fee 0,0001 BTC']);
   });
 
   it("the later-move line writes the stored move's figure in its own coin", async () => {
@@ -197,8 +202,8 @@ describe('MoveForm', () => {
     const earlier = aMove({ date: date('2026-02-20'), venue: 'Kraken', to: 'Ledger', units: units('0.01') });
     const { onDone } = await open([...lots, { ...earlier, received: units('0.01') }]);
     fill('0.01');
-    const line = 'The Log already has this move on 20 Feb 2026. Save it only if you moved these coins twice.';
-    expect(screen.getByRole('status').textContent).toBe(line);
+    const line = 'The Log already has this move on 20 Feb 2026. Save it only if you moved these coins twice.';
+    expect(lines()).toEqual([line]);
     // The line never blocks the save.
     await save();
     expect(onDone).toHaveBeenCalledTimes(1);
@@ -453,5 +458,63 @@ describe('MoveForm', () => {
     const saved = onDone.mock.calls[0]?.[0] ?? [];
     expect(saved.map((entry) => [entry.id, entry.received])).toEqual([[move.id, '0.0299']]);
     expect(services.domain.store.getState().snapshot.entries.filter((entry) => entry.kind === 'move')).toHaveLength(1);
+  });
+
+  // docs/DESIGN.md §6 (session 27c's DC2): the lines show at once with no live role; the one polite status after Save
+  // repeats them, the fee line first, once the form has stayed unchanged for SETTLE_MS.
+  describe('the status', () => {
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+    const plain = (text: string | null | undefined) => text?.replace(/[  ]/gu, ' ');
+    const wait = (ms: number) => act(() => void vi.advanceTimersByTime(ms));
+    const status = () => screen.getByRole('status');
+    const said = () => [...status().querySelectorAll('p')].map((each) => plain(each.textContent));
+    const shown = () => [...document.querySelectorAll('[data-form-line]')];
+
+    it('opens as one empty status, after Save', async () => {
+      await open(lots);
+      expect(screen.getAllByRole('status')).toHaveLength(1);
+      expect(status().textContent).toBe('');
+      const saveButton = screen.getByRole('button', { name: 'Save' });
+      expect(saveButton.compareDocumentPosition(status()) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    });
+
+    it('per venue, takes the short-source line a second after the last digit of Units sent', async () => {
+      await open(lots, { perVenue: true });
+      fill('');
+      for (const typed of ['0', '0,', '0,0', '0,04']) {
+        type('Units sent', typed);
+        await wait(200);
+      }
+      const line =
+        'The Log shows 0,03 BTC at Kraken on 20 Feb 2026. The Log looks for the other 0,01 BTC in the units you held outside Ledger on that day.';
+      expect(shown().map((each) => plain(each.textContent))).toEqual([line]);
+      await wait(SETTLE_MS - 201);
+      expect(status().textContent).toBe('');
+      await wait(1);
+      expect(said()).toEqual([line]);
+    });
+
+    it('speaks the fee line first once received is typed below sent', async () => {
+      await open(lots, { perVenue: true });
+      fill('0,04');
+      type('Units received', '0,0399');
+      await wait(SETTLE_MS);
+      expect(said()).toHaveLength(2);
+      expect(said()[0]).toBe('Network fee 0,0001 BTC');
+    });
+
+    it('gives the move lines no live role', async () => {
+      const march = aMove({ date: date('2026-03-10'), units: units('0.03'), received: units('0.03') });
+      await open([...lots, march], { perVenue: true });
+      fill('0,05');
+      type('Units received', '0,0499');
+      expect(shown()).toHaveLength(3);
+      for (const line of shown()) expect(line.closest('[role="status"],[aria-live],output')).toBeNull();
+    });
   });
 });

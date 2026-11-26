@@ -98,6 +98,12 @@ const fieldError = (label: string) => {
   return { invalid: control.getAttribute('aria-invalid'), text: error?.textContent };
 };
 
+/** The lines before Save as shown, in the column's order (DESIGN §6): none of them is a live region. */
+const shown = () =>
+  [...document.querySelectorAll('[data-form-line]')].map((each) => each.textContent?.replace(/[\u00a0\u202f]/gu, ' '));
+/** LEGAL §4: the data line, once, after a sale's holding warnings. */
+const NOTE = 'Computed from your dates, not tax advice';
+
 describe('EntryForm', () => {
   it('fills the units as an amount is typed', async () => {
     await renderForm();
@@ -122,12 +128,12 @@ describe('EntryForm', () => {
     type('Date', '2026-10-18');
     const value = (label: string) => screen.getByLabelText<HTMLInputElement>(label).value;
     expect([value('BTC received (units)'), value('BTC price (EUR)')]).toEqual(['', '']);
-    expect(screen.getByRole('status').textContent).toBe(
+    expect(shown()).toEqual([
       "The price the form filled in does not apply to an earlier date. Type the cost before fees and the units received, as your exchange's confirmation shows them.",
-    );
+    ]);
     type('Date', '2026-10-20');
     expect([value('BTC received (units)'), value('BTC price (EUR)')]).toEqual(['0,00199999', '60\u00a0000,12']);
-    expect(screen.queryByRole('status')).toBeNull();
+    expect(shown()).toEqual([]);
   });
 
   // "Type 2 of the 3; the form fills the third": units beside the live price filled nothing, and the save refused.
@@ -558,17 +564,18 @@ describe('EntryForm', () => {
       const past = { ...older, units: units('0.10') };
       const recent = { ...october, units: units('0.05') };
       const { services, onDone } = await renderForm({ kind: 'sell' }, [past, recent]);
-      expect(screen.queryByRole('status')).toBeNull();
+      expect(shown()).toEqual([]);
       type('BTC sold (units)', '0.15');
       type('BTC sold for, before fees (EUR)', '9000.00');
       // CONTENT-STYLE §3 "Holding warning on a sale": prose figures, the sale's date, the effect's second sentence.
-      expect(text(screen.getByRole('status'))).toBe(
+      expect(shown()).toEqual([
         'Only 0,10 of the 0,15 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed.',
-      );
+        NOTE,
+      ]);
       // LEGAL §4: the data line once, beside the holding status.
       expect(screen.getAllByText('Computed from your dates, not tax advice')).toHaveLength(1);
       type('BTC sold (units)', '0.10');
-      expect(screen.queryByRole('status')).toBeNull();
+      expect(shown()).toEqual([]);
       expect(screen.queryByText('Computed from your dates, not tax advice')).toBeNull();
       type('BTC sold (units)', '0.15');
       await save();
@@ -583,9 +590,10 @@ describe('EntryForm', () => {
       await renderForm({ kind: 'sell' }, [october]);
       type('BTC sold (units)', '0.001');
       type('BTC sold for, before fees (EUR)', '60.00');
-      expect(text(screen.getByRole('status'))).toBe(
+      expect(shown()).toEqual([
         'None of the 0,001 BTC sold is past the holding rule on 20 Oct 2026. It may be taxed.',
-      );
+        NOTE,
+      ]);
     });
 
     // DOMAIN §3.7: Portugal matches lots per platform, so BTC at Kraken past the rule leave a sale at Bitvavo taxed.
@@ -602,11 +610,12 @@ describe('EntryForm', () => {
       type('Venue (optional)', 'Bitvavo');
       type('BTC sold (units)', '0,002');
       type('BTC sold for, before fees (EUR)', '120,00');
-      expect(text(screen.getByRole('status'))).toBe(
+      expect(shown()).toEqual([
         'None of the 0,002 BTC sold is past the holding rule on 20 Oct 2026. It may be taxed.',
-      );
+        NOTE,
+      ]);
       type('Venue (optional)', 'Kraken');
-      expect(screen.queryByRole('status')).toBeNull();
+      expect(shown()).toEqual([]);
     });
 
     // Review round 1 of the venue fix: the Log groups sales by kind and date, so one row can hold two sales of a coin at
@@ -627,9 +636,10 @@ describe('EntryForm', () => {
         b,
       ];
       await renderForm({ kind: 'sell', editing: [a, b] }, entries, servicesWith(entries, { rules }));
-      expect(text(screen.getByRole('status'))).toBe(
+      expect(shown()).toEqual([
         'None of the 0,002 BTC sold is past the holding rule on 20 Oct 2026. It may be taxed.',
-      );
+        NOTE,
+      ]);
     });
 
     // A cleared row's own sale is the one the save deletes; the others keep their entries and when each was logged,
@@ -691,9 +701,10 @@ describe('EntryForm', () => {
       try {
         await renderForm({ kind: 'sell', editing: [a, b] }, entries, servicesWith(entries, { rules }));
         // Two warnings of one coin at two venues name them, so each reads apart from the other.
-        expect(screen.getAllByRole('status').map(text)).toEqual([
+        expect(shown()).toEqual([
           'None of the 0,001 BTC sold at Kraken is past the holding rule on 20 Oct 2026. It may be taxed.',
           'None of the 0,002 BTC sold at Bitpanda is past the holding rule on 20 Oct 2026. It may be taxed.',
+          NOTE,
         ]);
         const collisions = errorSpy.mock.calls.filter((call) =>
           call.some((part) => String(part).includes('Encountered two children with the same key')),
@@ -729,7 +740,7 @@ describe('EntryForm', () => {
         const { services } = await renderForm({ kind: 'sell', editing }, all, servicesWith(all, { rules }));
         fireEvent.change(screen.getAllByLabelText('BTC sold (units)')[at]!, { target: { value: '' } });
         fireEvent.change(screen.getAllByLabelText('BTC sold for, before fees (EUR)')[at]!, { target: { value: '' } });
-        const warnings = screen.getAllByRole('status').map(text);
+        const warnings = shown();
         await save();
         const live = stored(services).filter((entry) => entry.deletedAt === null);
         return { warnings, sales: matchLots(live, BTC.id, 'per-venue').sales };
@@ -745,6 +756,7 @@ describe('EntryForm', () => {
         expect(warnings).toEqual([
           'None of the 1 BTC sold at Bitvavo is past the holding rule on 20 Oct 2026. It may be taxed.',
           'None of the 1 BTC sold at Ledger is past the holding rule on 20 Oct 2026. It may be taxed.',
+          NOTE,
         ]);
         expect(sales.map((sale) => [sale.id, sale.takes])).toEqual([
           [bitvavo.id, [{ lot: ledger.id, units: '1', venue: 'Ledger', since: null }]],
@@ -763,6 +775,7 @@ describe('EntryForm', () => {
           'None of the 1 BTC sold at Bitvavo is past the holding rule on 20 Oct 2026. It may be taxed.',
           'None of the 1 BTC sold at Ledger is past the holding rule on 20 Oct 2026. It may be taxed.',
           'None of the 0,5 BTC sold at Bitvavo is past the holding rule on 20 Oct 2026. It may be taxed.',
+          NOTE,
         ]);
         expect(sales.map((sale) => [sale.id, sale.takes])).toEqual([
           [bitvavo.id, [{ lot: ledger.id, units: '1', venue: 'Ledger', since: null }]],
@@ -799,9 +812,10 @@ describe('EntryForm', () => {
 
       it('warns on the second sale', async () => {
         await renderForm({ kind: 'sell', editing: [a, b] }, entries, servicesWith(entries, { rules }));
-        expect(text(screen.getByRole('status'))).toBe(
+        expect(shown()).toEqual([
           'Only 0,4 of the 0,6 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed.',
-        );
+          NOTE,
+        ]);
       });
 
       // The Log lists the larger sale first; the save matches the one logged first first, as the warning does.
@@ -827,15 +841,16 @@ describe('EntryForm', () => {
         });
         const stored = [owned, recent, small, large];
         await renderForm({ kind: 'sell', editing: [large, small] }, stored, servicesWith(stored, { rules }));
-        expect(text(screen.getByRole('status'))).toBe(
+        expect(shown()).toEqual([
           'Only 0,7 of the 0,9 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed.',
-        );
+          NOTE,
+        ]);
       });
 
       it('warns on nothing once one row is cleared, since the save keeps one sale of 0.6', async () => {
         await renderForm({ kind: 'sell', editing: [a, b] }, entries, servicesWith(entries, { rules }));
         fireEvent.change(screen.getAllByLabelText('BTC sold (units)')[0]!, { target: { value: '' } });
-        expect(screen.queryByRole('status')).toBeNull();
+        expect(shown()).toEqual([]);
       });
 
       // A cleared row's own sale is the one the save deletes; the others keep their entries and when each was logged,
@@ -860,7 +875,7 @@ describe('EntryForm', () => {
           const { services } = await renderForm({ kind: 'sell', editing }, all, servicesWith(all, { rules }));
           fireEvent.change(screen.getAllByLabelText('BTC sold (units)')[at]!, { target: { value: '' } });
           fireEvent.change(screen.getAllByLabelText('BTC sold for, before fees (EUR)')[at]!, { target: { value: '' } });
-          const warning = text(screen.getByRole('status'));
+          const warning = shown();
           await save();
           const sales = stored(services).filter((entry) => entry.kind === 'sell');
           return { warning, live: sales.filter((entry) => entry.deletedAt === null), sales };
@@ -871,9 +886,10 @@ describe('EntryForm', () => {
           const middle = logged('0.55', '33000', '09:00');
           const last = logged('0.5', '30000', '11:00');
           const { warning, live, sales } = await clear(1, [first, middle, last]);
-          expect(warning).toBe(
+          expect(warning).toEqual([
             'Only 0,4 of the 0,5 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed.',
-          );
+            NOTE,
+          ]);
           expect(live).toMatchObject([
             { id: first.id, createdAt: first.createdAt, units: '0.6' },
             { id: last.id, createdAt: last.createdAt, units: '0.5' },
@@ -885,9 +901,10 @@ describe('EntryForm', () => {
           const larger = logged('1.5', '90000', '09:00');
           const smaller = logged('1.2', '72000', '08:00');
           const { warning, live, sales } = await clear(0, [larger, smaller]);
-          expect(warning).toBe(
+          expect(warning).toEqual([
             'Only 1,0 of the 1,2 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed.',
-          );
+            NOTE,
+          ]);
           expect(live).toMatchObject([{ id: smaller.id, createdAt: smaller.createdAt, units: '1.2' }]);
           expect(sales.find((entry) => entry.id === larger.id)?.deletedAt).not.toBeNull();
         });
@@ -901,9 +918,10 @@ describe('EntryForm', () => {
           ];
           const all = [owned, recent, ...editing];
           await renderForm({ kind: 'sell', editing }, all, servicesWith(all, { rules }));
-          expect(screen.getAllByRole('status').map(text)).toEqual([
+          expect(shown()).toEqual([
             'Only 0,45 of the 0,60 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed.',
             'None of the 0,5 BTC sold is past the holding rule on 20 Oct 2026. It may be taxed.',
+            NOTE,
           ]);
         });
 
@@ -912,9 +930,10 @@ describe('EntryForm', () => {
           const large = logged('0.9', '54000', '10:00');
           const all = [owned, recent, large, small];
           await renderForm({ kind: 'sell', editing: [large, small] }, all, servicesWith(all, { rules }));
-          expect(text(screen.getByRole('status'))).toBe(
+          expect(shown()).toEqual([
             'Only 0,7 of the 0,9 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed.',
-          );
+            NOTE,
+          ]);
         });
       });
     });
@@ -946,7 +965,7 @@ describe('EntryForm', () => {
         fireEvent.change(screen.getAllByLabelText('BTC sold (units)')[at]!, { target: { value: '' } });
         fireEvent.change(screen.getAllByLabelText('BTC sold for, before fees (EUR)')[at]!, { target: { value: '' } });
         fireEvent.change(screen.getAllByLabelText('BTC sold (units)')[raised]!, { target: { value: typed } });
-        const lines = screen.getAllByRole('status').map(text);
+        const lines = shown();
         await save();
         return { lines, onDone, services };
       };
@@ -1038,9 +1057,10 @@ describe('EntryForm', () => {
       await renderForm({ kind: 'sell' }, entries, servicesWith(entries, {}, lowerRate));
       type('BTC sold (units)', '0.75');
       type('BTC sold for, before fees (EUR)', '45000.00');
-      expect(text(screen.getByRole('status'))).toBe(
+      expect(shown()).toEqual([
         'Only 0,50 of the 0,75 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed at the short-term rate.',
-      );
+        NOTE,
+      ]);
     });
   });
 
@@ -1218,11 +1238,11 @@ describe('EntryForm', () => {
     });
     const { services, onDone } = await renderForm({ kind: 'extra', editing: [older] }, [older, move]);
     fireEvent.click(screen.getByRole('button', { name: 'Venue and note' }));
-    expect(screen.queryByRole('status')).toBeNull();
+    expect(shown()).toEqual([]);
     type('Venue (optional)', 'Ledger');
-    expect(screen.getByRole('status').textContent?.replace(/\u00a0/g, ' ')).toBe(
+    expect(shown()).toEqual([
       "After this change, your move to Ledger on 10 Jan 2026 sends 0,003 BTC more than the Log shows outside Ledger that day. Check that move's date and venues in the Log after you save.",
-    );
+    ]);
     await save();
     expect(onDone).toHaveBeenCalledOnce();
     expect(stored(services).find((entry) => entry.id === older.id)?.venue).toBe('Ledger');
@@ -1253,7 +1273,7 @@ describe('EntryForm', () => {
     // The note field ends the panel: the line follows it, not only the Venue field.
     const note = screen.getByLabelText('Note (optional)');
     type('Venue (optional)', 'Ledger');
-    const line = screen.getByRole('status');
+    const line = screen.getByText((_, element) => element?.hasAttribute('data-form-line') === true);
     expect(line.textContent?.replace(/ /g, ' ')).toContain('your move to Ledger on 10 Jan 2026');
     const saveButton = screen.getByRole('button', { name: 'Save' });
     expect(note.compareDocumentPosition(line) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
@@ -1298,11 +1318,11 @@ describe('EntryForm', () => {
     await renderForm({ kind: 'sell', editing: [sale] }, [past, ...recent, sale]);
     type('BTC sold for, before fees (EUR)', '9000.0');
     const warning = 'Only 0,10 of the 0,15 BTC sold are past the holding rule on 20 Oct 2026. The rest may be taxed.';
-    const statuses = () => screen.getAllByRole('status').map((each) => each.textContent?.replace(/ /g, ' '));
-    expect(statuses()).toEqual([warning]);
+    const statuses = shown;
+    expect(statuses()).toEqual([warning, NOTE]);
     vi.mocked(movesLeftShort).mockClear();
     type('BTC sold for, before fees (EUR)', '9000.00');
     expect(movesLeftShort).not.toHaveBeenCalled();
-    expect(statuses()).toEqual([warning]);
+    expect(statuses()).toEqual([warning, NOTE]);
   });
 });
