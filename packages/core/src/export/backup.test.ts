@@ -338,6 +338,25 @@ describe('applyImport (docs/DOMAIN.md §3.13, ADR-0019)', () => {
       updatedAt: now,
     });
   });
+
+  it('with no plan but live entries stored (the plan row set aside, ADR-0019), a replace keeps them and adds the missing', () => {
+    // Recorded after the backup was exported, so the file does not hold it.
+    const later = anEntry({ slot: month('2026-04') });
+    const result = applyImport({ plan: null, entries: [mine, later, gone] }, file, 'replace', now);
+    expect(result.plan).toEqual({ ...file.plan, updatedAt: now });
+    expect(result.entries).toEqual([mine, later, gone, { ...theirs, updatedAt: now }]);
+    expect([result.added, result.skipped, result.deleted, result.taken]).toEqual([1, 1, 0, 0]);
+  });
+
+  it('with no plan and only tombstones stored, a replace takes the file’s entries and keeps the tombstones', () => {
+    const result = applyImport({ plan: null, entries: [gone] }, file, 'replace', now);
+    expect(result.entries).toEqual([
+      { ...theirs, updatedAt: now },
+      { ...mine, updatedAt: now },
+      { ...gone, updatedAt: now },
+    ]);
+    expect([result.added, result.skipped, result.deleted, result.taken]).toEqual([2, 0, 0, 0]);
+  });
 });
 
 // A plan holds at most MAX_ENTRIES live entries (docs/DOMAIN.md §9), so that its next export reads back.

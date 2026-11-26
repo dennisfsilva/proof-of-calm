@@ -101,6 +101,21 @@ describe('DataSection, the result of an import', () => {
     expect(document.activeElement).toBe(status);
   });
 
+  it('with no plan shown and entries stored (the plan row set aside), Import this backup keeps every entry live', async () => {
+    const snapshot = fixtureSnapshot();
+    const live = liveEntries(snapshot.entries);
+    if (snapshot.plan === null || live.length < 2) throw new Error('the fixture has a plan and entries');
+    // The backup was exported before the last entry was recorded.
+    const { services } = await mount({ ...snapshot, plan: null });
+    await choose(JSON.stringify(exportBackup(snapshot.plan, live.slice(0, -1), NOW)));
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Import this backup' })));
+    const after = services.domain.store.getState().snapshot;
+    expect(after.plan?.id).toBe(snapshot.plan.id);
+    const ids = (entries: readonly Entry[]) => liveEntries(entries).map((entry) => entry.id);
+    expect(ids(after.entries).toSorted()).toEqual(ids(live).toSorted());
+    expect(screen.getByRole('status').textContent).toBe(`Plan imported. Entries now: ${live.length}.`);
+  });
+
   it('moves focus to the result when the Replace everything dialog closes after the replace', async () => {
     const snapshot = fixtureSnapshot();
     if (snapshot.plan === null) throw new Error('the fixture has a plan');
@@ -351,6 +366,22 @@ describe('DataSection, a file from the DCA plan page (docs/DOMAIN.md §7)', () =
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Continue with Portugal' })));
     expect(screen.getByRole('status').textContent).toBe('Plan imported. Entries now: 18.');
     expect(services.domain.store.getState().snapshot.plan?.country).toBe('PT');
+    vi.restoreAllMocks();
+  });
+
+  it('with no plan shown and entries stored (the plan row set aside), the import keeps every entry live', async () => {
+    vi.spyOn(window.navigator, 'languages', 'get').mockReturnValue(['pt-PT']);
+    const snapshot = fixtureSnapshot();
+    const live = liveEntries(snapshot.entries).map((entry) => entry.id);
+    const { services } = await mount({ ...snapshot, plan: null }, undefined, { rules });
+    await choose(JSON.stringify(twoCoins.state));
+    await screen.findByRole('heading', { name: 'Where do you live?' });
+    await choosePortugal();
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Continue with Portugal' })));
+    const after = services.domain.store.getState().snapshot;
+    expect(after.plan?.country).toBe('PT');
+    const stored = new Set(liveEntries(after.entries).map((entry) => entry.id));
+    expect(live.filter((id) => !stored.has(id))).toEqual([]);
     vi.restoreAllMocks();
   });
 
