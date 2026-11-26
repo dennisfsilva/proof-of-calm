@@ -3,7 +3,18 @@
 import { CSPProvider } from '@base-ui/react/csp-provider';
 import { Select as SelectPrimitive } from '@base-ui/react/select';
 import { CheckIcon, ChevronDownIcon, ChevronUpIcon } from 'lucide-react';
-import { type ComponentProps, createContext, use, useLayoutEffect, useRef, useState } from 'react';
+import {
+  Children,
+  type ComponentProps,
+  type CSSProperties,
+  createContext,
+  isValidElement,
+  type ReactNode,
+  use,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from 'react';
 import type { WithClassName } from '#lib/types';
 import { cn } from '#lib/utils';
 
@@ -12,11 +23,13 @@ import { cn } from '#lib/utils';
 // option is a 44 px target and the selected one carries a check, not only a colour. Base UI's inline
 // <style> for its scrollbar class is off, as the hashed CSP refuses it (docs/SECURITY.md §4); globals.css
 // holds the rule. The provider's context crosses the portal, so it covers the popup.
-// The popup keeps clear of the phone tab bar (TabBar, below 48rem): Base UI's layout that aligns the selected item with
-// the trigger reads the positioner's bottom margin, and the one that places it beside the trigger takes a collision
-// padding in pixels, the tab bar's spacer measured as the popup opens (it hid an option at zoom-125, 2026-11-25).
-// The margin is set only when the aligned list would reach the bar: Base UI's layout adds it to the list's height as
-// well as taking it from the viewport, so a margin the list does not need lifts it off its trigger (2026-11-25).
+// The list covers its trigger, the selected option on the value (Base UI's aligned layout, data-side="none"), only
+// while that shows every option of up to seven, or seven of a longer list: the positioner's minimum height is that
+// many targets, and below it Base UI places the list beside the trigger, above it near the tab bar (2026-11-26).
+// The popup keeps clear of the phone tab bar (TabBar, below 48rem): beside, its collision padding adds the bar's spacer,
+// measured as the popup opens; aligned, both positioner margins are the bar's height when the list would reach the bar,
+// as Base UI takes both from the viewport but adds back only the bottom one, and a margin the list does not need lifts
+// it off its trigger. The height cap applies only beside: aligned, it would cut the list to the room below the trigger.
 
 const BottomBar = createContext(0);
 const bottomBar = () => document.querySelector<HTMLElement>('[data-slot="tab-bar"]')?.offsetHeight ?? 0;
@@ -37,8 +50,8 @@ function reachesBar(positioner: HTMLElement, bar: number): boolean {
 }
 
 /**
- * The positioner's element, given the bar's margin only when the list would reach the bar. It measures in the commit
- * that shows the list, before Floating UI's first pass lets Base UI's layout read the margin.
+ * The positioner's element, given the bar's margins only when the list would reach the bar. It measures in the commit
+ * that shows the list, before Floating UI's first pass lets Base UI's layout read the margins.
  */
 function BarPositioner({
   open,
@@ -60,7 +73,7 @@ function BarPositioner({
         if (typeof ref === 'function') return ref(node);
         if (ref) ref.current = node;
       }}
-      className={cn(className, clear && 'mb-(--bottom-bar)')}
+      className={cn(className, clear && 'data-[side=none]:my-(--bottom-bar)')}
     />
   );
 }
@@ -115,6 +128,16 @@ function SelectValue({ className, ...props }: WithClassName<SelectPrimitive.Valu
   return <SelectPrimitive.Value data-slot="select-value" className={cn('flex-1 truncate', className)} {...props} />;
 }
 
+/** How many SelectItems the children hold, through arrays, Fragments and groups. */
+function items(children: ReactNode): number {
+  let count = 0;
+  Children.forEach(children, (child) => {
+    if (isValidElement<{ children?: ReactNode }>(child))
+      count += child.type === SelectItem ? 1 : items(child.props.children);
+  });
+  return count;
+}
+
 type SelectContentProps = WithClassName<SelectPrimitive.Popup.Props> &
   Pick<SelectPrimitive.Positioner.Props, 'align' | 'alignOffset' | 'side' | 'sideOffset' | 'alignItemWithTrigger'>;
 
@@ -131,6 +154,7 @@ function SelectContent({
   // Base UI's default padding of 5 px on every side, the tab bar's height added at the bottom.
   const bar = use(BottomBar);
   const bottom = bar + 5;
+  const floor: CSSProperties & Record<'--select-floor', number> = { '--select-floor': Math.min(items(children), 7) };
   return (
     <SelectPrimitive.Portal>
       <SelectPrimitive.Positioner
@@ -141,12 +165,13 @@ function SelectContent({
         alignOffset={alignOffset}
         alignItemWithTrigger={alignItemWithTrigger}
         collisionPadding={{ top: 5, right: 5, bottom, left: 5 }}
-        className="isolate z-50"
+        className="isolate z-50 data-[side=none]:min-h-[calc(var(--select-floor)*var(--target))]"
+        style={floor}
       >
         <SelectPrimitive.Popup
           data-slot="select-content"
           className={cn(
-            'relative max-h-(--available-height) min-w-(--anchor-width) origin-(--transform-origin) overflow-y-auto rounded-md border border-overlay-border bg-overlay p-1 text-ink shadow-overlay transition-[opacity,scale] duration-(--duration-base) ease-enter data-ending-style:scale-95 data-starting-style:scale-95 data-ending-style:opacity-0 data-starting-style:opacity-0 data-ending-style:ease-exit',
+            'relative not-data-[side=none]:max-h-(--available-height) min-w-(--anchor-width) origin-(--transform-origin) overflow-y-auto rounded-md border border-overlay-border bg-overlay p-1 text-ink shadow-overlay transition-[opacity,scale] duration-(--duration-base) ease-enter data-ending-style:scale-95 data-starting-style:scale-95 data-ending-style:opacity-0 data-starting-style:opacity-0 data-ending-style:ease-exit',
             className,
           )}
           {...props}
