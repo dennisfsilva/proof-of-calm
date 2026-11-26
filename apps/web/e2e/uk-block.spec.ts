@@ -10,6 +10,8 @@ const BLOCKED = [
   ...APP_ROUTES.map((route) => `/${route}`),
   '/app',
   '/manifest.webmanifest',
+  // The manifest's screenshots stay inside the route (ADR-0009 Reading 2026-11-23, ADR-0029 Readings 2026-11-26).
+  '/screenshots/holding-date-narrow.png',
   '/TERMS',
   '/en/learn',
   '/en/learn/risk-honestly',

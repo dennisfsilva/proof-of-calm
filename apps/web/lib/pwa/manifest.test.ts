@@ -1,10 +1,18 @@
 import { readFileSync } from 'node:fs';
+import { findBanned } from '@proofofcalm/content';
 import { describe, expect, it } from 'vitest';
 import * as z from 'zod/mini';
 import { manifest } from './manifest';
 
-// What Chrome's install criteria and ADR-0033 ask of the manifest, as a schema; and every icon it names
-// exists in public/ at the size it claims.
+// What Chrome's install criteria and ADR-0033 ask of the manifest, as a schema; and every icon and
+// screenshot it names exists in public/ at the size it claims.
+const Screenshot = z.object({
+  src: z.string().check(z.regex(/^\/screenshots\/[a-z0-9-]+-(narrow|wide)\.png$/)),
+  sizes: z.string().check(z.regex(/^\d+x\d+$/)),
+  type: z.literal('image/png'),
+  form_factor: z.enum(['narrow', 'wide']),
+  label: z.string().check(z.minLength(1)),
+});
 const Icon = z.object({
   src: z.string().check(z.regex(/^\/icons\/[a-z0-9-]+\.png$/)),
   sizes: z.string().check(z.regex(/^\d+x\d+$/)),
@@ -22,6 +30,7 @@ const Installable = z.object({
   background_color: z.string().check(z.regex(/^#[0-9a-f]{6}$/)),
   theme_color: z.string().check(z.regex(/^#[0-9a-f]{6}$/)),
   icons: z.array(Icon),
+  screenshots: z.array(Screenshot),
 });
 
 function pngSize(path: string): string {
@@ -45,5 +54,38 @@ describe('the web app manifest (ADR-0033)', () => {
       ]);
     }
     for (const icon of icons) expect(pngSize(icon.src), icon.src).toBe(icon.sizes);
+  });
+
+  // The set of ADR-0009's Reading of 2026-11-23 (docs/DESIGN.md §9): four narrow images, the holding-date page
+  // first, and the holding-date page wide; e2e/manifest-capture.spec.ts renders them in the pinned container.
+  const screenshots = parsed.data?.screenshots ?? [];
+
+  it('names four narrow screenshots, the holding-date page first, and the holding-date page wide', () => {
+    expect(screenshots.map((shot) => shot.src)).toEqual([
+      '/screenshots/holding-date-narrow.png',
+      '/screenshots/country-pt-narrow.png',
+      '/screenshots/today-narrow.png',
+      '/screenshots/learn-narrow.png',
+      '/screenshots/holding-date-wide.png',
+    ]);
+    // android-small's viewport of 360 × 780 at a device scale factor of 3, and desktop's 1280 × 800 at 1.
+    const sizes = { narrow: '1080x2340', wide: '1280x800' };
+    for (const shot of screenshots) {
+      expect(shot.src, shot.src).toContain(`-${shot.form_factor}.png`);
+      expect(shot.sizes, shot.src).toBe(sizes[shot.form_factor]);
+    }
+  });
+
+  it('names screenshots that exist at their size', () => {
+    for (const shot of screenshots) expect(pngSize(shot.src), shot.src).toBe(shot.sizes);
+  });
+
+  it('labels each in ten words or fewer, without "your", in sentence case, past the banned-words lint', () => {
+    for (const { label } of screenshots) {
+      expect(label.split(/\s+/).length, label).toBeLessThanOrEqual(10);
+      expect(label, label).not.toMatch(/\byour\b/i);
+      expect(label.charAt(0), label).toBe(label.charAt(0).toUpperCase());
+      expect(findBanned(label), label).toEqual([]);
+    }
   });
 });
