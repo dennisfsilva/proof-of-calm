@@ -1,8 +1,9 @@
 // The set-aside entries a person would miss (ADR-0019 Readings, 2026-11-26): those whose id no snapshot entry
 // holds, since only an import of that row brings it back (a new record gets a new id). Hidden on this device by the key
 // `set-aside:<n>` in `prefs.dismissedBanners`, n the set-aside entry rows, so a later one shows the line again.
-import type { Entry, Instant } from '@proofofcalm/core';
-import type { SetAsideRow } from '../ports';
+// And the currency of the set-aside plan, which onboarding asks about before writing a plan beside the entries.
+import type { CurrencyCode, Entry, Instant } from '@proofofcalm/core';
+import type { SetAsideRow, Snapshot } from '../ports';
 
 const PREFIX = 'set-aside:';
 
@@ -30,4 +31,16 @@ export function missingEntries(
   let since: Instant | null = null;
   for (const { at } of missing) if (since === null || Date.parse(at) < Date.parse(since)) since = at;
   return since === null ? NONE : { count: missing.length, since };
+}
+
+/**
+ * The currency the entries kept with no plan were last shown in (ADR-0053): the one the set-aside plan rows with
+ * the latest time name, if they all agree. The list is never pruned, so those rows are the plan last stored. Null
+ * when none is set aside (a list kept whole names none), when they disagree or when the payload does not read.
+ */
+export function keptCurrency(setAside: Snapshot['setAside']): CurrencyCode | null {
+  const latest = Math.max(...setAside.plans.map(({ at }) => Date.parse(at)));
+  const named = new Set(setAside.plans.filter(({ at }) => Date.parse(at) === latest).map(({ currency }) => currency));
+  const [only] = named;
+  return named.size === 1 && only !== undefined ? only : null;
 }
