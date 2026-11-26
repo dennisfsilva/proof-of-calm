@@ -33,8 +33,8 @@ export async function reacknowledge(
 }
 
 /** What Start was tapped under: the plan's country currency, and the kept-currency question the screen showed. */
-export type Asked = { readonly next: CurrencyCode; readonly shown: KeptCurrencyQuestion | null };
-export type CreateOutcome = 'created' | 'stored' | 'changed';
+type Asked = { readonly next: CurrencyCode; readonly shown: KeptCurrencyQuestion | null };
+type CreateOutcome = 'created' | 'stored' | 'changed';
 
 export type OnboardingActions = {
   /** True from the first tap until the write fails or finds a plan stored; Start is disabled meanwhile. */
