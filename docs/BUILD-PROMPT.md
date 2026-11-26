@@ -1136,6 +1136,20 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   at zoom-125, and the widest form held to stop that overflowed the P/L's 91 px box in the German
   and pt-PT wider-text tests, so a widest form held as a minimum width must still fit the
   narrowest box (#553; 2026-11-26).
+- A widest form that breaks anywhere fits its box by adding lines, and the baseline review reads the
+  merged head's render, not an earlier round's record: #553's record expected the zoom-125 Why? to
+  move right as on the other projects, from a render before its last round, and the re-rendered
+  baselines showed an empty line under the P/L figure there instead (#558; 2026-11-26).
+- A spec's file-level `launchOptions` reach every project, and a skip inside the test runs after
+  the launch: Chromium's `--lang` flag stopped Linux WebKit before the iphone project could skip the
+  manifest capture, while Windows WebKit took the flag, so only CI showed it (#559's first run); a
+  file-level skip on the browser name runs before any launch. A branch carried across sessions
+  without a pull request never meets the e2e matrix: that spec had run on two projects for three
+  sessions (2026-11-26).
+- A tree kept mounted and shown by dropping `invisible` starts a transition of the inherited
+  `visibility` on every element inside it under the reduced-motion rule's 1 ms `all`, and one inside
+  a closed `<details>` never ends, so the matrix's animation count fails on reduced-motion: such a
+  frame takes `transition-none **:transition-none` (#560's first run; 2026-11-26).
 
 ## Known gaps
 
