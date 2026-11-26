@@ -77,10 +77,10 @@
     "reminderValue": "{choice, select, calendar {Calendar file saved} other {No reminder set}}",
     "kept": {
       "legend": "{count, plural, one {{figure} saved entry, on {first}, holds an amount or a fee. Which currency was it paid in?} other {{figure} saved entries, {span, select, day {on {first}} other {from {first} to {last}}}, hold amounts or fees. Which currency were they paid in?}}",
-      "known": "{count, plural, one {It was saved with your plan that could not be read, which was in {kept}.} other {They were saved with your plan that could not be read, which was in {kept}.}}",
+      "known": "{count, plural, one {It was saved with a plan that could not be read. That plan was in {kept}.} other {They were saved with a plan that could not be read. That plan was in {kept}.}}",
       "unknown": "{count, plural, one {The currency of the plan it was saved with could not be read.} other {The currency of the plan they were saved with could not be read.}}",
       "card": "{count, plural, one {Paid in {currency}} other {Paid in {currency}}}",
-      "cardLine": "{count, plural, one {The plan is set up in {currency}{instead, select, yes { instead of {next}} other {}}, and it shows in {currency}, as typed.} other {The plan is set up in {currency}{instead, select, yes { instead of {next}} other {}}, and they show in {currency}, as typed.}}",
+      "cardLine": "{count, plural, one {The plan is set up in {currency}{instead, select, yes { instead of {next}} other {}}, and the entry shows in {currency}, as typed.} other {The plan is set up in {currency}{instead, select, yes { instead of {next}} other {}}, and they show in {currency}, as typed.}}",
       "oneCurrency": "A plan holds one currency, and its entries show in it. Nothing is converted.",
       "issue": "{count, plural, one {Choose the currency it was paid in.} other {Choose the currency they were paid in.}}",
       "changed": "The entries saved on this device changed in another tab, so the plan was not set up. Answer the question again.",
