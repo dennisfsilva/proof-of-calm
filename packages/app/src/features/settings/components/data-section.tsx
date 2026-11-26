@@ -355,15 +355,15 @@ export function DataSection() {
       <p ref={resultLine} tabIndex={-1} role="status" className="scroll-mt-result text-ink-2">
         {exchanged !== null && exchangeResult(exchanged)}
         {outcome !== null &&
-          (outcome.kind === 'added'
-            ? [
-                t('import.result', { added: figure(outcome.result.added), skipped: figure(outcome.result.skipped) }),
-                outcome.result.deleted > 0 ? t('import.deletedHere', { deleted: figure(outcome.result.deleted) }) : '',
-                outcome.result.taken > 0 ? t('import.taken', { taken: figure(outcome.result.taken) }) : '',
-              ]
-                .filter((line) => line !== '')
-                .join(' ')
-            : t(`import.${outcome.kind}`, { count: figure(liveEntries(outcome.result.entries).length) }))}
+          [
+            outcome.kind === 'added'
+              ? t('import.result', { added: figure(outcome.result.added), skipped: figure(outcome.result.skipped) })
+              : t(`import.${outcome.kind}`, { count: figure(liveEntries(outcome.result.entries).length) }),
+            outcome.result.deleted > 0 ? t('import.deletedHere', { deleted: figure(outcome.result.deleted) }) : '',
+            outcome.result.taken > 0 ? t('import.taken', { taken: figure(outcome.result.taken) }) : '',
+          ]
+            .filter((line) => line !== '')
+            .join(' ')}
       </p>
       <PrototypeReport notes={report} />
       {/* Close, Escape and an outside press wait for the replace, which would otherwise run with the dialog gone. */}
