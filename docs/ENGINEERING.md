@@ -272,9 +272,10 @@ platform without one.
   (its words drawn from attributes, its Why? a stand-in of the link's size). The P/L holds its widest
   forms as the prices line does, so its Why? wraps the same way in both states and on every font: the
   figure's cell holds, invisible, the P/L with one integer figure more than the invested total and a
-  percent of three, gained and lost, every figure a zero (`widestPnl`); a P/L past ten times the
-  invested total or 999.9 % may still be wider and wrap its Why? (decided 2026-11-26). A failed read
-  keeps the same structure, with its line in the empty frame's place (`docs/DESIGN.md` §6).
+  percent of three, gained and lost, every figure a zero (`widestPnl`), each free to break anywhere, so
+  in a box narrower than a form it adds lines to the row but never a width past the box; a P/L past
+  ten times the invested total or 999.9 % may still be wider and wrap its Why? (decided 2026-11-26).
+  A failed read keeps the same structure, with its line in the empty frame's place (`docs/DESIGN.md` §6).
 - The store's reads at load (profiled 2026-11-25, not cut). At 4× CPU on a cold `/today` and
   `/portfolio` (main 11e29df42, medians of seven), `packages/app/src/lib/adapters/idb/rows.ts`'s own
   code took 1.58 and 1.08 ms and, with what it calls, 20.5 and 16.1 ms, almost all of it zod's and
