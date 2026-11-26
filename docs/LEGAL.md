@@ -183,6 +183,11 @@ invoices 10 years (Portuguese tax law).
 
 Age: 18+ by policy, stated at sign-up, no verification (the lawful basis is contract; the digital-consent ages, 13 in Portugal, are irrelevant).
 
+Open for counsel (Q10, 2026-11-26): the cookie-free statement's "the banners you dismissed or that
+showed once, so they stay hidden" is read to cover the Log's `Hide this line`, whose key
+`set-aside:<n>` is kept in the same preference (`docs/DOMAIN.md` §2.3), so the statement gains no line;
+counsel confirms that reading or words the item, and the build keeps the statement until then.
+
 Records of processing: one page, kept in this repository's private documentation, because the
 processing is not occasional. No DPO; no EU representative (established in the EU); a UK
 representative only if UK users are ever served.
