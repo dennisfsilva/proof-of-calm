@@ -21,6 +21,11 @@ import {
   recogniseImport,
 } from '@proofofcalm/core';
 import { epochMs, todayIn } from '../../../lib/adapters';
+import type { Messages } from '../../../lib/i18n';
+
+/** An unreadable paste is named as text, with a step a paste can take; a file keeps its line. */
+export const unreadable = (code: keyof Messages['errors']['backup'], name: string | null) =>
+  code === 'not-recognised' && name === null ? 'not-recognised-pasted' : code;
 
 export type ReadImport =
   | { readonly kind: 'backup'; readonly file: BackupFile }

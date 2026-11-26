@@ -26,6 +26,7 @@ import {
   STORE_NAMES,
   type StorageSchema,
   type StoreName,
+  touches,
 } from './idb/database';
 import { idbHistoryCache, sweepHistory } from './idb/history';
 import { CORRUPT_KEY, type Quarantined, quarantineList, quarantineRecord } from './idb/quarantine';
@@ -84,20 +85,6 @@ const PricesReadSchema = z.object({
   ...PricesStateSchema.shape,
   snapshot: z.object(PricesStateSchema.shape.snapshot.shape),
 });
-
-/** The stores a write of these changes touches, and whether it writes synced rows (the plan or entries). */
-function touches(changes: Changes) {
-  const entries = changes.entries?.length ?? 0;
-  const synced = changes.plan !== undefined || entries > 0;
-  const prefsChanged = changes.prefs !== undefined || changes.changedAt !== undefined;
-  const stores: StoreName[] = [
-    ...(synced ? (['plans'] as const) : []),
-    ...(entries > 0 ? (['entries'] as const) : []),
-    ...(prefsChanged ? (['prefs'] as const) : []),
-    ...(changes.prices === undefined ? [] : (['prices'] as const)),
-  ];
-  return { synced, prefsChanged, stores };
-}
 
 /**
  * The preferences are written whole, but the stored row may carry fields of a later build that this

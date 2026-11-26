@@ -4,7 +4,6 @@ import {
   actionsNow,
   coinsWithEntries,
   compare,
-  compareDates,
   type Entry,
   heldUnits,
   holdingContext,
@@ -24,7 +23,6 @@ import {
   UNDO_WINDOW_MS,
 } from '@proofofcalm/core';
 import { Button } from '@proofofcalm/ui/components/button';
-import { Empty, EmptyDescription } from '@proofofcalm/ui/components/empty';
 import { Table, TableBody, TableGroupHeader, TableHead, TableHeader, TableRow } from '@proofofcalm/ui/components/table';
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
@@ -35,6 +33,7 @@ import { recordedTitle } from '../lib/recorded';
 import { deleteRefusalTitle, undoRefusalTitle } from '../lib/row-refusal';
 import { transactionKeys, yearStarts } from '../lib/window';
 import { EntrySheet, type EntrySheetProps } from './entry-sheet';
+import { LogEmpty } from './log-empty';
 import { LogPager, LogRangeLine } from './log-pager';
 import { LOG_COLUMNS, LogRow } from './log-row';
 import { MoveSheet } from './move-sheet';
@@ -259,7 +258,6 @@ export function LogScreen() {
 
   // "No entries yet" while no entry is live; the skipped months, the person's own record, stay listed under it.
   const empty = plan === null || live.length === 0;
-  const past = plan !== null && compareDates(plan.firstBuy, today) < 0;
   const { visible, range } = view;
   const finalFocus = () => {
     const { from, to } = edited.current;
@@ -372,15 +370,7 @@ export function LogScreen() {
           {t('recordMoved')}
         </Button>
       )}
-      {empty && (
-        <Empty>
-          <EmptyDescription>
-            {plan === null
-              ? t('empty.noPlan')
-              : t(past ? 'empty.firstBuyPast' : 'empty.firstBuy', { date: f.date(plan.firstBuy) })}
-          </EmptyDescription>
-        </Empty>
-      )}
+      {empty && <LogEmpty plan={plan} />}
       {content}
       {target !== null && (
         <EntrySheet
