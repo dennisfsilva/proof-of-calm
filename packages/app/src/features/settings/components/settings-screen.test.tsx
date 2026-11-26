@@ -93,10 +93,10 @@ describe('SettingsScreen', () => {
     },
   );
 
-  async function mount(snapshot?: Snapshot, location: 'memory' | 'hash' = 'memory') {
+  async function mount(snapshot?: Snapshot, location: 'memory' | 'hash' = 'memory', path = '/settings') {
     const services = await started(snapshot);
     render(
-      <NavigationProvider location={location} initialPath="/settings">
+      <NavigationProvider location={location} initialPath={path}>
         <ServicesProvider services={services}>
           <I18nProvider messages={{ settings, plan, errors, today }}>
             <SettingsScreen />
@@ -120,6 +120,24 @@ describe('SettingsScreen', () => {
     await mount({ ...fixtureSnapshot(), plan: null, entries: [] });
     expect(selected()).toBe('Currency & data');
     expect(screen.getByRole('heading', { level: 2, name: 'Your data' })).toBeDefined();
+  });
+
+  // The Log's set-aside line links to /settings?tab=data, where the set-aside rows are counted: the search is read
+  // once, at mount, as the tab without a plan is. On the hash location wouter keeps the search in the page's own
+  // query (`/index.html?tab=data#/settings`), which is what its Link writes.
+  it('opens Currency & data from ?tab=data with a plan', async () => {
+    await mount(undefined, 'memory', '/settings?tab=data');
+    expect(selected()).toBe('Currency & data');
+    expect(screen.getByRole('heading', { level: 2, name: 'Your data' })).toBeDefined();
+    cleanup();
+    window.history.replaceState(null, '', '/index.html?tab=data#/settings');
+    await mount(undefined, 'hash');
+    expect(selected()).toBe('Currency & data');
+    cleanup();
+    window.history.replaceState(null, '', '/index.html?tab=other#/settings');
+    await mount(undefined, 'hash');
+    expect(selected()).toBe('Plan');
+    window.history.replaceState(null, '', '/');
   });
 
   it('moves along the tabs with the arrow keys and opens one with Enter', async () => {

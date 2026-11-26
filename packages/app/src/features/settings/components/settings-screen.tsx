@@ -1,6 +1,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@proofofcalm/ui/components/tabs';
 import { useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
+import { useSearch } from '../../../lib/navigation';
 import { useSnapshot } from '../../../lib/services';
 import { AboutSection } from './about-section';
 import { CoinsTab } from './coins-tab';
@@ -12,15 +13,17 @@ import { PlanTab } from './plan-tab';
 
 // The Settings screen: four tabs over packages/ui's Tabs (docs/DESIGN.md §8), Plan, Coins & split, Hold & sell
 // and Currency & data, which holds the country change above the data section (docs/ARCHITECTURE.md "Inside
-// packages/app"). The shell mounts it once the store is ready, so the tab it opens on is read once: Plan with a plan,
-// Currency & data without one, where a backup can be imported. The tab is held here, not in the URL: the empty
-// state's "import a file" on the plan tabs would lead to /settings, already showing, so it opens
-// Currency & data with the focus on its tab instead. Below the tabs, on every tab, the language when the build
-// offers two (ADR-0023, Deviations of 2026-11-18), then About, which closes the screen.
+// packages/app"). The shell mounts it once the store is ready, so the tab it opens on is read once: Currency & data
+// for `?tab=data` (the Log's set-aside line links there) or without a plan, where a backup can be imported; Plan
+// otherwise. After that the tab is held here, not in the URL: the empty state's "import a file" on the plan tabs
+// would lead to /settings, already showing, so it opens Currency & data with the focus on its tab instead. Below the
+// tabs, on every tab, the language when the build offers two (ADR-0023, Deviations of 2026-11-18), then About,
+// which closes the screen.
 export function SettingsScreen() {
   const t = useTranslations('settings');
   const hasPlan = useSnapshot((snapshot) => snapshot.plan !== null);
-  const [tab, setTab] = useState<string>(hasPlan ? 'plan' : 'data');
+  const toData = new URLSearchParams(useSearch()).get('tab') === 'data';
+  const [tab, setTab] = useState<string>(hasPlan && !toData ? 'plan' : 'data');
   const data = useRef<HTMLButtonElement>(null);
   const openData = () => {
     setTab('data');
