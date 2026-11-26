@@ -91,6 +91,49 @@ test('the value chart takes its loaded height before the closes arrive, so nothi
   expect(Math.abs((after ?? 0) - (before ?? 0))).toBeLessThanOrEqual(1);
 });
 
+// Session 27e's design check (DC-B, main e1f6d5aa1): on a plan sold out before the last week, 7D's line took
+// the drawn frame's place, the page ended sooner and the scroll clamped, so the pressed button jumped 54 px
+// (221 px at 125 %). The frame keeps its place whatever the range draws.
+test('a range with nothing to draw keeps the pressed button in place at the end of the page', async ({ page }) => {
+  const nowMs = fixtureNowMs('buy');
+  await page.clock.setFixedTime(new Date(nowMs));
+  await page.route('**/api/prices?*', (route) =>
+    route.fulfill({
+      json: {
+        at: new Date(nowMs - 30_000).toISOString(),
+        prices: { BTC: { EUR: '60000.12', USD: '70000' }, ETH: { EUR: '2500.5', USD: '2900' } },
+      },
+    }),
+  );
+  await page.route('**/api/history/*', history(nowMs));
+  // Everything the fixture plan holds, 0.02215 BTC and 0.119 ETH, sold on 1 Oct 2026.
+  const fixture = fixtureSnapshot();
+  const sale = fixture.entries.find((entry) => entry.kind === 'sell');
+  if (sale === undefined) throw new Error('no fixture sale');
+  const sold = (n: number, coin: string, units: string, amount: string) => ({
+    ...sale,
+    id: `00000000-0000-4000-8000-0000000000${n}` as typeof sale.id,
+    coin: coin as typeof sale.coin,
+    date: '2026-10-01' as typeof sale.date,
+    units: units as typeof sale.units,
+    amount: amount as typeof sale.amount,
+  });
+  const entries = [...fixture.entries, sold(91, 'BTC', '0.02215', '1300'), sold(92, 'ETH', '0.119', '290')];
+  await seedPlan(page, { ...fixture, entries });
+  await page.goto('/portfolio');
+
+  const ranges = page.getByRole('group', { name: 'Chart range' });
+  await ranges.getByRole('button', { name: '90D, last 90 days' }).click();
+  await expect(page.getByRole('img', { name: /^Portfolio value, last 90 days \(/ })).toBeVisible();
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  const week = ranges.getByRole('button', { name: '7D, last 7 days' });
+  const before = (await week.boundingBox())?.y;
+  await week.click();
+  await expect(page.getByText(/^There is no value to draw for the last 7 days, /)).toBeVisible();
+  expect(before).toBeDefined();
+  expect((await week.boundingBox())?.y).toBe(before);
+});
+
 for (const phase of Object.keys(FIXTURE_DATES) as FixturePhase[]) {
   test(`the fixture plan's value, P/L and holdings on ${FIXTURE_DATES[phase]}`, async ({ page }) => {
     const nowMs = fixtureNowMs(phase);
