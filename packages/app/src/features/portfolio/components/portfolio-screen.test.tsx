@@ -39,6 +39,11 @@ await preloadLazyModules([
 
 afterEach(cleanup);
 
+/** The fixture's P/L at its widest: 1,700 invested gives five integer figures, then three for the percent. */
+const WIDEST_PNL = ['+00 000,00 € (+000,0%)', '−00 000,00 € (−000,0%)'];
+const widestForms = (cell: Element | null | undefined) =>
+  [...(cell?.querySelectorAll('[data-line]') ?? [])].map((form) => form.getAttribute('data-line'));
+
 const portugal = async () => {
   const profile = await loadProfile('PT');
   return profile === null ? null : countryRules(profile);
@@ -285,6 +290,26 @@ describe('PortfolioScreen', () => {
     expect(pnl?.className).toContain('invisible');
     expect(pnl?.querySelector('.min-h-target')).not.toBeNull();
     expect(pnl?.textContent?.trim()).toBe('');
+    // The same row as the priced one, its figure's cell holding only the widest forms and its Why? a stand-in.
+    expect(pnl?.querySelector('dt')?.getAttribute('data-line')).toBe('P/L');
+    expect(widestForms(pnl?.querySelector('dd > span'))).toEqual(WIDEST_PNL);
+    expect(pnl?.querySelector('dd > span:last-child')?.getAttribute('data-line')).toBe('Why?');
+    expect(pnl?.querySelectorAll('button, a, input, select, textarea, [tabindex]').length).toBe(0);
+  });
+
+  // The P/L's cell is as wide as its widest form in both states, so its Why? wraps the same way on every font.
+  it('holds the P/L’s widest forms, unseen and unread, in the cell of the live P/L', async () => {
+    await renderScreen(fixtureSnapshot(), 'buy');
+    const figure = screen.getByText('+76,56 € (+4,5%)');
+    expect(figure.className).toContain('text-positive');
+    expect(widestForms(figure.parentElement)).toEqual(WIDEST_PNL);
+    for (const form of figure.parentElement?.querySelectorAll('[data-line]') ?? []) {
+      expect([form.getAttribute('aria-hidden'), form.className.includes('invisible'), form.textContent]).toEqual([
+        'true',
+        true,
+        '',
+      ]);
+    }
   });
 
   it('shows the empty state without a plan', async () => {
