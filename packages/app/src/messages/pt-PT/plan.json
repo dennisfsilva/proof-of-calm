@@ -183,7 +183,7 @@
     "label": "Plano {open, select, yes {a partir de {start}, sem fim definido} other {de {start} a {end}}}.",
     "labelToday": "Plano {open, select, yes {a partir de {start}, sem fim definido} other {de {start} a {end}}}. Hoje, {date}, o plano está {phase}.",
     "table": {
-      "summary": "Mostrar a cronologia numa tabela",
+      "summary": "Mostrar os marcos numa tabela",
       "date": "Data",
       "milestone": "Marco"
     }

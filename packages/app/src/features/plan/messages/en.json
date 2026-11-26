@@ -183,7 +183,7 @@
     "label": "Plan from {start}{open, select, yes {, with no end set} other { to {end}}}.",
     "labelToday": "Plan from {start}{open, select, yes {, with no end set} other { to {end}}}. Today, {date}, is {phase}.",
     "table": {
-      "summary": "Show as a table",
+      "summary": "Show the milestones as a table",
       "date": "Date",
       "milestone": "Milestone"
     }

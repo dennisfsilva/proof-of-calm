@@ -51,7 +51,7 @@ const milestones = (today: string, parts = 0): TimelineMilestone[] => {
 
 // The table view (ADR-0022): the milestones' dates and words, the same values as the drawing.
 const table = (rows: readonly TimelineMilestone[]): TimelineProps['table'] => ({
-  summary: 'Show as a table',
+  summary: 'Show the milestones as a table',
   columns: ['Date', 'Milestone'],
   rows: rows.map((milestone) => [milestone.date, milestone.label]),
 });
