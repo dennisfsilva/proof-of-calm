@@ -10,6 +10,19 @@ import { useHashLocation } from 'wouter/use-hash-location';
 /** What the hooks need beyond wouter's own: how to go back under the chosen location. */
 export const NavigationContext = createContext<{ back: () => void }>({ back: () => window.history.back() });
 
+/**
+ * How many times a Link to the shown path was pressed: a screen that shows a failed read re-reads on
+ * it, since such a press navigates nowhere and so remounts nothing. A context of its own, so the
+ * router's value never changes with it.
+ */
+export const ReopenContext = createContext<{ count: number; bump: () => void }>({ count: 0, bump: () => {} });
+
+function Reopens({ children }: { children: ReactNode }) {
+  const [count, setCount] = useState(0);
+  const [bump] = useState(() => () => setCount((each) => each + 1));
+  return <ReopenContext value={{ count, bump }}>{children}</ReopenContext>;
+}
+
 export type NavigationProviderProps = {
   location: 'browser' | 'hash' | 'memory';
   /** The memory location's first path, with its search (`/today?tab=plan`); ignored by the others. */
@@ -42,8 +55,16 @@ function MemoryRouter({ initialPath, children }: { initialPath: string; children
   );
 }
 
-export function NavigationProvider({ location, initialPath = '/', children }: NavigationProviderProps) {
+function LocationRouter({ location, initialPath = '/', children }: NavigationProviderProps) {
   if (location === 'memory') return <MemoryRouter initialPath={initialPath}>{children}</MemoryRouter>;
   if (location === 'hash') return <Router hook={useHashLocation}>{children}</Router>;
   return <Router>{children}</Router>;
+}
+
+export function NavigationProvider(props: NavigationProviderProps) {
+  return (
+    <Reopens>
+      <LocationRouter {...props} />
+    </Reopens>
+  );
 }

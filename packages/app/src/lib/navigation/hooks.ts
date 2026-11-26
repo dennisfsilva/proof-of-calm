@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { useLocation, useSearch as useWouterSearch } from 'wouter';
-import { NavigationContext } from './provider';
+import { NavigationContext, ReopenContext } from './provider';
 
 export type NavigationRouter = {
   push(href: string): void;
@@ -17,6 +17,11 @@ export function usePathname(): string {
 /** The search string without its `?`; empty when there is none. */
 export function useSearch(): string {
   return useWouterSearch();
+}
+
+/** How many times a Link to the shown path was pressed; it changes only on such a press. */
+export function useReopens(): number {
+  return useContext(ReopenContext).count;
 }
 
 /** Programmatic navigation; screens prefer Link, which keeps a real href. */

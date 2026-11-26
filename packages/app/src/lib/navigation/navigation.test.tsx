@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import {
   APP_ROUTES,
   Link,
@@ -11,6 +11,7 @@ import {
   Route,
   Switch,
   usePathname,
+  useReopens,
   useRouter,
   useSearch,
 } from './index';
@@ -107,6 +108,76 @@ describe('NavigationProvider in memory', () => {
     );
     expect(path()).toBe('/today');
     expect(screen.getByText('today')).toBeDefined();
+  });
+});
+
+/** The reopen count, a link to the shown path, one elsewhere and one whose own handler prevents the click. */
+function ReopenProbe() {
+  return (
+    <>
+      <output data-testid="reopens">{useReopens()}</output>
+      <Link href="/portfolio">portfolio</Link>
+      <Link href="/today">today</Link>
+      <Link href="/portfolio" onClick={(event) => event.preventDefault()}>
+        prevented
+      </Link>
+    </>
+  );
+}
+
+const reopens = () => screen.getByTestId('reopens').textContent;
+const link = (name: string) => screen.getByRole('link', { name });
+
+describe('useReopens', () => {
+  // A click wouter leaves to the browser (a modifier, the middle button) would ask jsdom for a document
+  // navigation it does not implement: the window, reached after React's handlers, stops it there.
+  const stay = (event: Event) => event.preventDefault();
+  beforeEach(() => window.addEventListener('click', stay));
+  afterEach(() => window.removeEventListener('click', stay));
+
+  it('counts a plain click of the shown path’s link, and no other', () => {
+    render(
+      <NavigationProvider location="memory" initialPath="/portfolio">
+        <ReopenProbe />
+      </NavigationProvider>,
+    );
+    expect(reopens()).toBe('0');
+    fireEvent.click(link('portfolio'));
+    expect(reopens()).toBe('1');
+    for (const modifier of ['ctrlKey', 'metaKey', 'shiftKey', 'altKey']) {
+      fireEvent.click(link('portfolio'), { [modifier]: true });
+    }
+    fireEvent.click(link('portfolio'), { button: 1 });
+    fireEvent.click(link('prevented'));
+    expect(reopens()).toBe('1');
+    fireEvent.click(link('today'));
+    expect(reopens()).toBe('1');
+    // On Today, Today's link is the shown path's.
+    fireEvent.click(link('today'));
+    expect(reopens()).toBe('2');
+  });
+
+  it('counts alike on the browser and the hash location', () => {
+    window.history.replaceState(null, '', '/portfolio');
+    render(
+      <NavigationProvider location="browser">
+        <ReopenProbe />
+      </NavigationProvider>,
+    );
+    fireEvent.click(link('portfolio'));
+    expect(reopens()).toBe('1');
+    cleanup();
+
+    window.history.replaceState(null, '', '/index.html#/portfolio');
+    render(
+      <NavigationProvider location="hash">
+        <ReopenProbe />
+      </NavigationProvider>,
+    );
+    fireEvent.click(link('today'));
+    expect(reopens()).toBe('0');
+    fireEvent.click(link('today'));
+    expect(reopens()).toBe('1');
   });
 });
 
