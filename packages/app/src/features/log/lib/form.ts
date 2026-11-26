@@ -5,6 +5,7 @@ import {
   type CoinId,
   type CurrencyCode,
   coinsWithEntries,
+  compareDates,
   type Decimal,
   decimalPlaces,
   defaultFee,
@@ -323,13 +324,32 @@ export type MoveShortContext = {
 };
 
 /**
+ * Whether a live move of a coin the save writes is dated on or after the earliest date it writes: its rows at the
+ * draft's date, and the stored entries it may replace (edited, or a fresh id's) at their own coins and dates. A move's
+ * shortfall reads only entries dated on or before it (docs/DOMAIN.md §3.7), so without one no save leaves it short.
+ */
+function moveAfterSave(draft: TransactionDraft, entries: readonly Entry[], { editing, ids }: FormSave): boolean {
+  const replaced = new Set([...editing.map((entry) => entry.id), ...ids]);
+  const coins = new Set(draft.rows.map((row) => row.coin));
+  let from = draft.date;
+  for (const entry of entries.filter((each) => replaced.has(each.id))) {
+    coins.add(entry.coin);
+    if (compareDates(entry.date, from) < 0) from = entry.date;
+  }
+  const later = (entry: Entry) => entry.kind === 'move' && entry.deletedAt === null && coins.has(entry.coin);
+  return entries.some((entry) => later(entry) && compareDates(entry.date, from) >= 0);
+}
+
+/**
  * The stored moves the entries `saveOn` would store leave short outside their destination (`movesLeftShort`, docs/
- * DOMAIN.md §3.7), earliest first; none while the save refuses or an edited entry is gone. Never refuses the save.
+ * DOMAIN.md §3.7), earliest first; none while the save refuses or an edited entry is gone. Never refuses the save, and
+ * runs neither it nor `movesLeftShort` while no move could be left short (`moveAfterSave`; ENGINEERING §4, the cap).
  */
 export function moveShortLines(
   draft: TransactionDraft,
   { entries, save, holding }: MoveShortContext,
 ): readonly MoveShortfall[] {
+  if (!moveAfterSave(draft, entries, save)) return [];
   const saved = saveOn(entries, draft, save);
   if (saved?.ok !== true) return [];
   return [...movesLeftShort(entries, saved.value, holding)].sort((a, b) => a.date.localeCompare(b.date));
