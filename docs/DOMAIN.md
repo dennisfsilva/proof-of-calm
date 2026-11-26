@@ -130,6 +130,16 @@ prototype import's quote currency) stays, since no screen can set it again. Wher
 paragraph, this one wins. The prototype import already stores such
 plans, so neither the schema nor a row version changes for them.
 
+A plan row set aside as unreadable (ADR-0019 Readings 2026-11-26) leaves its live entries with no plan, and
+the snapshot names the currency each set-aside plan row's payload holds, or null when it does not read. Before
+onboarding writes a plan beside such entries it asks which currency they were paid in, when no plan and no
+newer build's plan row is stored and `keptCurrencyQuestion(entries, kept, next)` is not null
+(`packages/core/src/actions/plan.ts`): a live entry holds an amount or a fee, and `kept`, the currency of the
+set-aside plan rows with the latest time if they agree (`keptCurrency`), is not the new plan's `next`; an
+unknown `kept` counts as different. The answer sets both currencies of the plan written, and converts nothing.
+The write's turn checks again on the rows as stored: a plan or a newer plan row stored meanwhile is kept
+(`stored`), and a kept currency the screen did not show writes nothing (`changed`).
+
 A plan is written at the lowest schema version that holds it (`writtenPlan` in
 `packages/core/src/schema/upgrade.ts`), in a storage row and in a backup alike. With nothing recorded
 (null, 0 and null) it is the v2 plan exactly (`schemaVersion: 2`, without the three fields), which the
