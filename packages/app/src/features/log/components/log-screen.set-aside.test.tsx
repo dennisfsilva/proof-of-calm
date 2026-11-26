@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { instant } from '@proofofcalm/core/testing';
 import { Toaster } from '@proofofcalm/ui/components/toast';
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { memoryPlanStore } from '../../../lib/adapters';
 import { I18nProvider } from '../../../lib/i18n';
@@ -107,11 +107,13 @@ describe('LogScreen: the set-aside line', () => {
 });
 
 describe('LogScreen: the plan row set aside', () => {
-  it('says the plan could not be read while live entries are stored', async () => {
+  it('says the plan could not be read while live entries are stored, and links to Settings', async () => {
     await mount(memoryPlanStore({ ...withSetAside([], [{ id: 'plan', at: AT }]), plan: null }));
-    expect(
-      screen.getByText('Your plan could not be read, so no entries are listed. They stay on this device.'),
-    ).toBeTruthy();
+    const text = screen.getByText(/^Your plan could not be read, so no entries are listed\. They stay on this device\./);
+    expect(text.textContent).toBe(
+      'Your plan could not be read, so no entries are listed. They stay on this device. Import a JSON backup in Settings to bring the plan back.',
+    );
+    expect(within(text).getByRole('link', { name: 'Settings' }).getAttribute('href')).toBe('/settings');
   });
 
   it('keeps the no-plan text while no plan row is set aside', async () => {

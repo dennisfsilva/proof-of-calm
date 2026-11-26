@@ -129,7 +129,9 @@ test('an unreadable plan row changes the no-plan words on Today and the Log', as
   await expect(page.getByRole('link', { name: 'Import a JSON backup' })).toHaveAttribute('href', '/settings');
   await expect(page.getByText('No plan yet')).toHaveCount(0);
   await openLog(page);
-  await expect(
-    page.getByText('Your plan could not be read, so no entries are listed. They stay on this device.'),
-  ).toBeVisible();
+  const text = page.getByText(
+    'Your plan could not be read, so no entries are listed. They stay on this device. Import a JSON backup in Settings to bring the plan back.',
+  );
+  await expect(text).toBeVisible();
+  await expect(text.getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/settings');
 });

@@ -68,10 +68,10 @@
     "noPlan": "Noch keine Einträge. Richten Sie einen Plan ein oder importieren Sie eine Datei.",
     "firstBuy": "Noch keine Einträge. Der erste Kauftag ist am {date}.",
     "firstBuyPast": "Noch keine Einträge. Der erste Kauftag war am {date}.",
-    "planSetAside": "Der Plan konnte nicht gelesen werden, daher wird kein Eintrag angezeigt. Die Einträge bleiben auf diesem Gerät."
+    "planSetAside": "Der Plan konnte nicht gelesen werden, daher wird kein Eintrag angezeigt. Die Einträge bleiben auf diesem Gerät. Importieren Sie in den <settings>Einstellungen</settings> ein JSON-Backup, um den Plan zurückzuholen."
   },
   "setAside": {
-    "line": "{count, plural, one {{figure} gespeicherter Eintrag konnte nicht gelesen werden, daher steht er nicht in dieser Liste. Um ihn zurückzuholen, importieren Sie in den <settings>Einstellungen</settings> ein JSON-Backup, das vor dem {date} exportiert wurde, mit „Nur fehlende Einträge hinzufügen“, oder tragen Sie ihn erneut ein.} other {{figure} gespeicherte Einträge konnten nicht gelesen werden, daher stehen sie nicht in dieser Liste. Um sie zurückzuholen, importieren Sie in den <settings>Einstellungen</settings> ein JSON-Backup, das vor dem {date} exportiert wurde, mit „Nur fehlende Einträge hinzufügen“, oder tragen Sie sie erneut ein.}}",
+    "line": "{count, plural, one {{figure} gespeicherter Eintrag konnte nicht gelesen werden, daher steht er nicht in dieser Liste. Um ihn zurückzuholen, importieren Sie in den <settings>Einstellungen</settings> ein JSON-Backup mit „Nur fehlende Einträge hinzufügen“. Es muss vor dem {date} exportiert sein. Oder tragen Sie ihn erneut ein.} other {{figure} gespeicherte Einträge konnten nicht gelesen werden, daher stehen sie nicht in dieser Liste. Um sie zurückzuholen, importieren Sie in den <settings>Einstellungen</settings> ein JSON-Backup mit „Nur fehlende Einträge hinzufügen“. Es muss vor dem {date} exportiert sein. Oder tragen Sie sie erneut ein.}}",
     "hide": "Diese Zeile ausblenden",
     "failed": "Die Zeile konnte nicht ausgeblendet werden. Versuchen Sie es erneut."
   },
