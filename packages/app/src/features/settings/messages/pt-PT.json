@@ -134,6 +134,7 @@
       "tooManyInFile": "Esta exportação da página do plano DCA tem {file} compras, mais do que os {max} movimentos que um plano comporta, por isso nada foi importado. Elimine compras lá, exporte de novo e depois importe o novo ficheiro.",
       "tooLarge": "Este ficheiro tem mais de {max} MB, por isso não foi lido. Se for a exportação de uma plataforma, exporte lá um período mais curto e depois escolha o novo ficheiro.",
       "newerRows": "Uma versão mais recente da {product} guardou ou eliminou movimentos neste dispositivo, por isso nada foi importado. Recarregue a página e depois importe de novo.",
+      "changed": "O plano ou os movimentos neste dispositivo mudaram noutro separador, por isso nada foi importado. Escolha o ficheiro de novo.",
       "invalidEntries": "{count, plural, one {{figure} movimento desta importação não pode ser guardado} other {{figure} movimentos desta importação não podem ser guardados}}, por isso nada foi importado. Exporte uma nova cópia de segurança da {product} no dispositivo que a criou e depois importe o novo ficheiro.",
       "invalidEntriesPasted": "{count, plural, one {{figure} movimento do texto colado não pode ser guardado} other {{figure} movimentos do texto colado não podem ser guardados}}, por isso nada foi importado. Exporte uma nova cópia de segurança da {product} no dispositivo que a criou e depois cole o novo texto."
     },
