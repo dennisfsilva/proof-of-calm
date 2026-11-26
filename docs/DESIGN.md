@@ -428,8 +428,8 @@ The strip tells its phases apart by weight and by the labels under it; the accen
 
 The set-aside lines (`docs/CONTENT-STYLE.md` §3 Set aside) are plain `text-16` `ink-2` text with
 no border directly under the `h1` of Today (with a plan) and of the Log, never at Today's foot: they say what a
-screen leaves out, so they stand before it. The Log's carries a secondary `Hide this line` button under
-the text; Today's has only its link to the Log, so the hide stays out of Today's code. Settings counts
+screen leaves out, so they stand before it. The Log's carries a secondary `Hide this line` button `stack-md`
+under the text, as the calendar reminder's button stands under its line; Today's has only its link to the Log, so the hide stays out of Today's code. Settings counts
 the set-aside rows in Currency & data's data section, after the export lines.
 
 Today's foot, under the strip, holds one thing at most: the banner `bannerFor` picks (the red-day
