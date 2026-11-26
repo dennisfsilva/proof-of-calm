@@ -42,7 +42,7 @@ export const TwoVenuesAndNone: Story = {
     await userEvent.type(canvas.getByLabelText('Units sent'), '0.03');
     await userEvent.clear(canvas.getByLabelText('Units received'));
     await userEvent.type(canvas.getByLabelText('Units received'), '0.0298');
-    await expect(await canvas.findByText(/Network fee 0.0002/)).toBeVisible();
+    await expect(await canvas.findByText(/Network fee 0.0002/, { selector: '[data-form-line]' })).toBeVisible();
     // Fill in all units sits beside Units sent at 360 px, and a figure at BTC's full precision still fits the field.
     const sent = canvas.getByLabelText<HTMLInputElement>('Units sent');
     const all = canvas.getByRole('button', { name: 'Fill in all units' }).getBoundingClientRect();

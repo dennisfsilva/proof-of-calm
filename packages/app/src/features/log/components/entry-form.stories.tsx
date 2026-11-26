@@ -109,10 +109,19 @@ export const SaleWithHoldingWarning: Story = {
   play: async ({ canvas }) => {
     await userEvent.type(await canvas.findByLabelText('BTC sold (units)'), '0.004');
     await userEvent.type(canvas.getByLabelText('BTC sold for, before fees (EUR)'), '240');
-    await expect(await canvas.findByRole('status')).toHaveTextContent(
-      /^Only 0,003 of the 0,004\sBTC sold are past the holding rule on 20 Oct 2026\. The rest may be taxed\.$/,
+    const warning =
+      /^Only 0,003 of the 0,004\sBTC sold are past the holding rule on 20 Oct 2026\. The rest may be taxed\.$/;
+    const note = 'Computed from your dates, not tax advice';
+    // The lines show at once with no live role; the hidden status after Save repeats them once the form is still.
+    await expect(await canvas.findByText(warning, { selector: '[data-form-line]' })).toBeVisible();
+    await expect(canvas.getByText(note, { selector: '[data-form-line]' })).toBeVisible();
+    await waitFor(
+      () =>
+        expect(
+          [...canvas.getByRole('status').querySelectorAll('p')].map((each) => each.textContent?.replace(/\s+/gu, ' ')),
+        ).toEqual([expect.stringMatching(warning), note]),
+      { timeout: 3_000 },
     );
-    await expect(canvas.getByText('Computed from your dates, not tax advice')).toBeVisible();
     await expect(canvas.getByRole('button', { name: 'Save' })).toBeEnabled();
   },
 };
