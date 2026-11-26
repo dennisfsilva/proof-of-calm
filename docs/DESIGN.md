@@ -149,7 +149,8 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
 - Scale (px / line height): 12 / 1.4 axis ticks only; 13 / 1.45 captions, meta and a form's refusal
   line (minimum colour `ink-2`, the refusal line in `negative`); 14 / 1.45 dense tables, a
   control's label and the description under a title (a card's, a banner's, a toast's, a choice
-  card's line); 16 / 1.5 body; 18 / 1.4; 20 / 1.35; 24 / 1.3; 28 /
+  card's line), and every line that carries the CoinGecko credit (ADR-0050) and the label of the
+  figure that line prices; 16 / 1.5 body; 18 / 1.4; 20 / 1.35; 24 / 1.3; 28 /
   1.25; 32 / 1.2; 40 / 1.1 the portfolio number. Headings 600, letter-spacing −0.01 em. Reading measure 640 px,
   table measure 960 px. Text must survive the WCAG 1.4.12 spacing overrides without clipping, so no
   fixed-height table cells.
