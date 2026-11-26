@@ -498,7 +498,18 @@
       "sellWindowEarly": "{opens} to {closes}, opening before the last buy passes the holding rule, as you accepted",
       "why": "Your sentence",
       "reminder": "Reminder",
-      "reminderValue": "{choice, select, calendar {Calendar file saved} other {No reminder set}}"
+      "reminderValue": "{choice, select, calendar {Calendar file saved} other {No reminder set}}",
+      "kept": {
+        "legend": "{count, plural, one {{figure} saved entry, on {first}, holds an amount or a fee. Which currency was it paid in?} other {{figure} saved entries, {span, select, day {on {first}} other {from {first} to {last}}}, hold amounts or fees. Which currency were they paid in?}}",
+        "known": "{count, plural, one {It was saved with your plan that could not be read, which was in {kept}.} other {They were saved with your plan that could not be read, which was in {kept}.}}",
+        "unknown": "{count, plural, one {The currency of the plan it was saved with could not be read.} other {The currency of the plan they were saved with could not be read.}}",
+        "card": "Paid in {currency}",
+        "cardLine": "{count, plural, one {The plan is set up in {currency}{instead, select, yes { instead of {next}} other {}}, and it shows in {currency}, as typed.} other {The plan is set up in {currency}{instead, select, yes { instead of {next}} other {}}, and they show in {currency}, as typed.}}",
+        "oneCurrency": "A plan holds one currency, and its entries show in it. Nothing is converted.",
+        "issue": "{count, plural, one {Choose the currency it was paid in.} other {Choose the currency they were paid in.}}",
+        "changed": "The entries saved on this device changed in another tab, so the plan was not set up. Answer the question again.",
+        "stay": "{count, plural, one {{figure} entry saved on this device stays and shows in this plan.} other {{figure} entries saved on this device stay and show in this plan.}}"
+      }
     },
     "disclosure": {
       "text": "{product} is software for a plan you design: no orders, no financial or tax advice. You can lose all of it: Bitcoin has fallen more than 75 % from a high four times since 2011; Ethereum fell 94 % in 2018. Use only money you will not need for years.",

@@ -74,7 +74,18 @@
     "sellWindowEarly": "{opens} bis {closes}; es öffnet vor dem ersten Tag nach der Haltefrist des letzten Kaufs, wie von Ihnen akzeptiert",
     "why": "Ihr Satz",
     "reminder": "Erinnerung",
-    "reminderValue": "{choice, select, calendar {Kalenderdatei gespeichert} other {Keine Erinnerung eingerichtet}}"
+    "reminderValue": "{choice, select, calendar {Kalenderdatei gespeichert} other {Keine Erinnerung eingerichtet}}",
+    "kept": {
+      "legend": "{count, plural, one {{figure} gespeicherter Eintrag vom {first} hat einen Betrag oder eine Gebühr. In welcher Währung wurde er bezahlt?} other {{figure} gespeicherte Einträge {span, select, day {vom {first}} other {vom {first} bis zum {last}}} haben Beträge oder Gebühren. In welcher Währung wurden sie bezahlt?}}",
+      "known": "{count, plural, one {Er wurde mit dem Plan gespeichert, der nicht gelesen werden konnte. Dieser Plan war in {kept}.} other {Sie wurden mit dem Plan gespeichert, der nicht gelesen werden konnte. Dieser Plan war in {kept}.}}",
+      "unknown": "{count, plural, one {Die Währung des Plans, mit dem er gespeichert wurde, konnte nicht gelesen werden.} other {Die Währung des Plans, mit dem sie gespeichert wurden, konnte nicht gelesen werden.}}",
+      "card": "In {currency} bezahlt",
+      "cardLine": "{count, plural, one {Der Plan wird in {currency}{instead, select, yes { statt in {next}} other {}} eingerichtet, und der Eintrag wird in {currency} angezeigt, wie eingegeben.} other {Der Plan wird in {currency}{instead, select, yes { statt in {next}} other {}} eingerichtet, und die Einträge werden in {currency} angezeigt, wie eingegeben.}}",
+      "oneCurrency": "Ein Plan hat eine einzige Währung, und seine Einträge werden in ihr angezeigt. Nichts wird umgerechnet.",
+      "issue": "{count, plural, one {Wählen Sie die Währung, in der er bezahlt wurde.} other {Wählen Sie die Währung, in der sie bezahlt wurden.}}",
+      "changed": "Die auf diesem Gerät gespeicherten Einträge wurden in einem anderen Browser-Tab geändert, daher wurde der Plan nicht eingerichtet. Beantworten Sie die Frage erneut.",
+      "stay": "{count, plural, one {{figure} auf diesem Gerät gespeicherter Eintrag bleibt und wird in diesem Plan angezeigt.} other {{figure} auf diesem Gerät gespeicherte Einträge bleiben und werden in diesem Plan angezeigt.}}"
+    }
   },
   "disclosure": {
     "riskLink": "Risikohinweise"

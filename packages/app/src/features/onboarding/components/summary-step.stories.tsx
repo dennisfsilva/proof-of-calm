@@ -1,6 +1,6 @@
-import type { Money, Plan } from '@proofofcalm/core';
+import type { KeptCurrencyQuestion, Money, Plan } from '@proofofcalm/core';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, fn } from 'storybook/test';
+import { expect, fn, userEvent } from 'storybook/test';
 import { createFormatters } from '../../../lib/format';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import type { HoldingCountry } from '../../plan';
@@ -8,7 +8,8 @@ import { SummaryStep } from './summary-step';
 
 // The summary of both paths: the fixture plan from a template with its window, sentence and calendar file,
 // under the rule for Portugal; your own coins with no window, sentence or starting amount; Start while the plan is
-// being written; the rule for Germany with an early sell window the person accepted; the general profile's rule.
+// being written; the rule for Germany with an early sell window the person accepted; the general profile's rule;
+// saved entries whose plan's currency could not be read, asked about and refused unanswered; saved entries that stay.
 
 const plan = fixtureSnapshot().plan as Plan;
 
@@ -101,5 +102,24 @@ export const GeneralProfile: Story = {
     await expect(canvas.getByText(/^The general profile's rule\.\s*$/)).toBeVisible();
     await expect(canvas.getByText(/^Proof of Calm applies no holding exemption/)).toBeVisible();
     await expect(canvas.queryByRole('link', { name: 'Sources' })).toBeNull();
+  },
+};
+
+const unread = { kept: null, next: 'EUR', count: 14, first: '2026-01-05', last: '2026-10-05' } as KeptCurrencyQuestion;
+
+export const SavedEntriesAsked: Story = {
+  args: { question: unread, savedEntries: 14 },
+  play: async ({ canvas }) => {
+    await expect(canvas.getAllByRole('radio')).toHaveLength(4);
+    await userEvent.click(canvas.getByRole('button', { name: 'Accept and start the plan' }));
+    await expect(canvas.getByRole('alert')).toHaveTextContent('Choose the currency they were paid in.');
+    await expect(canvas.getByRole('radio', { name: /^Paid in EUR/ })).toHaveFocus();
+  },
+};
+
+export const SavedEntriesStay: Story = {
+  args: { question: null, savedEntries: 14 },
+  play: async ({ canvas }) => {
+    await expect(canvas.getByText('14 entries saved on this device stay and show in this plan.')).toBeVisible();
   },
 };

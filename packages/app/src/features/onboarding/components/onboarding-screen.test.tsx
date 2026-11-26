@@ -608,4 +608,30 @@ describe('OnboardingScreen: the session draft', () => {
     expect(screen.getByText(EXISTING)).toBeDefined();
     expect(saved(services)).toBeNull();
   });
+
+  it('says a failed write in an alert and keeps the summary', async () => {
+    const { services, write } = await numbers();
+    write.mockRejectedValueOnce(new Error('quota'));
+    await click(START);
+    expect(screen.getByRole('alert').textContent).toBe(errors.unknown);
+    expect(saved(services)?.step).toBe('summary');
+    expect(screen.getByRole('heading', { level: 2, name: SUMMARY })).toBeDefined();
+  });
+
+  it('writes nothing and keeps the draft when another tab saved entries the summary did not ask about', async () => {
+    const shared = memoryPlanStore(EMPTY_SNAPSHOT);
+    const { services, counted } = await numbers(shared);
+    // The other tab's entries hold amounts in a currency no set-aside plan row names: the turn would ask.
+    await shared.write({ entries: fixtureSnapshot().entries });
+    await click(START);
+    expect(
+      screen.getByText(
+        'The entries saved on this device changed in another tab, so the plan was not set up. Answer the question again.',
+      ),
+    ).toBeDefined();
+    expect(shared.current().plan).toBeNull();
+    expect(counted).toEqual([]);
+    expect(saved(services)?.step).toBe('summary');
+    expect(screen.getByTestId('path').textContent).toBe('/onboarding');
+  });
 });
