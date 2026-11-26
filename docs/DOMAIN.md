@@ -890,7 +890,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   with no plan yet, both modes take the file's plan. With no plan but live entries stored (the plan row set aside
   by the quarantine, ADR-0019), a replace, which the import with no plan runs for a backup and a DCA plan page file
   alike, takes the file's plan and adds the missing entries as "Add missing entries only" does (decided 2026-11-26),
-  so it tombstones none of them, which no later add could bring back. The result counts `added`,
+  so it tombstones none of them, which no later add could bring back; the file's plan keeps none of its skips for a
+  month an entry kept here records, since that skip dates from the file's export and the entry recorded here wins.
+  The kept entries read in the file's plan's currency (ADR-0053, Reading of 2026-11-26). The result counts `added`,
   `skipped` (live here already), `deleted` and `taken`: in "Add missing entries only" a deletion on
   this device wins, because a restored row would carry `updatedAt = now` and beat the tombstone in
   sync, so the file never brings back an entry deleted here and counts it as `deleted`. After the id
@@ -901,7 +903,10 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   comes in by importing the exchange file here, under the same id, and sync (M3) replaces two-device
   merges. It adds and never deletes, so a
   deleted entry in the file is ignored (`added + skipped + deleted + taken` is the count of the file's
-  live entries, the count Settings' file line names; a replace counts each of the file's entries as `added` and the other three as 0). An add that adds nothing
+  live entries, the count Settings' file line names; a replace counts each of the file's entries as `added` and the other three as 0,
+  except the import with no plan over live entries stored, which counts as "Add missing entries only" does, and
+  Settings' line after "Plan imported." names its `deleted` and `taken` entries, each when above 0, as that mode's
+  line does). An add that adds nothing
   writes nothing, so it does not count as a change for the backup banner (§3.11). Both modes keep the file's
   entries as written, a sale dated before the purchases that cover it included: §3.7's write check applies to
   writes from this device, and the Portfolio names the units such a sale leaves unmatched.
