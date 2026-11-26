@@ -134,7 +134,7 @@
       "tooManyInFile": "Dieser Export der DCA-Planseite hat {file} Käufe, mehr als die {max} Einträge, die ein Plan fasst, daher wurde nichts importiert. Löschen Sie dort Käufe, exportieren Sie erneut und importieren Sie dann die neue Datei.",
       "tooLarge": "Diese Datei ist größer als {max} MB, daher wurde sie nicht gelesen. Wenn sie der Export einer Börse ist, exportieren Sie dort einen kürzeren Zeitraum und wählen Sie dann die neue Datei.",
       "newerRows": "Eine neuere Version von {product} hat auf diesem Gerät Einträge gespeichert oder gelöscht, daher wurde nichts importiert. Laden Sie die Seite neu und importieren Sie dann erneut.",
-      "changed": "The plan or entries on this device changed in another tab, so nothing was imported. Choose the file again.",
+      "changed": "Der Plan oder die Einträge auf diesem Gerät haben sich in einem anderen Tab geändert, daher wurde nichts importiert. Wählen Sie die Datei erneut.",
       "invalidEntries": "{count, plural, one {{figure} Eintrag in diesem Import kann} other {{figure} Einträge in diesem Import können}} nicht gespeichert werden, daher wurde nichts importiert. Exportieren Sie ein neues Backup aus {product} auf dem Gerät, das es erstellt hat, und importieren Sie dann die neue Datei.",
       "invalidEntriesPasted": "{count, plural, one {{figure} Eintrag im eingefügten Text kann} other {{figure} Einträge im eingefügten Text können}} nicht gespeichert werden, daher wurde nichts importiert. Exportieren Sie ein neues Backup aus {product} auf dem Gerät, das es erstellt hat, und fügen Sie dann den neuen Text ein."
     },
