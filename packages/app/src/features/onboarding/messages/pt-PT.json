@@ -76,13 +76,13 @@
     "reminder": "Lembrete",
     "reminderValue": "{choice, select, calendar {Ficheiro do calendário guardado} other {Sem lembrete definido}}",
     "kept": {
-      "legend": "{count, plural, one {{figure} movimento guardado, a {first}, tem um montante ou uma comissão. Em que moeda foi pago?} other {{figure} movimentos guardados, {span, select, day {a {first}} other {de {first} a {last}}}, têm montantes ou comissões. Em que moeda foram pagos?}}",
-      "known": "{count, plural, one {Foi guardado com o plano que não foi possível ler, que estava em {kept}.} other {Foram guardados com o plano que não foi possível ler, que estava em {kept}.}}",
-      "unknown": "{count, plural, one {Não foi possível ler a moeda do plano com que foi guardado.} other {Não foi possível ler a moeda do plano com que foram guardados.}}",
+      "legend": "{count, plural, one {{figure} movimento guardado, a {first}, tem um montante ou uma comissão. Qual foi a moeda de pagamento?} other {{figure} movimentos guardados, {span, select, day {a {first}} other {de {first} a {last}}}, têm montantes ou comissões. Qual foi a moeda de pagamento?}}",
+      "known": "{count, plural, one {Foi guardado com o plano que não foi possível ler. Esse plano estava em {kept}.} other {Foram guardados com o plano que não foi possível ler. Esse plano estava em {kept}.}}",
+      "unknown": "{count, plural, one {Não foi possível ler a moeda de pagamento do plano com que foi guardado.} other {Não foi possível ler a moeda de pagamento do plano com que foram guardados.}}",
       "card": "{count, plural, one {Pago em {currency}} other {Pagos em {currency}}}",
       "cardLine": "{count, plural, one {O plano é criado em {currency}{instead, select, yes { em vez de {next}} other {}}, e o movimento aparece em {currency}, tal como foi introduzido.} other {O plano é criado em {currency}{instead, select, yes { em vez de {next}} other {}}, e os movimentos aparecem em {currency}, tal como foram introduzidos.}}",
-      "oneCurrency": "Um plano tem uma única moeda, e os movimentos aparecem nessa moeda. Nada é convertido.",
-      "issue": "{count, plural, one {Escolha a moeda em que foi pago.} other {Escolha a moeda em que foram pagos.}}",
+      "oneCurrency": "Um plano tem uma única moeda de pagamento, e os movimentos aparecem nela. Nada é convertido.",
+      "issue": "{count, plural, one {Escolha a moeda de pagamento.} other {Escolha a moeda de pagamento.}}",
       "changed": "Os movimentos guardados neste dispositivo foram alterados noutro separador do navegador, por isso o plano não foi criado. Responda de novo à pergunta.",
       "stay": "{count, plural, one {{figure} movimento guardado neste dispositivo mantém-se e aparece neste plano.} other {{figure} movimentos guardados neste dispositivo mantêm-se e aparecem neste plano.}}"
     }
