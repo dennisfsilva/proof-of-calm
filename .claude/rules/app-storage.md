@@ -1,6 +1,7 @@
 ---
 paths:
   - "**/packages/app/src/lib/adapters/idb*"
+  - "**/packages/app/src/lib/adapters/idb/**"
   - "**/packages/app/src/lib/store/**"
 tier: 2
 security: false
