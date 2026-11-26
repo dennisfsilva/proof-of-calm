@@ -1,6 +1,9 @@
 # Visual baselines (ADR-0024): rendered only in the pinned Playwright container, where CI compares
 # them. Dispatch it on a branch, download the artifact into apps/web/e2e, review every image, and commit
 # them in a pull request that waits for the owner's review.
+# The manifest's screenshots (docs/DESIGN.md §9) are captured here too, in the same container, by
+# e2e/manifest-capture.spec.ts with MANIFEST_CAPTURE=1: download the manifest-screenshots artifact into
+# apps/web/public/screenshots, and counsel and brand read each image before it ships.
 name: Snapshots
 
 on:
@@ -38,4 +41,15 @@ jobs:
         with:
           name: snapshots
           path: apps/web/e2e/**/*-snapshots/**
+          retention-days: 7
+      # The committed images are removed first, so the artifact holds only what this container rendered.
+      - name: Capture the manifest's screenshots
+        run: rm -rf apps/web/public/screenshots && pnpm --filter @proofofcalm/web exec playwright test manifest-capture --project=android-small --project=desktop
+        env:
+          MANIFEST_CAPTURE: '1'
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: manifest-screenshots
+          path: apps/web/public/screenshots/**
+          if-no-files-found: error
           retention-days: 7
