@@ -105,6 +105,8 @@ export type ChartState =
   | { readonly kind: 'unavailable' }
   /** The coins with entries that have fewer than two closes, in chart order. */
   | { readonly kind: 'too-few-closes'; readonly coins: readonly CoinId[] }
+  /** The coins with entries outside the catalogue, whose closes are never read: it never draws. */
+  | { readonly kind: 'outside-catalogue'; readonly coins: readonly CoinId[] }
   /** Every entry is dated after the last close, and a coin is held at the end of one of their days. */
   | { readonly kind: 'starts-later'; readonly end: CalendarDate }
   /** Nothing was held on any day of the closes, from their first to their last. */
@@ -141,9 +143,9 @@ function gridStart(coins: readonly CoinId[], histories: PriceHistories, end: Cal
 }
 
 /**
- * The chart's one state, checked in this order: no coin with entries, every coin outside the catalogue (whose
- * closes are never read), the closes loading, failed, a coin with fewer than two closes (one outside the
- * catalogue has none), closes in another currency; then the range draws; else All draws, so a longer
+ * The chart's one state, checked in this order: no coin with entries, a coin outside the catalogue (whose
+ * closes are never read, so no read or retry can draw the chart), the closes loading, failed, a coin with fewer
+ * than two closes, closes in another currency; then the range draws; else All draws, so a longer
  * range has a value; else every entry is later than the last close and holds a coin at the end of its day, so a
  * later close draws; else nothing was held on any close.
  */
@@ -156,7 +158,8 @@ export function chartState(
 ): ChartState {
   const coins = chartCoins(plan, entries);
   if (coins.length === 0) return { kind: 'none' };
-  if (!coins.some(servesHistory)) return { kind: 'too-few-closes', coins };
+  const outside = coins.filter((coin) => !servesHistory(coin));
+  if (outside.length > 0) return { kind: 'outside-catalogue', coins: outside };
   if (histories.status === 'loading') return { kind: 'loading' };
   if (histories.status === 'failed') return { kind: 'unavailable' };
   const closes = histories.histories;

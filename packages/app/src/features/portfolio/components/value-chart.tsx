@@ -2,7 +2,7 @@ import { assertNever, CHART_RANGES, type ChartRange, type CurrencyCode, UNDO_WIN
 import { LineChart } from '@proofofcalm/ui/charts/line-chart';
 import { SegmentedControl } from '@proofofcalm/ui/components/segmented-control';
 import { cn } from '@proofofcalm/ui/lib/utils';
-import { type ReactNode, useMemo } from 'react';
+import { useMemo } from 'react';
 import { useTranslations } from 'use-intl';
 import { useClock, useFormatters, useServices } from '../../../lib/services';
 import { widestSources } from '../lib/source-reserve';
@@ -16,14 +16,15 @@ import type { ChartState } from '../lib/value-chart';
 // ADR-0050). The range is the device preference
 // `chartRange`, written as the Log writes `logShowAll`: a failed write keeps the range and says so. What it
 // shows is chartState's one choice (lib/value-chart), made once by the screen, whose holdings rows draw only
-// when this chart does or loads: while the closes load, the drawn tree stands busy with
-// an empty chart, out of reach and unread, and the source line's place held by its widest forms (lib/source-reserve), unseen and
-// unread in both states, so it has its loaded height, the ranges never remount and nothing below moves when
-// the line draws, whatever the closes' dates and time (docs/ENGINEERING.md §4); when they cannot be had, the
-// same tree stays, its frame, source line and disclosure unseen and unread, and one line stands in the frame's
-// place, so a failed read moves nothing either; when a coin has fewer than two, one line says so; when there
-// is nothing to draw, the ranges stay and one dated line takes the chart's place. Before the first purchase
-// there is no chart.
+// when this chart does or loads. Once anything is bought there is one tree: while the closes load it stands
+// busy with an empty frame, unseen, out of reach and unread, and the source line's place held by its widest
+// forms (lib/source-reserve), unseen and unread in every state, so it has its loaded height, the ranges never
+// remount (focus stays) and nothing below moves when the line draws, whatever the closes' dates and time
+// (docs/ENGINEERING.md §4). Every state with nothing to draw (the closes unavailable, a coin with fewer than two,
+// a range with nothing, closes that end before the first entry, nothing held) keeps that tree, its frame and
+// disclosure unseen and unread, and one line at the frame's top in the polite status slot, mounted empty with
+// the section, so it is spoken once per change and nothing moves. A coin outside the catalogue, known before
+// any read, gets the bare line with no box. Before the first purchase there is no chart.
 
 /**
  * Whether the chart shows the past-performance line (docs/LEGAL.md §4): while it loads or draws. In every other
@@ -71,37 +72,39 @@ export function ValueChart({ currency, range, state }: ValueChartProps) {
       onValueChange={choose}
     />
   );
-  /** A state with nothing to draw: the ranges stay, and one line takes the chart's place. */
-  const instead = (line: ReactNode) => (
-    <section className="flex flex-col gap-stack-sm">
-      {ranges}
-      <p className="text-14 text-ink-2">{line}</p>
-    </section>
-  );
-
+  /** The line in the frame's place: none while loading or drawn. */
+  let line: string | null = null;
   switch (state.kind) {
     // Nothing bought yet: nothing to chart and no space kept.
     case 'none':
       return null;
+    // Known before any read and never drawn: no box to keep.
+    case 'outside-catalogue':
+      return <p className="text-14 text-ink-2">{t('tooFewCloses', { coins: format.list(state.coins) })}</p>;
     case 'loading':
-    case 'unavailable':
     case 'draws':
       break;
+    case 'unavailable':
+      line = t('unavailable');
+      break;
     case 'too-few-closes':
-      return <p className="text-14 text-ink-2">{t('tooFewCloses', { coins: format.list(state.coins) })}</p>;
+      line = t('tooFewCloses', { coins: format.list(state.coins) });
+      break;
     case 'range-empty':
-      return instead(t('empty', { range: state.range, start: format.date(state.start), end: format.date(state.end) }));
+      line = t('empty', { range: state.range, start: format.date(state.start), end: format.date(state.end) });
+      break;
     case 'starts-later':
       // The All wording names the last close only.
-      return instead(t('empty', { range: 'all', start: format.date(state.end), end: format.date(state.end) }));
+      line = t('empty', { range: 'all', start: format.date(state.end), end: format.date(state.end) });
+      break;
     case 'nothing-held':
-      return instead(t('nothingHeld', { start: format.date(state.start), end: format.date(state.end) }));
+      line = t('nothingHeld', { start: format.date(state.start), end: format.date(state.end) });
+      break;
     default:
       return assertNever(state);
   }
 
   const loading = state.kind === 'loading';
-  const failed = state.kind === 'unavailable';
   const undisclosed = !chartDiscloses(state);
   const drawn = state.kind === 'draws' ? state : null;
   const table = { summary: t('table.summary'), columns: [t('table.date'), t('table.value')], numericColumns: [1] };
@@ -147,18 +150,20 @@ export function ValueChart({ currency, range, state }: ValueChartProps) {
   return (
     <section aria-busy={loading || undefined} className="flex flex-col gap-stack-sm">
       {ranges}
-      {/* One cell: a failed read's line stands where the frame was, which keeps its height unseen. The column
-          is the section's width (minmax(0, 1fr)): an auto column would take the chart's min-content width,
-          wider than a phone. */}
+      {/* One cell: a line stands at the top of the frame, which keeps its height unseen. The status slot is
+          mounted empty with the section, so a line that comes later is spoken once. The column is the section's
+          width (minmax(0, 1fr)): an auto column would take the chart's min-content width, wider than a phone. */}
       <div className="grid grid-cols-1">
         <div
           inert={drawn === null}
           aria-hidden={drawn === null || undefined}
-          className={cn('col-start-1 row-start-1', failed && 'invisible')}
+          className={cn('col-start-1 row-start-1', drawn === null && 'invisible')}
         >
           {chart}
         </div>
-        {failed && <p className="col-start-1 row-start-1 text-14 text-ink-2">{t('unavailable')}</p>}
+        <p role="status" aria-live="polite" aria-atomic="true" className="col-start-1 row-start-1 text-14 text-ink-2">
+          {line}
+        </p>
       </div>
       {/* One cell: the widest lines stand invisible under the drawn one, so its height is theirs in both states. */}
       <div className="grid">
