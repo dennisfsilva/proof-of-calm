@@ -1688,3 +1688,16 @@ when §5's update handler is handed over, and where the site pages name the buil
   `apps/web/scripts/bundle-worker.ts` globs): a dated offline page would change `sw.js` with every
   daily rebuild and offer every installed app an update each day with no code changed (#523's
   review).
+
+## Deviations recorded on 2026-11-26
+
+The decision stands; this records how the hash location of §9 and §10 treats the page's query.
+
+- **2026-11-26, a hash navigation writes the target's query, an empty one included** (§9's
+  `NavigationProvider`, §10). wouter 3.13.0's hash `navigate` sets the page's query only when the
+  target holds a `?` (`wouter/use-hash-location`'s source), so after `/settings?tab=data` the page
+  read `/index.html?tab=data#/settings` and a later `/settings` kept `tab=data` for `useSearch()`
+  until a reload. The hash location is no longer `<Router hook={useHashLocation}>` but a hook in
+  `packages/app/src/lib/navigation/provider.tsx` that reads `useHashLocation`'s path and navigates
+  with a `?` appended to a target without one, which clears the query, in push and replace alike;
+  `hrefs` keeps the `#` prefix. The browser and memory locations are unchanged.
