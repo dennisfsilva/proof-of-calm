@@ -1118,6 +1118,19 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A measured window opens after the harness has resolved its locators: Playwright's `getByRole`
   made a 75–101 ms task inside the Log at the cap's window before the Delete and Undo clicks
   (2026-11-26).
+- A measured window records the longest task that starts before its input, so the harness's own
+  work in it is read, not inferred: the Log at the cap's first run with that figure found a
+  123 and a 210 ms locator task before Show older and Show newer entries too, which the lesson
+  above had named only for Delete and Undo (#547, 2026-11-26).
+- A manifest or marketing capture rendered on Windows differs from the pinned Linux container in
+  font metrics and in the native date field's order, so frame heights and the date field are
+  judged on the container's render; a narrow screenshot's height is capped by Chrome's 2.3:1
+  ratio, 828 CSS px at 360 wide (2026-11-26).
+- A branch whose copy or images the content roles read gets them in the same pass as its first
+  review, with its images rendered in the container first: the manifest screenshots' images were
+  read only after two review rounds, and counsel's five and brand's nine findings then took a
+  second fix round and moved the branch to the next session (#545); #550's copy went to counsel
+  and brand beside its review, so one fix round covered brand's six findings (2026-11-26).
 
 ## Known gaps
 
