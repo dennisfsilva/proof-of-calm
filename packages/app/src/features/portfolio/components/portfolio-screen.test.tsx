@@ -470,7 +470,10 @@ describe('PortfolioScreen', () => {
       await render(dutch([...entries, sell('998', 'BTC', '0.02215'), sell('999', 'ETH', '0.119')], '7d'));
       const estimate = await screen.findByText(/^Estimate from the daily closes of 31 Dec 2029/);
       expect(screen.queryByRole('img', { name: /^Portfolio value, / })).toBeNull();
-      const lines = screen.getAllByText(/^Past performance is not a reliable indicator/);
+      // The chart keeps its disclosure's place, unseen and unread: the one line read is the estimate's.
+      const lines = screen.getAllByText(/^Past performance is not a reliable indicator/, {
+        ignore: '[aria-hidden="true"]',
+      });
       expect(lines).toHaveLength(1);
       expect(estimate.nextElementSibling).toBe(lines[0] ?? null);
       expect(lines[0]?.querySelector('a')?.getAttribute('href')).toBe('/risk');

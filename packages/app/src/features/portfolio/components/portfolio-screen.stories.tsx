@@ -2,7 +2,7 @@ import { countryRules, loadProfile } from '@proofofcalm/content';
 import { err, ok } from '@proofofcalm/core';
 import { anEntry, BTC, date, money, units } from '@proofofcalm/core/testing';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import type { CachedHistory, HistorySource, Snapshot } from '../../../lib/ports';
 import { type FixturePhase, fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, FIXTURE_PRICES, pricesAt } from '../../../lib/services/testing';
@@ -105,6 +105,25 @@ const keepsItsHeight: Story['play'] = async ({ canvas, canvasElement }) => {
 // The test source's three closes start after the 30 days, so the charts name their own dates.
 const VALUE_CHART = /^Portfolio value, .+ to .+, from .+ to .+$/;
 const BTC_CHART = /^BTC price, .+ to .+, from .+ to .+$/;
+
+/**
+ * A state with nothing to draw keeps the drawn tree: the ranges, and the line in the polite status slot at the
+ * frame's top, the frame and the disclosure unseen.
+ */
+const showsLine = async (canvas: Parameters<NonNullable<Story['play']>>[0]['canvas'], line: RegExp) => {
+  const group = await canvas.findByRole('group', { name: 'Chart range' });
+  const section = group.closest('section');
+  if (section === null) throw new Error('The ranges stand outside the chart section');
+  const status = within(section).getByRole('status');
+  await waitFor(() => expect(status).toHaveTextContent(line));
+  await expect(status).toBeVisible();
+  await expect(status).toHaveAttribute('aria-live', 'polite');
+  await expect(group).toBeVisible();
+  await expect(canvas.getByRole('button', { name: '30D, last 30 days' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(canvas.queryByRole('img', { name: VALUE_CHART })).toBeNull();
+  await expect(section.querySelector('figure')?.closest('[inert]')).not.toBeVisible();
+  await expect(canvas.getByText(/^Past performance/)).not.toBeVisible();
+};
 
 /** Opens a coin's holdings row and returns the detail row that holds its chart. */
 const openRow = async (
@@ -216,17 +235,20 @@ export const RowOpensWhileLoading: Story = {
   },
 };
 
+/** The closes cannot be had: the line stands at the frame's top, and an open row keeps its frame with it. */
 export const ChartUnavailable: Story = {
   parameters: at('buy', true, { historySource: { closes: async () => err({ kind: 'network' }) } }),
   play: async ({ canvas }) => {
-    await expect(await canvas.findByText(/^The price history could not be loaded/)).toBeVisible();
-    await expect(canvas.queryByRole('img', { name: VALUE_CHART })).toBeNull();
+    await showsLine(canvas, /^The price history could not be loaded/);
+    const detail = await openRow(canvas, 'BTC');
+    await expect(within(detail).getByText(/^The price history could not be loaded/)).toBeVisible();
+    await expect(within(detail).getByText('Price data by CoinGecko')).not.toBeVisible();
   },
 };
 
 /**
- * The closes end before the first purchase: the ranges stay and one dated line takes the chart's place, on
- * the default range too, since no range can draw.
+ * The closes end before the first purchase: the drawn tree stays and one dated line takes the chart's place,
+ * on the default range too, since no range can draw.
  */
 export const ChartStartsLater: Story = {
   parameters: at('buy', true, {
@@ -236,29 +258,18 @@ export const ChartStartsLater: Story = {
     ]),
   }),
   play: async ({ canvas }) => {
-    await expect(
-      await canvas.findByText(
-        /^There is no value to draw since the first entry: the daily closes end on .+\. The chart starts with the next daily close.$/,
-      ),
-    ).toBeVisible();
-    await expect(canvas.getByRole('group', { name: 'Chart range' })).toBeVisible();
-    await expect(canvas.getByRole('button', { name: '30D, last 30 days' })).toHaveAttribute('aria-pressed', 'true');
-    await expect(canvas.queryByRole('img', { name: VALUE_CHART })).toBeNull();
-    await expect(canvas.queryByText(/^Past performance/)).toBeNull();
+    await showsLine(
+      canvas,
+      /^There is no value to draw since the first entry: the daily closes end on .+\. The chart starts with the next daily close.$/,
+    );
   },
 };
 
-/** Each coin has one close: one line names them, with no ranges and no retry step. */
+/** Each coin has one close: the ranges stay, and one line names the coins, with no retry step. */
 export const ChartTooFewCloses: Story = {
   parameters: at('buy', true, { historySource: closesOf([['2026-03-01', '58000']]) }),
   play: async ({ canvas }) => {
-    await expect(
-      await canvas.findByText(
-        /^The price history has fewer than two daily closes for BTC.+ETH, so there is no chart\.$/,
-      ),
-    ).toBeVisible();
-    await expect(canvas.queryByRole('group', { name: 'Chart range' })).toBeNull();
-    await expect(canvas.queryByRole('img', { name: VALUE_CHART })).toBeNull();
+    await showsLine(canvas, /^The price history has fewer than two daily closes for BTC.+ETH, so there is no chart\.$/);
   },
 };
 
@@ -289,14 +300,10 @@ export const ChartNothingHeld: Story = {
     ]),
   }),
   play: async ({ canvas }) => {
-    await expect(
-      await canvas.findByText(
-        /^There is no value to draw: you held no coins from .+ to .+, the dates the daily closes cover\.$/,
-      ),
-    ).toBeVisible();
-    await expect(canvas.getByRole('group', { name: 'Chart range' })).toBeVisible();
-    await expect(canvas.queryByText(/starts with the next daily close/)).toBeNull();
-    await expect(canvas.queryByRole('img', { name: VALUE_CHART })).toBeNull();
+    await showsLine(
+      canvas,
+      /^There is no value to draw: you held no coins from .+ to .+, the dates the daily closes cover\.$/,
+    );
   },
 };
 

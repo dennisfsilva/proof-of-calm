@@ -103,6 +103,27 @@ async function mount(historySource: HistorySource, planStore?: PlanStore, state 
 
 const range = (name: string) => screen.getByRole('button', { name });
 
+/**
+ * A state with nothing to draw: the drawn tree stays, its frame unseen, out of reach and unread, the disclosure's
+ * place unseen too, and the line in the polite status slot of the frame's cell, at the frame's top.
+ */
+function expectLine(line: string) {
+  const section = document.querySelector('section');
+  expect(section?.getAttribute('aria-busy')).toBeNull();
+  expect(section?.contains(screen.getByRole('group', { name: 'Chart range' }))).toBe(true);
+  expect(screen.queryByRole('img')).toBeNull();
+  const frame = section?.querySelector('figure')?.closest('[inert]');
+  expect(frame?.matches('[aria-hidden="true"].invisible')).toBe(true);
+  const status = screen.getByRole('status');
+  // Dates carry no-break spaces, which getByText would fold too.
+  expect(status.textContent?.replace(/\s+/gu, ' ')).toBe(line);
+  expect(status.getAttribute('aria-live')).toBe('polite');
+  expect(status.getAttribute('aria-atomic')).toBe('true');
+  expect(status.parentElement).toBe(frame?.parentElement);
+  const disclosure = screen.getByText(/^Past performance is not a reliable indicator/);
+  expect(disclosure.matches('[aria-hidden="true"].invisible')).toBe(true);
+}
+
 describe('ValueChart', () => {
   it('names the drawing by its own dates when the closes start after the range, dated, credited, disclosed', async () => {
     await mount(closes);
@@ -187,13 +208,7 @@ describe('ValueChart', () => {
         }),
     };
     await mount(year, undefined, sold);
-    expect(screen.queryByRole('img')).toBeNull();
-    expect(
-      screen.getByText(
-        'There is no value to draw for the last 30 days, 20 Sept 2026 to 20 Oct 2026. Choose a longer range.',
-      ),
-    ).toBeTruthy();
-    expect(screen.queryByText(/^Past performance/)).toBeNull();
+    expectLine('There is no value to draw for the last 30 days, 20 Sept 2026 to 20 Oct 2026. Choose a longer range.');
     await act(async () => fireEvent.click(range('All, since the first entry')));
     expect(screen.getByRole('img').getAttribute('aria-label')).toMatch(/^Portfolio value, since the first entry \(/);
   });
@@ -209,13 +224,11 @@ describe('ValueChart', () => {
       'There is no value to draw since the first entry: the daily closes end on 20 Oct 2026. The chart starts with the next daily close.';
     // The default range first, then each of the others.
     expect(range('30D, last 30 days').getAttribute('aria-pressed')).toBe('true');
-    expect(screen.getByText(line)).toBeTruthy();
+    expectLine(line);
     for (const name of ['7D, last 7 days', '90D, last 90 days', '1Y, last 12 months', 'All, since the first entry']) {
       await act(async () => fireEvent.click(range(name)));
       expect(range(name).getAttribute('aria-pressed')).toBe('true');
-      expect(screen.queryByRole('img')).toBeNull();
-      expect(screen.getByText(line)).toBeTruthy();
-      expect(screen.queryByText(/Choose a longer range/)).toBeNull();
+      expectLine(line);
     }
   });
 
@@ -261,14 +274,11 @@ describe('ValueChart', () => {
     await mount(year, undefined, soldOut);
     const line =
       'There is no value to draw: you held no coins from 21 Oct 2025 to 20 Oct 2026, the dates the daily closes cover.';
-    expect(screen.getByText(line)).toBeTruthy();
-    expect(screen.queryByText(/starts with the next daily close/)).toBeNull();
+    expectLine(line);
     for (const name of ['7D, last 7 days', '90D, last 90 days', '1Y, last 12 months', 'All, since the first entry']) {
       await act(async () => fireEvent.click(range(name)));
       expect(range(name).getAttribute('aria-pressed')).toBe('true');
-      expect(screen.queryByRole('img')).toBeNull();
-      expect(screen.getByText(line)).toBeTruthy();
-      expect(screen.queryByText(/starts with the next daily close|Choose a longer range/)).toBeNull();
+      expectLine(line);
     }
   });
 
@@ -304,11 +314,31 @@ describe('ValueChart', () => {
       },
     };
     await mount(partial, undefined, twoCoins);
-    expect(screen.queryByRole('img')).toBeNull();
-    expect(
-      screen.getByText('The price history has fewer than two daily closes for ETH, so there is no chart.'),
-    ).toBeTruthy();
-    expect(screen.queryByText(/could not be loaded|retry|^There is no value to draw/)).toBeNull();
+    expectLine('The price history has fewer than two daily closes for ETH, so there is no chart.');
+  });
+
+  it('keeps the focused range through loading to too few closes, since the ranges never remount', async () => {
+    let release: () => void = () => undefined;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const one: HistorySource = {
+      closes: async (coin, currency) =>
+        held.then(async () => {
+          const read = await closes.closes(coin, currency);
+          return read.ok ? ok({ ...read.value, closes: read.value.closes.slice(-1) }) : read;
+        }),
+    };
+    await mount(one);
+    const status = screen.getByRole('status');
+    expect(status.textContent).toBe('');
+    const pressed = range('90D, last 90 days');
+    pressed.focus();
+    await act(async () => release());
+    expect(document.activeElement).toBe(pressed);
+    // The same slot, mounted empty with the section, now holds the line: spoken once, as the change.
+    expect(screen.getByRole('status')).toBe(status);
+    expectLine('The price history has fewer than two daily closes for BTC, so there is no chart.');
   });
 
   it('names a coin outside the catalogue as one without closes, never as a read to retry', async () => {
@@ -326,12 +356,18 @@ describe('ValueChart', () => {
         coin === BTC.id ? closes.closes(coin, currency) : err({ kind: 'http', status: 400 }),
     };
     const line = 'The price history has fewer than two daily closes for KAS, so there is no chart.';
-    for (const entries of [[...snapshot.entries, kas], [kas]]) {
-      cleanup();
-      await mount(refusing, undefined, { ...snapshot, entries });
-      expect(screen.queryByRole('img')).toBeNull();
-      expect(screen.getByText(line)).toBeTruthy();
-      expect(screen.queryByText(/could not be loaded|Open Portfolio again to retry/)).toBeNull();
+    const loading: HistorySource = { closes: () => new Promise(() => undefined) };
+    for (const source of [refusing, loading]) {
+      for (const entries of [[...snapshot.entries, kas], [kas]]) {
+        cleanup();
+        await mount(source, undefined, { ...snapshot, entries });
+        // Known before any read: the bare line, with no box, no ranges and no busy section.
+        expect(document.querySelector('section')).toBeNull();
+        expect(screen.queryByRole('group')).toBeNull();
+        expect(screen.queryByRole('img')).toBeNull();
+        expect(screen.getByText(line).tagName).toBe('P');
+        expect(screen.queryByText(/could not be loaded|Open Portfolio again to retry/)).toBeNull();
+      }
     }
   });
 
@@ -363,16 +399,15 @@ describe('ValueChart', () => {
       closes: async (): Promise<Result<CachedHistory, ApiFailure>> => err({ kind: 'network' }),
     };
     await mount(failed);
-    expect(screen.queryByRole('img')).toBeNull();
-    expect(
-      screen.getByText('The price history could not be loaded, so there is no chart. Open Portfolio again to retry.'),
-    ).toBeTruthy();
+    expectLine('The price history could not be loaded, so there is no chart. Open Portfolio again to retry.');
 
     cleanup();
     await mount({ closes: () => new Promise(() => undefined) });
     expect(screen.queryByRole('img')).toBeNull();
     expect(screen.queryByText(/could not be loaded/)).toBeNull();
     expect(document.querySelector('section[aria-busy="true"]')).not.toBeNull();
+    // Loading says nothing: the slot stands empty.
+    expect(screen.getByRole('status').textContent).toBe('');
   });
 
   it('keeps the drawn tree while the closes load, so the ranges stay and nothing below moves', async () => {
@@ -387,8 +422,10 @@ describe('ValueChart', () => {
     expect(section?.contains(group)).toBe(true);
     // The figure is laid out at its loaded height, out of reach and out of the accessibility tree.
     const wrapper = section?.querySelector('[inert]');
-    expect(wrapper?.getAttribute('aria-hidden')).toBe('true');
+    expect(wrapper?.matches('[aria-hidden="true"].invisible')).toBe(true);
     expect(wrapper?.querySelector('figure')).not.toBeNull();
+    // The table toggle is unseen too: a tap would open an empty table.
+    expect(wrapper?.contains(screen.getByText('Show the values as a table'))).toBe(true);
     expect(section?.contains(screen.getByText(/^Past performance is not a reliable indicator/))).toBe(true);
     // The source line's place: its widest forms, one per month at least, unseen and unread; no drawn line yet.
     const widest = screen.getAllByText(/^Daily closes, 28 /);
@@ -423,8 +460,9 @@ describe('ValueChart', () => {
     expect(screen.getByRole('group', { name: 'Chart range' })).toBe(group);
     const frame = section?.querySelector('figure')?.closest('[inert]');
     expect(frame?.matches('[aria-hidden="true"].invisible')).toBe(true);
-    // The line stands in the frame's grid cell, read as the chart's place.
-    const line = screen.getByText(/^The price history could not be loaded/);
+    // The line stands in the frame's grid cell, at its top, in the status slot mounted with the section.
+    const line = screen.getByRole('status');
+    expect(line.textContent).toMatch(/^The price history could not be loaded/);
     expect(line.parentElement).toBe(frame?.parentElement);
     expect([...line.classList]).toEqual(expect.arrayContaining(['col-start-1', 'row-start-1']));
     // The source line's and the disclosure's places stay, unseen: no past performance is shown.
