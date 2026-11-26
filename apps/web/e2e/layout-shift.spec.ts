@@ -198,6 +198,69 @@ test("Today's plan strip keeps its y when /api/prices answers late", async ({ pa
   await expectSteady(page, browserName);
 });
 
+/**
+ * Starts counting every layout shift from now on, those right after an input too, since the press that starts
+ * a retry is one; the returned read gives their sum.
+ */
+async function shiftsFromNow(page: Page) {
+  await page.evaluate(() => {
+    const target = window as unknown as { shifts: number };
+    target.shifts = 0;
+    new PerformanceObserver((list) => {
+      for (const entry of list.getEntries() as LayoutShift[]) target.shifts += entry.value;
+    }).observe({ type: 'layout-shift' });
+  });
+  return () => page.evaluate(() => (window as unknown as { shifts: number }).shifts);
+}
+
+const scrollHeight = (page: Page) => page.evaluate(() => document.documentElement.scrollHeight);
+
+// Session 27g (#562): on a wealth-snapshot plan the value of 1 January sits last on Portfolio. After a failed
+// read it shows nothing; a retry (pressing Portfolio's tab, #557) showed its loading line, and a second failure
+// took it away again, so the page's end grew and shrank under the reader. It stays hidden across the retry.
+test("/portfolio's end keeps its place across a retry that fails again", async ({ page, browserName }) => {
+  // The beforeEach's 503 is in place before this seed too, so Today keeps no closes (docs/BUILD-PROMPT.md's lessons).
+  const fixture = fixtureSnapshot();
+  if (fixture.plan === null) throw new Error('no fixture plan');
+  const plan = {
+    ...fixture.plan,
+    country: 'NL' as typeof fixture.plan.country,
+    countryRuleVersion: 1,
+    holdingRule: { kind: 'none' as const },
+  };
+  await seedPlan(page, { ...fixture, plan });
+  // 15 March 2030: the fixture's coins were held at the end of 31 December 2029, so the block has a line.
+  await page.clock.setFixedTime(new Date(fixtureNowMs('sell')));
+  // The first read fails at once; the retry's requests wait for the release, then fail again.
+  let release = () => {};
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  let requests = 0;
+  await page.route('**/api/history/*', async (route) => {
+    requests += 1;
+    if (requests > 2) await held;
+    await route.fulfill({ status: 503 });
+  });
+  await page.goto('/portfolio');
+  await ready(page);
+  const failure = page.getByText(/^The price history could not be loaded/);
+  await expect(failure).toBeVisible();
+  await expect(page.getByText(/^Value on 1 January/)).toHaveCount(0);
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+  const before = await scrollHeight(page);
+  const shifts = await shiftsFromNow(page);
+
+  await page.getByRole('link', { name: 'Portfolio', exact: true }).click();
+  await expect.poll(() => requests).toBe(4);
+  expect(await scrollHeight(page)).toBe(before);
+  await expect(page.getByText(/^Loading the daily closes/)).toHaveCount(0);
+  release();
+  await expect(failure).toBeVisible();
+  expect(await scrollHeight(page)).toBe(before);
+  if (browserName === 'chromium') expect(await shifts()).toBeLessThan(0.01);
+});
+
 test("Portfolio's range buttons keep their y when prices land", async ({ page, browserName }) => {
   await page.route('**/api/history/*', (route) => route.fulfill({ status: 502 }));
   const release = await latePrices(page);
