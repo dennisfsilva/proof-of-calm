@@ -152,9 +152,11 @@ export const PlanSetAside: Story = {
     }),
   },
   play: async ({ canvas }) => {
-    await expect(
-      await canvas.findByText('Your plan could not be read, so no entries are listed. They stay on this device.'),
-    ).toBeVisible();
+    const text = await canvas.findByText(
+      /^Your plan could not be read, so no entries are listed\. They stay on this device\. Import a JSON backup in/,
+    );
+    await expect(text).toBeVisible();
+    await expect(within(text).getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/settings');
   },
 };
 
