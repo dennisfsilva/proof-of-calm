@@ -206,8 +206,14 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
 - **A chart while its data loads**: no loading state is added, no spinner, skeleton or shimmer. The
   chart's empty frame, busy, hidden from assistive technology and at its loaded height
   (`docs/ENGINEERING.md` §4), is the quiet state (§2: no decoration): Portfolio's value chart while
-  the daily closes load, and an open holdings row's chart the same way. When they cannot be had the
-  frame stays, unseen, and the value chart's line stands in its place, so a failed read moves nothing.
+  the daily closes load, and an open holdings row's chart the same way. The frame's labels (the
+  legend, the table toggle, the axis) stand unseen with it, since a toggle that opens nothing is a
+  label for what is not there. Every state with nothing to draw (the closes unavailable, too few
+  closes, a range with nothing, closes that end before the first entry, nothing held) keeps the frame's
+  place, unseen, with one line at its top in a polite status slot mounted empty with the section, so
+  the line is spoken once when it comes, nothing moves and a focused range keeps its focus; loading
+  and a drawn chart say nothing. A state known before any read (a coin outside the catalogue) shows
+  its line alone, with no frame.
 - **Elevation**: flat. Overlays only: light `0 1px 2px oklch(0.2 0.01 80 / 0.10), 0 8px 24px -8px
   oklch(0.2 0.01 80 / 0.25)` over the scrim `oklch(0.2 0.01 80 / 0.25)`; dark overlays use
   `surface-2`, a 1 px `line-2` border and a scrim `oklch(0.1 0 0 / 0.5)`. No hover elevation.
@@ -479,7 +485,11 @@ the form), so it waits for a screen that does. Notes, and the values this docume
   overlay without a viewBox, placed in percent, so it neither stretches nor needs a style attribute.
   On Portfolio it is drawn in an open holdings row only (a closed row's detail is hidden, never
   emptied, so it holds no chart), over the value chart's range, its line in the coin's colour as in the
-  allocation bar, and only while the value chart draws or loads. While that chart shows a line instead
+  allocation bar, and only while the value chart draws or loads. While the closes load, the row's frame
+  stands unseen with its legend, table toggle and credit, so no label offers what is not there; with
+  the closes unavailable, the frame's top holds the value chart's line, seen and not announced (the
+  chart's own slot speaks it), whether the row opened before or after the failure, since the chart's
+  line is then off screen (`docs/CONTENT-STYLE.md` rule 8). While that chart shows a line instead
   (no purchase yet, the closes unavailable, too few closes, a range with nothing to draw, closes that
   end before the first entry, nothing held), an open row draws nothing: it would be the path's first
   historic view without the past-performance line (`docs/LEGAL.md` §4). With the closes unavailable,
