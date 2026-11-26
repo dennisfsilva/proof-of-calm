@@ -161,10 +161,7 @@ export function ValueChart({ currency, range, state }: ValueChartProps) {
         <div
           inert={drawn === null}
           aria-hidden={drawn === null || undefined}
-          className={cn(
-            'col-start-1 row-start-1 transition-none **:transition-none',
-            drawn === null && 'invisible',
-          )}
+          className={cn('col-start-1 row-start-1 transition-none **:transition-none', drawn === null && 'invisible')}
         >
           {chart}
         </div>
