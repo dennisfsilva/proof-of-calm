@@ -70,11 +70,24 @@ describe('the web app manifest (ADR-0033)', () => {
       '/screenshots/learn-narrow.png',
       '/screenshots/holding-date-wide.png',
     ]);
-    // android-small's viewport of 360 × 780 at a device scale factor of 3, and desktop's 1280 × 800 at 1.
-    const sizes = { narrow: '1080x2340', wide: '1280x800' };
+    // Each frame's height is chosen so that its edges fall between blocks (the capture spec): android-small is 360 CSS
+    // pixels wide at a device scale factor of 3, desktop 1280 at 1.
+    expect(Object.fromEntries(screenshots.map((shot) => [shot.src, shot.sizes]))).toEqual({
+      '/screenshots/holding-date-narrow.png': '1080x2340',
+      '/screenshots/country-pt-narrow.png': '1080x2469',
+      '/screenshots/today-narrow.png': '1080x2340',
+      '/screenshots/learn-narrow.png': '1080x2448',
+      '/screenshots/holding-date-wide.png': '1280x720',
+    });
+    for (const shot of screenshots) expect(shot.src, shot.src).toContain(`-${shot.form_factor}.png`);
+  });
+
+  it("keeps every screenshot within Chrome's richer install sheet: sides of 320 to 3840 px, at most 2.3 : 1", () => {
     for (const shot of screenshots) {
-      expect(shot.src, shot.src).toContain(`-${shot.form_factor}.png`);
-      expect(shot.sizes, shot.src).toBe(sizes[shot.form_factor]);
+      const [width, height] = shot.sizes.split('x').map(Number) as [number, number];
+      expect(Math.min(width, height), shot.src).toBeGreaterThanOrEqual(320);
+      expect(Math.max(width, height), shot.src).toBeLessThanOrEqual(3840);
+      expect(Math.max(width, height) / Math.min(width, height), shot.src).toBeLessThanOrEqual(2.3);
     }
   });
 
