@@ -68,7 +68,7 @@
     "range": "{from} bis {to}",
     "from": "ab {from}",
     "label": "Plan {open, select, yes {ab {start}, ohne festgelegtes Ende} other {vom {start} bis {end}}}. Heute ist der {today}.",
-    "table": "Die Termine als Tabelle anzeigen",
+    "table": "Die Zeiträume als Tabelle anzeigen",
     "phase": "Phase",
     "start": "Von",
     "end": "Bis"

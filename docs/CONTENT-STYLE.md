@@ -1438,6 +1438,7 @@ The product's nouns, one German word each, in every string, the site pages and t
 | review (the plan's, the noun) / Mark as reviewed | Überprüfung / Als überprüft markieren |
 | Pause from today / Paused since {date} | Ab heute pausieren / Pausiert seit {date} |
 | the sell window's opening, closing and out-by dates | Öffnungsdatum, Schlussdatum, Ausstiegsdatum |
+| dates (a plan's phase ranges, Today's table toggle) | Zeiträume (`Die Zeiträume als Tabelle anzeigen`), since each row is a phase with `Von` and `Bis`; never `Termine`, a single appointment, or `Daten`, which means data on Settings (decided 2026-11-26) |
 | DCA Plan page (the prototype) | DCA-Planseite (Plan's peak line says `die Seite des DCA-Plans` until the native reader answers) |
 | acquired date (the tax-year file) | Erwerbsdatum (`Zeilen ohne Erwerbsdatum`) |
 | holding row / sale row / move row (the tax-year file) | Bestandszeile / Verkaufszeile / Übertragungszeile |
