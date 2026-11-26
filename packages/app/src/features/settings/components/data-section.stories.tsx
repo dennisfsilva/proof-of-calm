@@ -67,7 +67,10 @@ export const SetAsideBack: Story = {
     snapshot: {
       ...recovered,
       quarantined: 3,
-      setAside: { plans: [{ id: recovered.plan?.id ?? 'plan', at: '2026-10-17T09:00:00.000Z' as Instant, currency: 'EUR' }], entries: [] },
+      setAside: {
+        plans: [{ id: recovered.plan?.id ?? 'plan', at: '2026-10-17T09:00:00.000Z' as Instant, currency: 'EUR' }],
+        entries: [],
+      },
     },
   },
   play: async ({ canvas }) => {
