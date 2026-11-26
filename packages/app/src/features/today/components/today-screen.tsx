@@ -42,7 +42,7 @@ import { WhyLink } from '../../learn';
 import { todayActions } from '../actions';
 import { AnnualReviewBanner } from './annual-review-banner';
 import { PendingList } from './pending-list';
-import { PricesLine, useOnline } from './prices-line';
+import { PricesSlot, useOnline } from './prices-line';
 import { PrimaryAction } from './primary-action';
 import { RedDayFoot } from './red-day-foot';
 import { RuleChangeBanner } from './rule-change-banner';
@@ -149,9 +149,9 @@ function PortfolioNumber({ plan }: { plan: Plan }) {
     <dl className="flex flex-col">
       <dt className="text-14 text-ink-2">{t(priced ? 'portfolio.value' : 'portfolio.invested')}</dt>
       <dd className="nums font-semibold text-40">{f.money(value.value ?? value.invested, plan.payCurrency)}</dd>
-      {/* One line always, empty until priced: the reserved height (no layout shift). */}
-      <dd className="min-h-[1lh] text-14 text-ink-2">
-        {priced && <PricesLine prices={prices} online={online} failure={failure} />}
+      {/* The line's widest forms hold its height until priced (no layout shift). */}
+      <dd>
+        <PricesSlot prices={priced ? prices : null} online={online} failure={failure} />
       </dd>
     </dl>
   );

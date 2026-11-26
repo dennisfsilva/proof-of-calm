@@ -1,24 +1,49 @@
-import { useSyncExternalStore } from 'react';
+import { useMemo, useSyncExternalStore } from 'react';
 import { useTranslations } from 'use-intl';
 import { pricesLine } from '../../../lib/adapters';
 import type { PricesFailure, PricesState } from '../../../lib/ports';
 import { useClock, useFormatters } from '../../../lib/services';
+import { KEYS, widestPrices } from '../lib/prices-reserve';
 
 // The one prices line under a value, on Today and Portfolio alike (docs/CONTENT-STYLE.md §3: "Offline",
 // "Stale prices", "Prices attribution"). CoinGecko's prices carry its credit online, delayed and offline
 // (ADR-0036); prices typed by hand carry none and keep their "as of" line offline. Since the line can carry
-// the credit, the screens set it at `text-14`, never smaller (ADR-0050).
+// the credit, the screens set it at `text-14`, never smaller (ADR-0050), in its slot: the line's widest forms
+// stand invisible in its grid cell, so nothing below moves when the prices arrive (docs/ENGINEERING.md §4).
 
-/** Each code's message, with CoinGecko's credit for its prices and without for any other source. */
-const KEYS = {
-  live: { live: 'prices.asOfLive', other: 'prices.asOf' },
-  manual: { live: 'prices.asOfLive', other: 'prices.asOf' },
-  delayed: { live: 'prices.delayedLive', other: 'prices.delayed' },
-  offline: { live: 'prices.fromOfflineLive', other: 'prices.fromOffline' },
-} as const;
+const CELL = 'nums col-start-1 row-start-1 text-14 text-ink-2';
+
+/** The prices line's place, as tall before the prices arrive (`prices` null) as with any line they draw. */
+export function PricesSlot({
+  prices,
+  online,
+  failure,
+}: {
+  readonly prices: PricesState | null;
+  readonly online: boolean;
+  readonly failure: PricesFailure | null;
+}) {
+  const t = useTranslations('today');
+  const format = useFormatters();
+  const clock = useClock();
+  const widest = useMemo(() => widestPrices(format, clock, (key, values) => t(key, values)), [format, clock, t]);
+  return (
+    <div className="grid grid-cols-1">
+      {/* Drawn from the attribute, so no search, test or copy of the page finds the forms' words. */}
+      {widest.map((line) => (
+        <p key={line} aria-hidden data-line={line} className={`${CELL} invisible before:content-[attr(data-line)]`} />
+      ))}
+      {prices !== null && (
+        <p className={CELL}>
+          <PricesLine prices={prices} online={online} failure={failure} />
+        </p>
+      )}
+    </div>
+  );
+}
 
 /** Where the value's prices are from, for every `pricesLine` code. */
-export function PricesLine({
+function PricesLine({
   prices,
   online,
   failure,

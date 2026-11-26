@@ -25,7 +25,7 @@ import type { Formatters } from '../../../lib/format';
 import { Link } from '../../../lib/navigation';
 import { useFormatters, usePrices, useRules, useSnapshot } from '../../../lib/services';
 import { WhyLink } from '../../learn';
-import { NoPlan, PricesLine, useOnline } from '../../today';
+import { NoPlan, PricesSlot, useOnline } from '../../today';
 import { useHistories } from '../lib/use-histories';
 import { chartCoins, chartState } from '../lib/value-chart';
 import { formatPnl, Holdings, pnlTone } from './holdings';
@@ -173,11 +173,7 @@ function PlanPortfolio({ plan }: { plan: Plan }) {
           )}
         </dl>
         {/* One fetch gives every price the screen uses, so the line's time is the oldest of them. */}
-        {value.value !== null && prices !== null && (
-          <p className="text-14 text-ink-2">
-            <PricesLine prices={prices} online={online} failure={failure} />
-          </p>
-        )}
+        <PricesSlot prices={value.value === null ? null : prices} online={online} failure={failure} />
         <dl className="grid grid-cols-[auto_1fr] gap-x-stack-md gap-y-stack-xs text-14">
           {pnl !== null && (
             <div className="contents">
