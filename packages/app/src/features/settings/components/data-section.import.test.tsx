@@ -116,6 +116,27 @@ describe('DataSection, the result of an import', () => {
     expect(screen.getByRole('status').textContent).toBe(`Plan imported. Entries now: ${live.length}.`);
   });
 
+  it('with no plan shown, names the file’s entries deleted here or for a month recorded here after Plan imported', async () => {
+    const snapshot = fixtureSnapshot();
+    const buy = snapshot.entries.find((entry) => entry.kind === 'dca' && entry.deletedAt === null);
+    if (snapshot.plan === null || buy === undefined) throw new Error('the fixture has a plan and a monthly buy');
+    const extra = {
+      ...buy,
+      id: '00000000-0000-4000-8000-000000000301' as EntityId,
+      kind: 'extra' as const,
+      slot: null,
+    };
+    // The same month recorded on another device, under another id.
+    const elsewhere = { ...buy, id: '00000000-0000-4000-8000-000000000302' as EntityId };
+    await mount({ ...snapshot, plan: null, entries: [buy, { ...extra, deletedAt: buy.updatedAt }] });
+    await choose(JSON.stringify(exportBackup(snapshot.plan, [extra, elsewhere], NOW)));
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Import this backup' })));
+    expect(screen.getByRole('status').textContent).toBe(
+      'Plan imported. Entries now: 1. Deleted earlier on this device, not added: 1. ' +
+        'Month already recorded or skipped on this device, not added: 1.',
+    );
+  });
+
   it('moves focus to the result when the Replace everything dialog closes after the replace', async () => {
     const snapshot = fixtureSnapshot();
     if (snapshot.plan === null) throw new Error('the fixture has a plan');
