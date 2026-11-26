@@ -305,7 +305,9 @@ describe('SummaryStep with saved entries', () => {
     cleanup();
     mount({ plan: inGbp(), question: asked({ count: 1, first: day, last: day }), savedEntries: 1 });
     expect(legend()).toBe('1 saved entry, on 20 Oct 2026, holds an amount or a fee. Which currency was it paid in?');
-    expect(cards()[0]).toBe('Paid in EURThe plan is set up in EUR instead of GBP, and the entry shows in EUR, as typed.');
+    expect(cards()[0]).toBe(
+      'Paid in EURThe plan is set up in EUR instead of GBP, and the entry shows in EUR, as typed.',
+    );
   });
 
   it('offers the plan’s currency first, then the rest, when the kept one could not be read', () => {
