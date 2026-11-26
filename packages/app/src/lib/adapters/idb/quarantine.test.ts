@@ -50,9 +50,13 @@ describe('setAsideRows: the currency of a set-aside plan row (ADR-0019 Readings,
   it('reads the pay currency of a row whose payload parses that far', () => {
     const list = [
       planRow('split', { payCurrency: 'EUR', split: { BTC: '70', ETH: '20' } }, 'payload.split: split-sum'),
-      quarantineRecord('plans', 'device', { id: 'device', deviceId: 7, payload: { payCurrency: 'EUR' } }, [
-        'deviceId: invalid_type',
-      ], AT),
+      quarantineRecord(
+        'plans',
+        'device',
+        { id: 'device', deviceId: 7, payload: { payCurrency: 'EUR' } },
+        ['deviceId: invalid_type'],
+        AT,
+      ),
     ];
     expect(setAsideRows(list).plans).toStrictEqual([
       { id: 'split', at: AT, currency: 'EUR' },

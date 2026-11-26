@@ -32,7 +32,11 @@ describe('DataSection: the set-aside count', () => {
   });
 
   it('shows the count after Nothing to export yet while no plan shows', async () => {
-    await mount({ ...EMPTY_SNAPSHOT, quarantined: 1, setAside: { plans: [{ id: 'plan', at: NOW, currency: null }], entries: [] } });
+    await mount({
+      ...EMPTY_SNAPSHOT,
+      quarantined: 1,
+      setAside: { plans: [{ id: 'plan', at: NOW, currency: null }], entries: [] },
+    });
     const none = screen.getByText('Nothing to export yet. Set up a plan or import a file.');
     expect(none.nextElementSibling?.textContent).toBe(
       '1 saved item could not be read, so Proof of Calm set it aside. It stays on this device as it was saved, and exports leave it out.',
