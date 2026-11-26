@@ -190,11 +190,8 @@ export const FarFromTabBar: Story = {
     const document = canvasElement.ownerDocument;
     await waitFor(() => expect(document.querySelectorAll('[data-slot="select-item"]')).toHaveLength(taxYears.length));
     const popup = document.querySelector('[data-slot="select-content"]');
-    // Measured once the list's opening scale has ended.
-    await waitFor(() => {
-      expect(popup).not.toHaveAttribute('data-starting-style');
-      expect(popup?.getAnimations()).toHaveLength(0);
-    });
+    // Measured once the list holds still: it can still move after its opening scale has ended.
+    if (popup !== null) await settled(popup);
     const box = trigger.getBoundingClientRect();
     const selected = document.querySelector('[data-slot="select-item"][data-selected]')?.getBoundingClientRect();
     // The selected option's box sits over the trigger.
