@@ -323,6 +323,10 @@ describe('SummaryStep with saved entries', () => {
     const { onStart } = mount({ question: null, savedEntries: 14 });
     expect(screen.queryByRole('radiogroup')).toBeNull();
     expect(screen.getByText('14 entries saved on this device stay and show in this plan.')).toBeTruthy();
+    // DESIGN §5: the line stands alone, so it is body text at 16 px, not a 14 px description.
+    expect(screen.getByText('14 entries saved on this device stay and show in this plan.').className).toBe(
+      'text-16 text-ink-2',
+    );
     await act(() => fireEvent.click(screen.getByRole('button', { name: START })));
     expect(onStart).toHaveBeenCalledWith('EUR');
     cleanup();
