@@ -97,7 +97,7 @@
     "description": "A planner and log for buying crypto on a fixed monthly schedule.",
     "screenshots": {
       "holdingDate": "The holding date of an example purchase in Portugal",
-      "countryPt": "Portugal's reporting rules, sources, and the date they were reviewed",
+      "countryPt": "Portugal's reporting rules, questions for an accountant, and review date",
       "today": "Today: an example plan with the current month's buy recorded",
       "learn": "The Learn index of short modules"
     }
