@@ -38,6 +38,7 @@ import { LogPager, LogRangeLine } from './log-pager';
 import { LOG_COLUMNS, LogRow } from './log-row';
 import { MoveSheet } from './move-sheet';
 import { focusInView, rowToggle } from './row-focus';
+import { SetAsideLine } from './set-aside-line';
 import { useLogWindow } from './use-log-window';
 
 // The Log (docs/DOMAIN.md §3.9): the plan's transactions and skipped months, newest first under month
@@ -351,6 +352,7 @@ export function LogScreen() {
       <h1 ref={heading} tabIndex={-1} className="text-28">
         {t('title')}
       </h1>
+      <SetAsideLine heading={heading} />
       {plan !== null && (
         <Button className="self-start" onClick={record}>
           {t('record')}
@@ -370,7 +372,7 @@ export function LogScreen() {
           {t('recordMoved')}
         </Button>
       )}
-      {empty && <LogEmpty plan={plan} />}
+      {empty && <LogEmpty plan={plan} stored={live.length > 0} />}
       {content}
       {target !== null && (
         <EntrySheet

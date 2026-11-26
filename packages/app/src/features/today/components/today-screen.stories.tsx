@@ -152,6 +152,38 @@ export const RuleNoticeDismissed: Story = {
   },
 };
 
+// Two saved entries could not be read and are still missing: the plain line under the title, with the Log's link,
+// above the action card (ADR-0019 Readings, 2026-11-26).
+export const SetAside: Story = {
+  parameters: {
+    services: () => {
+      const nowMs = fixtureNowMs('buy');
+      const now = new Date(nowMs).toISOString() as Instant;
+      const fixture = fixtureSnapshot();
+      const snapshot: Snapshot = {
+        ...fixture,
+        prefs: { ...fixture.prefs, reviewedAt: now },
+        prices: pricesAt(FIXTURE_PRICES, nowMs),
+        quarantined: 2,
+        setAside: {
+          plans: [],
+          entries: [
+            { id: 'gone-1', at: now },
+            { id: 'gone-2', at: now },
+          ],
+        },
+      };
+      return { ...createTestServices({ snapshot, nowMs, rules: portugal }), redDay: clearRedDay() };
+    },
+  },
+  play: async ({ canvas }) => {
+    const line = await canvas.findByText(/^2 saved entries could not be read/);
+    await expect(line).toBeVisible();
+    await expect(canvas.getByRole('heading', { level: 1, name: 'Today' }).nextElementSibling).toBe(line);
+    await expect(canvas.getByRole('link', { name: 'Log' })).toBeVisible();
+  },
+};
+
 export const Empty: Story = {
   play: async ({ canvas }) => {
     await expect(await canvas.findByRole('link', { name: 'Set up a plan' })).toBeVisible();

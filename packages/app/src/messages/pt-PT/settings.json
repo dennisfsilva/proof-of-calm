@@ -63,6 +63,7 @@
     "exportDateFailed": "A cópia de segurança foi guardada, mas este dispositivo não conseguiu registar a data da exportação. Exporte de novo para a registar.",
     "exportLeftOut": "As exportações deixam de fora {figure} {count, plural, one {movimento guardado} other {movimentos guardados}} por uma versão mais recente da {product}. Recarregue a página e depois exporte para {count, plural, one {o incluir} other {os incluir}}.",
     "noPlan": "Ainda não há nada para exportar. Crie um plano ou importe um ficheiro.",
+    "setAside": "{count, plural, one {{figure} saved item could not be read, so {product} set it aside. It stays on this device as it was saved, and exports leave it out.} other {{figure} saved items could not be read, so {product} set them aside. They stay on this device as they were saved, and exports leave them out.}}",
     "taxYear": {
       "label": "Ano fiscal",
       "span": "{from} a {to}",
