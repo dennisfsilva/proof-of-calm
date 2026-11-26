@@ -37,12 +37,26 @@ const stored = fc.oneof(
   fc
     .record({ on: day, hour: fc.nat(9), coin, venue, quantity: fc.constantFrom('0.001', '0.002') })
     .map(({ on, hour, quantity, ...rest }) =>
-      anEntry({ ...rest, kind: 'extra', slot: null, date: date(on), units: units(quantity), createdAt: stamp(on, hour) }),
+      anEntry({
+        ...rest,
+        kind: 'extra',
+        slot: null,
+        date: date(on),
+        units: units(quantity),
+        createdAt: stamp(on, hour),
+      }),
     ),
   fc
     .record({ on: day, hour: fc.nat(9), coin, venue, quantity: fc.constantFrom('0.001') })
     .map(({ on, hour, quantity, ...rest }) =>
-      anEntry({ ...rest, kind: 'sell', slot: null, date: date(on), units: units(quantity), createdAt: stamp(on, hour) }),
+      anEntry({
+        ...rest,
+        kind: 'sell',
+        slot: null,
+        date: date(on),
+        units: units(quantity),
+        createdAt: stamp(on, hour),
+      }),
     ),
   fc
     .record({ on: day, hour: fc.nat(9), coin, venue, sent: fc.constantFrom('0.002', '0.003'), deleted: fc.boolean() })
@@ -65,7 +79,15 @@ const group = fc
   .record({ on: day, coin, venue, size: fc.integer({ min: 2, max: 3 }) })
   .map(({ on, coin, venue, size }) =>
     Array.from({ length: size }, () =>
-      anEntry({ kind: 'sell', slot: null, coin, date: date(on), units: units('0.001'), venue, createdAt: stamp(on, 5) }),
+      anEntry({
+        kind: 'sell',
+        slot: null,
+        coin,
+        date: date(on),
+        units: units('0.001'),
+        venue,
+        createdAt: stamp(on, 5),
+      }),
     ),
   );
 
@@ -101,21 +123,19 @@ type Drawn = typeof world extends fc.Arbitrary<infer T> ? T : never;
 /** The stored entries, the draft and the save's context of one drawn world. */
 function scene(drawn: Drawn): { draft: TransactionDraft; context: MoveShortContext } | null {
   // Each coin's first purchase at Kraken, and a BTC move that sends all of it on to Ledger, so a sale at Kraken or an
-  // edit of that purchase on or before the move leaves it short.
+  // edit of that purchase on or before the move leaves it short; BTC already at Ledger pays its fee all the same.
+  const first = (coin: CoinId, venue: string, quantity: string) =>
+    anEntry({ kind: 'extra', slot: null, coin, date: date('2026-01-01'), units: units(quantity), venue });
   const base = [
-    ...[BTC.id, ETH.id].map((each) =>
-      anEntry({ kind: 'extra', slot: null, coin: each, date: date('2026-01-01'), units: units('0.003'), venue: 'Kraken' }),
-    ),
+    first(BTC.id, 'Kraken', '0.003'),
+    first(BTC.id, 'Ledger', '0.001'),
+    first(ETH.id, 'Kraken', '0.003'),
     aMove({ coin: BTC.id, date: date(drawn.pivot), units: units('0.003'), received: units('0.0029'), createdAt: now }),
   ];
   const grouped = drawn.kind === 'grouped';
   const entries: Entry[] = [...base, ...drawn.stored, ...(grouped ? drawn.group : [])];
   const editable = entries.filter((entry) => entry.deletedAt === null && entry.kind !== 'move');
-  const editing = grouped
-    ? drawn.group
-    : drawn.kind === 'one'
-      ? [editable[drawn.pick % editable.length] as Entry]
-      : [];
+  const editing = grouped ? drawn.group : drawn.kind === 'one' ? [editable[drawn.pick % editable.length] as Entry] : [];
   const ctx = { plan, entries, today: date('2026-10-20'), prices: null, numberInput: en };
   const kind = editing[0]?.kind === 'sell' || (editing.length === 0 && drawn.newKind === 'sell') ? 'sell' : 'extra';
   const initial = initialState(kind, editing, undefined, ctx);
@@ -136,14 +156,15 @@ function scene(drawn: Drawn): { draft: TransactionDraft; context: MoveShortConte
 }
 
 describe('moveShortLines behind its gate', () => {
-  it('gives the lines the ungated save and movesLeftShort give', () => {
+  // About 0.3 s at 600 runs here, so six times the worst seed under a loaded suite stays under a third of 15 s.
+  it('gives the lines the ungated save and movesLeftShort give', { timeout: 15_000 }, () => {
     fc.assert(
       fc.property(world, (drawn) => {
         const at = scene(drawn);
         if (at === null) return;
         expect(moveShortLines(at.draft, at.context)).toEqual(ungated(at.draft, at.context));
       }),
-      { numRuns: 300 },
+      { numRuns: 600 },
     );
   });
 
