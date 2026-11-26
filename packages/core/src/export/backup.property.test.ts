@@ -103,6 +103,24 @@ describe('applyImport add-missing properties (docs/DOMAIN.md §3.13, ADR-0019)',
   });
 });
 
+describe('applyImport with no plan shown (docs/DOMAIN.md §3.13, ADR-0019)', () => {
+  // A plan row set aside by the quarantine leaves no plan while live entries stay stored.
+  it('never tombstones a live entry stored here, whatever the file holds, in either mode', () => {
+    const modes = fc.constantFrom('replace' as const, 'add-missing' as const);
+    fc.assert(
+      fc.property(fc.array(placement, { maxLength: 30 }), modes, (placements, mode) => {
+        const { device, file } = scene(placements);
+        const result = applyImport({ plan: null, entries: device }, file, mode, now);
+        const after = new Map(result.entries.map((entry) => [entry.id, entry]));
+        for (const entry of device.filter((row) => row.deletedAt === null)) {
+          expect(after.get(entry.id)?.deletedAt).toBeNull();
+        }
+        expect(result.plan).toEqual({ ...file.plan, updatedAt: now });
+      }),
+    );
+  });
+});
+
 // Instants within three days of the fixed `deletedAt`, so the clock lands before, on and after the stored stamps.
 const MARCH = epochDay(date('2026-03-01')) * 86_400_000;
 const around = fc.integer({ min: MARCH - 259_200_000, max: MARCH + 259_200_000 }).map(instantFromEpochMs);
