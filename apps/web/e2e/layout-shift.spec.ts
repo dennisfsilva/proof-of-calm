@@ -58,6 +58,9 @@ test.beforeEach(async ({ page, browserName }) => {
       },
     }),
   );
+  // Today reads the closes too and keeps a copy on the device: they fail while the plan is seeded, so no copy
+  // reaches Portfolio; a test's own route of /api/history takes the place of this one.
+  await page.route('**/api/history/*', (route) => route.fulfill({ status: 503 }));
   // WebKit follows the host's network, which CDP cannot pin there (./network.ts).
   if (browserName === 'chromium') await pinNetwork(page, true);
   await seedPlan(page, fixtureSnapshot());
@@ -99,6 +102,72 @@ test('/portfolio keeps its layout while /api/history answers 502', async ({ page
   await expect(page.getByText(/^The price history could not be loaded/)).toBeVisible();
   expect((await table.boundingBox())?.y).toBe(before?.y);
   await expectSteady(page, browserName);
+});
+
+/**
+ * Answers /api/history/:coin after the returned release runs, as a slow upstream: daily closes at the fixture
+ * prices ending on `end`, `days` of them for the coin (365 when it is not named).
+ */
+function heldHistory(page: Page, end: string, days: Partial<Record<string, number>> = {}) {
+  let release = () => {};
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const endMs = Date.parse(`${end}T00:00:00Z`);
+  const routed = page.route('**/api/history/*', async (route) => {
+    await held;
+    const coin = decodeURIComponent(new URL(route.request().url()).pathname.split('/').at(-1) ?? '');
+    const count = days[coin] ?? 365;
+    const close = coin === 'ETH' ? '2500.5' : '60000.12';
+    const closes = Array.from({ length: count }, (_, index) => [
+      new Date(endMs - (count - 1 - index) * 86_400_000).toISOString().slice(0, 10),
+      close,
+    ]);
+    await route.fulfill({ json: { coin, currency: 'EUR', closes, fetchedAt: new Date(endMs).toISOString() } });
+  });
+  return routed.then(() => release);
+}
+
+/** Opens /portfolio with the closes held, then measures the holdings table before and after `release`. */
+async function expectTableKept(page: Page, browserName: string, release: () => void, line: RegExp) {
+  await page.goto('/portfolio');
+  await ready(page);
+  const table = page.locator('main [data-slot="table-container"]');
+  await expect(page.locator('main section[aria-busy="true"]')).toBeVisible();
+  await expect(table).toBeVisible();
+  const before = await table.boundingBox();
+  release();
+  await expect(page.getByText(line)).toBeVisible();
+  expect((await table.boundingBox())?.y).toBe(before?.y);
+  await expectSteady(page, browserName);
+}
+
+// Session 27e's design check (DC-B, main e1f6d5aa1): a read that ends with nothing to draw put a line in the
+// frame's place, lifting the table 347.69 px (457.50 at 125 %, CLS 0.165 / 0.227) for a coin with one close
+// and 265.39 px (357.13, CLS 0.096 / 0.148) for buys after the last close. The frame keeps its place.
+test('/portfolio keeps its layout when a coin has one daily close', async ({ page, browserName }) => {
+  const release = await heldHistory(page, '2026-10-20', { ETH: 1 });
+  await expectTableKept(page, browserName, release, /^The price history has fewer than two daily closes for ETH/);
+});
+
+test('/portfolio keeps its layout when every buy is later than the last daily close', async ({ page, browserName }) => {
+  // The fixture's entries deleted and one buy on the clock's day, 20 Oct 2026; the closes end on 19 Oct.
+  const fixture = fixtureSnapshot();
+  const first = fixture.entries[0];
+  if (first === undefined) throw new Error('no fixture entry');
+  const deleted = fixture.entries.map((entry) => ({ ...entry, deletedAt: entry.updatedAt }));
+  const buy = {
+    ...first,
+    id: '00000000-0000-4000-8000-000000000099' as typeof first.id,
+    kind: 'extra' as const,
+    slot: null,
+    date: '2026-10-20' as typeof first.date,
+    createdAt: '2026-10-20T09:00:00+01:00' as typeof first.createdAt,
+    updatedAt: '2026-10-20T09:00:00+01:00' as typeof first.updatedAt,
+  };
+  await seedPlan(page, { ...fixture, entries: [...deleted, buy] });
+  const release = await heldHistory(page, '2026-10-19');
+  await expectTableKept(page, browserName, release, /^There is no value to draw since the first entry/);
 });
 
 /** Holds /api/prices until the returned release runs, then hands it to the fixture answer, as a slow upstream. */
