@@ -483,7 +483,9 @@ the form), so it waits for a screen that does. Notes, and the values this docume
   (no purchase yet, the closes unavailable, too few closes, a range with nothing to draw, closes that
   end before the first entry, nothing held), an open row draws nothing: it would be the path's first
   historic view without the past-performance line (`docs/LEGAL.md` §4). With the closes unavailable,
-  the row keeps its empty frame's place, unseen, as the value chart keeps its own. A coin with closes but fewer
+  the row keeps its empty frame's place, unseen, as the value chart keeps its own. Pressing Portfolio's
+  own tab then reads the closes again, as the value chart's line says; the same press while they load
+  or once they are read reads nothing. A coin with closes but fewer
   than two inside the range shows no chart and one `ink-2` line of its own in its place, naming the coin
   and the range's dates (`docs/CONTENT-STYLE.md` §3); a coin with no closes at all shows nothing, and the
   value chart's line says why. The allocation bar shows only while something is held: a bar weighed by
