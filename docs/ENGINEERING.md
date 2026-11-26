@@ -319,14 +319,30 @@ platform without one.
   amount with a live move stored 416 to 440 / 408 to 428 ms. A window of 48 was tried and not kept
   (2026-11-25, the repeats at once): Show all's longest task and opening Go to year measured as at
   100, and only the moves shortened (0 to 52 ms), while a Log of 49 to 100 transactions would page.
-  Over the rule still (planned: M2): Edit entry, a profile of which finds the sheet's mount, focus
-  and layout, no scan of the entries; opening Go to year (suspected: the Base UI Select popup with
-  about 28 years); Delete entry, the Undo and Save, by their longest task (suspected: the writes'
-  `transactions()` over every entry); one keystroke with a live move stored, which runs the move line
-  on every keystroke. The move line now runs the save and `movesLeftShort` only while a live move of a
-  coin the save writes is dated on or after the earliest date it writes, since a move's shortfall
-  reads only the entries dated on or before it (`moveShortLines`; `form.move-gate.test.ts` counts
-  both calls, and `form.move-gate.property.test.ts` checks its lines against the ungated ones).
+  The move line now runs the save and `movesLeftShort` only while a live move of a coin the save
+  writes is dated on or after the earliest date it writes, since a move's shortfall reads only the
+  entries dated on or before it (`moveShortLines`, #539; `form.move-gate.test.ts` counts both calls,
+  and `form.move-gate.property.test.ts` checks its lines against the ungated ones). The session gate
+  of 2026-11-26 (#537), measured the same way on a quiet machine, input / longest task at 6×. Main
+  before, 903bd4314: Edit entry 176 to 216 / 140 to 181 ms, opening Go to year 32 / 128 to 147 ms,
+  Delete entry 24 to 32 / 283 to 303 ms, the toast's Undo 56 to 64 / 290 to 294 ms, Save with a
+  changed amount 48 / 308 to 314 ms, one keystroke with a live move stored 416 to 440 / 409 to 429 ms
+  and one keystroke 32 to 40 / 0 ms. Main after #538 and #539, 1e2485f84: one keystroke with a live
+  move stored 32 to 40 / 0 ms and one keystroke 32 to 40 / 0 ms, under the rule; Edit entry 176 to
+  208 / 141 to 177 ms, opening Go to year 32 to 176 / 132 to 143 ms, Delete entry 32 / 296 to 335
+  ms, the Undo 64 to 72 / 289 to 304 ms and Save 48 / 305 to 377 ms, over it (#538 changed neither
+  the keystroke nor Edit entry). A profile of those inputs (#537's comment 7180595696) finds that a
+  write (Delete, the Undo, Save) runs four long tasks in turn, the IndexedDB clone, the parse, the
+  action's checks and the render, about half of the render being core's `transactions()` over every
+  entry; that Edit entry is React mounting the sheet and the form (Base UI's Dialog and Field, 65 %),
+  with Base UI's focus code 7 to 12 ms of its own; and that opening Go to year is Base UI's Select
+  popup and floating-ui's measuring. Inside the measured window, Playwright's own locator resolution
+  makes a 75 to 101 ms task before the Delete and Undo clicks. The gate took one keystroke with a
+  live move stored under the rule, with one caveat: the spec's move sits on the oldest entry's date
+  (`apps/web/e2e/log-cap.spec.ts`), so the measured keystroke takes the gate's skipped path, and a
+  keystroke on an entry dated on or before a later live move still runs the move line, unmeasured
+  at the cap. Over the rule still, which the stage audit decides (#22), since no cut under 300 lines
+  brings any of them under it: Edit entry, opening Go to year, Delete entry, the Undo and Save.
 - An upstream outage may fail the production check. It measures what production serves: a 502 that
   reaches the browser is a fault people see, and `errors-in-console` names it. Since Portfolio's
   layout holds on that path (`lighthouse-vercel` run 40917845879 on a20d28d9, 2026-10-29, measured
