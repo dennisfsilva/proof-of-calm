@@ -294,6 +294,15 @@ The decision stands; these are the choices its text left open, made while implem
   changes NoPlan's words and the Log's empty text. The read tests: the kinds in
   `packages/app/src/lib/adapters/idb/quarantine.test.ts`, forward and rollback in
   `packages/app/src/lib/adapters/idb-store.set-aside.test.ts`.
+- **2026-11-26, a set-aside plan row's currency** (adds to the reading above). Each plan row in
+  `setAside` also carries `currency`: the row's `payload.payCurrency` when it parses as one of the
+  currencies (`CurrencyCodeSchema`), else null, as for a payload that does not read or a currency outside
+  the set; nothing else of the payload is used. Additive and in the snapshot only: no row, schema or
+  migration change, and the list keeps its bytes. `keptCurrency` (`packages/app/src/lib/store/set-aside.ts`)
+  takes the currency the rows with the latest time name, if they agree, as the one the entries kept with no
+  plan were last shown in, for onboarding's question (ADR-0053, `docs/DOMAIN.md` §2.1). The read tests: the
+  currency cases in `packages/app/src/lib/adapters/idb/quarantine.test.ts`, forward and rollback in
+  `packages/app/src/lib/adapters/idb-store.set-aside.test.ts` (the set-aside plan row's currency).
 
 ## Disagreement
 
