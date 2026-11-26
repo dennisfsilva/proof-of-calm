@@ -109,7 +109,7 @@ function OpeningValue({ plan, entries, histories, pastPerformance }: Omit<Januar
   return (
     <div className="flex flex-col gap-stack-xs">
       <dl>
-        <dt className="text-13 text-ink-2">{t('value', { year })}</dt>
+        <dt className="text-14 text-ink-2">{t('value', { year })}</dt>
         {figure}
       </dl>
       {priced && (
