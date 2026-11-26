@@ -2,8 +2,8 @@ import { mkdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { expect, type Page } from '@playwright/test';
 import { fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
-import { COINS } from '@proofofcalm/content';
 import type { Entry, Instant } from '@proofofcalm/core';
+import { coinWords, readableStrings } from '../lib/pwa/coin-words';
 import { seedPlan } from './seed';
 import { test } from './support';
 
@@ -16,20 +16,8 @@ import { test } from './support';
 const CAPTURE = process.env.MANIFEST_CAPTURE === '1';
 const FOLDER = fileURLToPath(new URL('../public/screenshots/', import.meta.url));
 
-/** Every ticker and name of the catalogue, as whole words: a lowercase "near" or "render" is English, not a coin. */
-const words = [...new Set(COINS.flatMap((coin) => [coin.id, coin.name]))];
-const COIN_WORDS = new RegExp(`(?<![\\p{L}\\p{N}])(?:${words.join('|')})(?![\\p{L}\\p{N}])`, 'gu');
-
-/** The body's text, scripts and styles left out, with the names assistive technology reads. */
-const pageText = (page: Page) =>
-  page.evaluate(() => {
-    const body = document.body.cloneNode(true) as HTMLElement;
-    for (const element of body.querySelectorAll('script, style')) element.remove();
-    const names = [...body.querySelectorAll('[alt], [aria-label], [title]')].map((element) =>
-      ['alt', 'aria-label', 'title'].map((name) => element.getAttribute(name) ?? '').join(' '),
-    );
-    return [body.textContent ?? '', ...names].join(' ');
-  });
+/** The catalogue's names and tickers on the screen, each string the page reads matched on its own (lib/pwa). */
+const coinsOn = async (page: Page) => coinWords(await page.locator('body').evaluate(readableStrings));
 
 /**
  * The public page with Portugal's result for a purchase on 5 October 2026 (the island reads the fragment), scrolled
@@ -92,7 +80,7 @@ for (const shot of SET) {
     test.skip(testInfo.project.name !== shot.project, `the ${shot.name} image is taken on ${shot.project}`);
     await shot.open(page);
     await page.evaluate(() => document.fonts.ready);
-    expect((await pageText(page)).match(COIN_WORDS) ?? []).toEqual([]);
+    expect(await coinsOn(page)).toEqual([]);
     if (!CAPTURE) return;
     mkdirSync(FOLDER, { recursive: true });
     await page.screenshot({ path: `${FOLDER}${shot.name}.png`, animations: 'disabled', caret: 'hide' });
