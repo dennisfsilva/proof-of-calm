@@ -59,10 +59,11 @@ export function CurrencyQuestionGroup({ question, onAnswer, invalid }: QuestionP
   const ids = { legend: useId(), issue: useId(), line: useId() };
   const { logged, country, count } = question;
   const figure = figures.format(decimal(String(count)));
+  const span = question.first === question.last ? 'day' : 'range';
   return (
     <div className="flex flex-col gap-stack-xs">
       <p id={ids.legend} className="text-16 text-ink">
-        {t('legend', { count, figure, first: f.date(question.first), last: f.date(question.last), logged })}
+        {t('legend', { count, figure, span, first: f.date(question.first), last: f.date(question.last), logged })}
       </p>
       <RadioGroup<CurrencyAnswer>
         aria-labelledby={ids.legend}

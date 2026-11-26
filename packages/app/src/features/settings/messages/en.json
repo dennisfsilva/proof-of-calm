@@ -32,7 +32,7 @@
     "ruleName": "{kind, select, own {your own rule} generic {the general profile's rule} other {the rule {countryFor}}}",
     "logged": "Amounts you already logged stay as typed; nothing is converted.",
     "question": {
-      "legend": "{count, plural, one {{figure} logged entry, on {first}, holds an amount or a fee in {logged}. Which currency was it paid in?} other {{figure} logged entries, from {first} to {last}, hold amounts or fees in {logged}. Which currency were they paid in?}}",
+      "legend": "{count, plural, one {{figure} logged entry, on {first}, holds an amount or a fee in {logged}. Which currency was it paid in?} other {{figure} logged entries, {span, select, day {on {first}} other {from {first} to {last}}}, hold amounts or fees in {logged}. Which currency were they paid in?}}",
       "keep": "Keep {logged}",
       "keepLine": "{count, plural, one {If you moved: it was paid in {logged}, and new amounts are logged in {logged} too.} other {If you moved: they were paid in {logged}, and new amounts are logged in {logged} too.}}",
       "country": "Change to {countryCurrency}",

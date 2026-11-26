@@ -32,7 +32,7 @@
     "ruleName": "{kind, select, own {regra definida por si} generic {regra do perfil geral} other {regra {countryFor}}}",
     "logged": "Os montantes já registados ficam como foram introduzidos. Nada é convertido.",
     "question": {
-      "legend": "{count, plural, one {{figure} movimento registado, a {first}, tem um montante ou uma comissão em {logged}. Em que moeda foi pago?} other {{figure} movimentos registados, de {first} a {last}, têm montantes ou comissões em {logged}. Em que moeda foram pagos?}}",
+      "legend": "{count, plural, one {{figure} movimento registado, a {first}, tem um montante ou uma comissão em {logged}. Qual foi a moeda de pagamento?} other {{figure} movimentos registados, {span, select, day {a {first}} other {de {first} a {last}}}, têm montantes ou comissões em {logged}. Qual foi a moeda de pagamento?}}",
       "keep": "Manter {logged}",
       "keepLine": "{count, plural, one {Se mudou de país: foi pago em {logged}, e os novos montantes também são registados em {logged}.} other {Se mudou de país: foram pagos em {logged}, e os novos montantes também são registados em {logged}.}}",
       "country": "Mudar para {countryCurrency}",
