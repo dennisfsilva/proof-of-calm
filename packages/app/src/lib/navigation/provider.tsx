@@ -67,7 +67,16 @@ function useHashWithSearch(): [string, typeof navigateHash] {
   return [path, navigateHashWithSearch];
 }
 
-const hashHrefs = (href: string) => `#${href}`;
+/**
+ * A Link's href on the hash location: `#/settings`, and for a target with a query
+ * `?tab=data#/settings`, the URL a plain press writes, so a press the browser handles (a modifier or
+ * middle click, a new tab, a copied link) loads the same route and search; `#/settings?tab=data`
+ * would read the path `/settings?tab=data`, which no route matches.
+ */
+const hashHrefs = (href: string) => {
+  const at = href.indexOf('?');
+  return at < 0 ? `#${href}` : `${href.slice(at)}#${href.slice(0, at)}`;
+};
 
 function LocationRouter({ location, initialPath = '/', children }: NavigationProviderProps) {
   if (location === 'memory') return <MemoryRouter initialPath={initialPath}>{children}</MemoryRouter>;

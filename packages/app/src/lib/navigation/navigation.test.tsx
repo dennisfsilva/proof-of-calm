@@ -277,4 +277,60 @@ describe('NavigationProvider on the hash', () => {
     expect(window.location.search).toBe('');
     expect(path()).toBe('/settings');
   });
+
+  /** Two Links, one with a query, under the routes the shell's catch-all sends elsewhere. */
+  function Routed() {
+    return (
+      <>
+        <Switch>
+          <Route path="/settings">
+            <p>settings screen</p>
+          </Route>
+          <Route path="/today">
+            <p>today screen</p>
+          </Route>
+          <Route>
+            <Redirect to="/today" replace />
+          </Route>
+        </Switch>
+        <output data-testid="path">{usePathname()}</output>
+        <output data-testid="search">{useSearch()}</output>
+        <Link href="/settings?tab=data">data</Link>
+        <Link href="/settings">plain</Link>
+      </>
+    );
+  }
+
+  const renderRouted = () =>
+    render(
+      <NavigationProvider location="hash">
+        <Routed />
+      </NavigationProvider>,
+    );
+  const href = (name: string) => screen.getByRole('link', { name }).getAttribute('href') ?? '';
+
+  it('a Link to a target with a query keeps the query out of the fragment', () => {
+    window.history.replaceState(null, '', '/index.html#/today');
+    renderRouted();
+    expect(href('data')).toBe('?tab=data#/settings');
+    expect(new URL(href('data'), window.location.href).pathname).toBe('/index.html');
+  });
+
+  it('a Link to a plain target keeps the hash href', () => {
+    window.history.replaceState(null, '', '/index.html#/today');
+    renderRouted();
+    expect(href('plain')).toBe('#/settings');
+  });
+
+  it('a page loaded at a Link’s href with a query shows that route and search', () => {
+    window.history.replaceState(null, '', '/index.html#/today');
+    renderRouted();
+    const loaded = new URL(href('data'), window.location.href);
+    cleanup();
+    window.history.replaceState(null, '', loaded.href);
+    renderRouted();
+    expect(path()).toBe('/settings');
+    expect(search()).toBe('tab=data');
+    expect(screen.getByText('settings screen')).toBeDefined();
+  });
 });
