@@ -205,7 +205,7 @@ test('the United Kingdom over a plan row kept in EUR asks with two cards, Paid i
   await expect(cards.first()).toHaveAccessibleName(/^Paid in EUR/);
   await expect(cards.nth(1)).toHaveAccessibleName(/^Paid in GBP/);
   await expect(
-    page.getByText('They were saved with your plan that could not be read, which was in EUR.'),
+    page.getByText('They were saved with a plan that could not be read. That plan was in EUR.'),
   ).toBeVisible();
 
   await cards.first().click();
