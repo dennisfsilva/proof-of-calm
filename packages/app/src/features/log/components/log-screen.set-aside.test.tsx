@@ -73,7 +73,8 @@ describe('LogScreen: the set-aside line', () => {
     await mount(memoryPlanStore(withSetAside([{ id: 'gone', at: AT }])));
     const line = screen.getByText(LINE);
     expect(line.textContent).toMatch(/exported before 1\sOct\s2026 in Settings with Add missing entries only/);
-    expect(screen.getByRole('link', { name: 'Settings' }).getAttribute('href')).toBe('/settings');
+    // Straight to Currency & data, where Settings counts the set-aside rows and the import is.
+    expect(screen.getByRole('link', { name: 'Settings' }).getAttribute('href')).toBe('/settings?tab=data');
     expect(screen.getByRole('button', { name: HIDE })).toBeTruthy();
   });
 

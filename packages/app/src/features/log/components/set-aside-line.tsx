@@ -41,7 +41,7 @@ export function SetAsideLine({ heading }: { readonly heading: RefObject<HTMLHead
           figure: figure(f, count),
           date: f.instantDate(since, clock.timeZone),
           settings: (chunks) => (
-            <Link href="/settings" className="text-ink underline underline-offset-4">
+            <Link href="/settings?tab=data" className="text-ink underline underline-offset-4">
               {chunks}
             </Link>
           ),
