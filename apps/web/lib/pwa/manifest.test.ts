@@ -112,7 +112,10 @@ describe('the web app manifest (ADR-0033)', () => {
         const label = t(`screenshots.${key}`);
         expect(label.split(/\s+/).length, label).toBeLessThanOrEqual(10);
         expect(label, label).not.toMatch(possessive[language]);
-        expect(label.charAt(0), label).toBe(label.charAt(0).toUpperCase());
+        // A German label can open on a quoted screen name („Heute“), so the case is read from the first letter.
+        const first = /^[„«"]?(\p{L})/u.exec(label)?.[1] ?? '';
+        expect(first, label).toBe(first.toUpperCase());
+        expect(first, label).not.toBe('');
         expect(findBanned(label), label).toEqual([]);
       }
     },
