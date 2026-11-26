@@ -18,6 +18,7 @@ const UNREADABLE = { payload: { shape: 'unreadable' } } as const;
 const TODAY_LINE =
   '1 saved entry could not be read, so Today and Portfolio leave it out. The Log says how to bring it back.';
 const LOG_LINE = /^1 saved entry could not be read, so it is not in this list\. To bring it back, import a JSON backup/;
+const SETTINGS_LINE = /^1 saved item could not be read, so Proof of Calm set it aside\./;
 
 type Rows = { readonly plans: readonly PlanRow[]; readonly entries: readonly unknown[] };
 
@@ -67,6 +68,21 @@ async function openLog(page: Page) {
   await expect(page.getByRole('heading', { level: 1, name: 'Log' })).toBeVisible();
 }
 
+/** Imports the fixture's backup with Add missing entries only, from Currency & data, which brings the entry back. */
+async function addMissing(page: Page) {
+  if (fixture.plan === null) throw new Error('the fixture holds a plan');
+  const backup = exportBackup(fixture.plan, fixture.entries, `${FIXTURE_DATES.buy}T09:00:00.000Z` as Instant);
+  const chooser = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Choose a file' }).click();
+  await (await chooser).setFiles({
+    name: 'backup.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(backup)),
+  });
+  await page.getByRole('button', { name: 'Add missing entries only' }).click();
+  await expect(page.getByText(/^Entries added: 1\./)).toBeVisible();
+}
+
 test.beforeEach(async ({ page }) => {
   await page.clock.setFixedTime(new Date(fixtureNowMs('buy')));
 });
@@ -84,21 +100,11 @@ test('an unreadable entry brings the lines on Today and the Log, and Add missing
   );
   await expect(page.getByRole('button', { name: 'Hide this line' })).toBeVisible();
 
-  if (fixture.plan === null) throw new Error('the fixture holds a plan');
-  const backup = exportBackup(fixture.plan, fixture.entries, `${FIXTURE_DATES.buy}T09:00:00.000Z` as Instant);
   await page.goto('/settings');
   await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
   await page.getByRole('tab', { name: 'Currency & data' }).click();
-  await expect(page.getByText(/^1 saved item could not be read, so Proof of Calm set it aside\./)).toBeVisible();
-  const chooser = page.waitForEvent('filechooser');
-  await page.getByRole('button', { name: 'Choose a file' }).click();
-  await (await chooser).setFiles({
-    name: 'backup.json',
-    mimeType: 'application/json',
-    buffer: Buffer.from(JSON.stringify(backup)),
-  });
-  await page.getByRole('button', { name: 'Add missing entries only' }).click();
-  await expect(page.getByText(/^Entries added: 1\./)).toBeVisible();
+  await expect(page.getByText(SETTINGS_LINE)).toBeVisible();
+  await addMissing(page);
 
   await page.goto('/today');
   await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
@@ -106,6 +112,29 @@ test('an unreadable entry brings the lines on Today and the Log, and Add missing
   await expect(page.getByText(TODAY_LINE)).toHaveCount(0);
   await openLog(page);
   await expect(page.getByText(LOG_LINE)).toHaveCount(0);
+});
+
+test("the Log's Settings link opens Currency & data", async ({ page }) => {
+  await seedRows(page, withUnreadableEntry());
+  await openLog(page);
+  await page.getByText(LOG_LINE).getByRole('link', { name: 'Settings' }).click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Settings' })).toBeVisible();
+  await expect(page.getByRole('tab', { name: 'Currency & data' })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByText(SETTINGS_LINE)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Choose a file' })).toBeVisible();
+});
+
+test('after the recovery the Settings line no longer says exports leave it out', async ({ page }) => {
+  await seedRows(page, withUnreadableEntry());
+  await page.goto('/settings?tab=data');
+  await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+  await expect(page.getByText(SETTINGS_LINE)).toContainText('exports leave it out.');
+  await addMissing(page);
+  await expect(page.getByText(SETTINGS_LINE)).toHaveText(
+    '1 saved item could not be read, so Proof of Calm set it aside. It is back in your data and exports again, ' +
+      'and only its unreadable copy stays set aside on this device.',
+  );
+  await expect(page.getByText(SETTINGS_LINE)).not.toContainText('exports leave it out');
 });
 
 test('Hide this line hides the Log line and the Today line and moves focus to the Log title', async ({ page }) => {
