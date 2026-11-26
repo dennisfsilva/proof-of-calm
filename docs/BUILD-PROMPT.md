@@ -1068,10 +1068,13 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A baseline figure names the commit it was measured on, and a builder measures a control beside
   its change. #524's control, Show all at the cap, read 17–20 s against #516's 43–47 s, because #516
   measured on a branch whose last commit predates #515's formatter cache (#524; 2026-11-25).
-- `--repeat-each=3` runs the cap's repeats on parallel Playwright workers, three throttled Chromium
-  instances on one machine: a figure within about a fifth of the 100 ms rule is measured again
-  before it decides a constant (#527's window moves read 82–95 ms in one measurement and up to
-  115 ms in the next; 2026-11-25).
+- `--repeat-each=3` alone runs the cap's repeats on parallel Playwright workers, three throttled
+  Chromium instances on one machine, so the gate adds `--workers=1`, forces the web build and runs
+  main before and after the branches. #527's window moves read 82–95 ms in one measurement and up
+  to 115 ms in the next (2026-11-25); on one worker main's Show older read 62–68 ms and Show newer
+  55–86 ms, and four inputs listed over the 100 ms rule were under it (the gate of #533 and #532,
+  2026-11-26). A figure within about a fifth of the rule is still measured again before it decides
+  a constant.
 - Paired `lighthouse-branch.yml` dispatches land on runners of different speed: one of #526's three
   pairs fell within 10 % of each other's benchmarkIndex (the others 16 % and 42 % apart), so a brief
   that needs a matched pair budgets three dispatches of each (#526; 2026-11-25).
@@ -1083,6 +1086,21 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   `gh api repos/<owner>/<repo>/pulls/<n> --jq .head.sha` with `git ls-remote origin <branch>`
   before reading its checks, and close and reopen the pull request to sync it (#527, GitHub's
   incident of 2026-11-25).
+- A cut planned from a profile's figure is checked against the inclusive time of what the code
+  calls before the branch is briefed. `packages/app/src/lib/adapters/idb/rows.ts`'s 10–15 ms in
+  #515's profile was its own 1.1–1.6 ms
+  plus zod's and core's cold first parse, which stays while zod validates every field, so the
+  branch planned for it profiled, found nothing to cut and handed back without a commit (#528's
+  comment 7177276862; 2026-11-25).
+- A design check's judge walks each design in the browser on the branch it will build on, not on
+  the designers' models. DC1's judge measured about 2,700 Select opens and found that neither
+  report worked as written (one design's margins put a list that fell back onto its own trigger,
+  the other kept a 47–61 px offset) and a height cap both had missed (#528, 2026-11-26).
+- A confirmed finding and a design check's verdict on the same lines are built as one fix round on
+  the first branch, not as a second branch after its merge: the Select margin branch's finding (a
+  long list in mid-window sat 61 px off its trigger) was the mechanism DC1's verdict replaced, so
+  its second round built the verdict and main never held the offset between two merges (#528,
+  2026-11-26).
 
 ## Known gaps
 
