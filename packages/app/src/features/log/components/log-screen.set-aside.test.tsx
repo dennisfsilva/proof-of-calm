@@ -77,6 +77,14 @@ describe('LogScreen: the set-aside line', () => {
     expect(screen.getByRole('button', { name: HIDE })).toBeTruthy();
   });
 
+  // A body-size line and its button stand `stack-md` apart, as the calendar reminder's do (docs/DESIGN.md §6).
+  it('sets Hide this line a stack-md gap under its line', async () => {
+    await mount(memoryPlanStore(withSetAside([{ id: 'gone', at: AT }])));
+    const group = screen.getByText(LINE).parentElement;
+    expect(group?.classList).toContain('gap-stack-md');
+    expect(group?.contains(screen.getByRole('button', { name: HIDE }))).toBe(true);
+  });
+
   // A new record gets a new id, so the line stays after it: the two ways back exclude each other, the import first
   // and recording only without a backup, ending in Hide this line.
   it('names the backup first and recording only without one, then the hide', async () => {

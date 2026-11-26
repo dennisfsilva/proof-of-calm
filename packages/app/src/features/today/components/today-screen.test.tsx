@@ -221,7 +221,8 @@ describe('TodayScreen', () => {
     cleanup();
     await mount(fixtureSnapshot(), at('2026-10-20'), true);
     expect(screen.getByText('Portfolio value')).toBeDefined();
-    expect(screen.getByText(/^Prices as of .* · Price data by CoinGecko$/)).toBeDefined();
+    // The prices line carries CoinGecko's credit, so it is set at 14 px (ADR-0050).
+    expect(screen.getByText(/^Prices as of .* · Price data by CoinGecko$/).classList).toContain('text-14');
   });
 
   it('offline, the stored prices keep the value and the line says so; back online it is live again', async () => {
