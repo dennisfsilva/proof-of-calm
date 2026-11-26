@@ -151,7 +151,8 @@ export function ValueChart({ currency, range, state }: ValueChartProps) {
     <section aria-busy={loading || undefined} className="flex flex-col gap-stack-sm">
       {ranges}
       {/* One cell: a line stands at the top of the frame, which keeps its height unseen. The status slot is
-          mounted empty with the section, so a line that comes later is spoken once. The column is the section's
+          mounted empty with the section, so a line that comes later is spoken once; it sits at the cell's top
+          (self-start), since a slot stretched over a drawn chart would take its taps. The column is the section's
           width (minmax(0, 1fr)): an auto column would take the chart's min-content width, wider than a phone. */}
       <div className="grid grid-cols-1">
         <div
@@ -161,7 +162,12 @@ export function ValueChart({ currency, range, state }: ValueChartProps) {
         >
           {chart}
         </div>
-        <p role="status" aria-live="polite" aria-atomic="true" className="col-start-1 row-start-1 text-14 text-ink-2">
+        <p
+          role="status"
+          aria-live="polite"
+          aria-atomic="true"
+          className="col-start-1 row-start-1 self-start text-14 text-ink-2"
+        >
           {line}
         </p>
       </div>
