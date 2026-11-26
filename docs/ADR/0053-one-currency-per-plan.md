@@ -121,3 +121,17 @@ import can undo, since a deletion on this device wins, and over refusing the imp
 block the recovery the quarantine notice points a person to. A guard that asks before a plan is
 written beside stored entries, for this import and for onboarding, is the next session's work
 (planned: M2). `packages/core/src/export/backup.test.ts` pins the reading.
+
+### Reading of 2026-11-26: onboarding asks before a plan is written beside kept entries
+
+With live entries kept and no plan read, onboarding's summary asks which currency they were paid in
+whenever one of them holds an amount (`keptCurrencyQuestion`, `docs/DOMAIN.md` §2): one card per
+currency, the set-aside plan's first when its row names one, then the new plan's; with none named,
+the new plan's and then the rest. Nothing is chosen, Start refuses until a card is, and the rows and
+the plan Start writes take the answered currency for both pay and display; nothing is converted.
+Start sends the question it showed, and the write is checked again in its own turn: when another tab
+changed the entries so that the question is no longer the one shown, nothing is written and the
+summary says so in an alert, keeping the draft; a plan or newer row stored meanwhile is kept, as
+before. With entries that need no question, one line says they stay and show in the plan. The
+words are `docs/CONTENT-STYLE.md` §3's (Summary, onboarding). The import with no plan asks the same
+question before it writes (planned: M2).
