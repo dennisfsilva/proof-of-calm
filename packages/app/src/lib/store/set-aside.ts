@@ -2,7 +2,13 @@
 // holds, since only an import of that row brings it back (a new record gets a new id). Hidden on this device by the key
 // `set-aside:<n>` in `prefs.dismissedBanners`, n the set-aside entry rows, so a later one shows the line again.
 // And the currency of the set-aside plan, which onboarding asks about before writing a plan beside the entries.
-import type { CurrencyCode, Entry, Instant } from '@proofofcalm/core';
+import {
+  type CurrencyCode,
+  type Entry,
+  type Instant,
+  type KeptCurrencyQuestion,
+  keptCurrencyQuestion,
+} from '@proofofcalm/core';
 import type { SetAsideRow, Snapshot } from '../ports';
 
 const PREFIX = 'set-aside:';
@@ -43,4 +49,16 @@ export function keptCurrency(setAside: Snapshot['setAside']): CurrencyCode | nul
   const named = new Set(setAside.plans.filter(({ at }) => Date.parse(at) === latest).map(({ currency }) => currency));
   const [only] = named;
   return named.size === 1 && only !== undefined ? only : null;
+}
+
+/**
+ * The question onboarding asks before it writes a plan in `next` beside entries kept with no plan (ADR-0053), the
+ * same at render and in the write's turn: null while a plan or a newer build's plan row is stored.
+ */
+export function keptQuestion(
+  { plan, newer, entries, setAside }: Pick<Snapshot, 'plan' | 'newer' | 'entries' | 'setAside'>,
+  next: CurrencyCode,
+): KeptCurrencyQuestion | null {
+  if (plan !== null || newer.plans > 0) return null;
+  return keptCurrencyQuestion(entries, keptCurrency(setAside), next);
 }
