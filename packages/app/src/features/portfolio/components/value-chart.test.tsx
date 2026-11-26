@@ -138,7 +138,9 @@ describe('ValueChart', () => {
     // so both are at text-14 (ADR-0050), the widest forms that hold its place too.
     const disclosure = screen.getByText(/^Past performance is not a reliable indicator of future results\./);
     const source = screen.getByText(/^Daily closes/, { ignore: '[aria-hidden="true"]' });
-    expect([...source.classList]).toEqual(expect.arrayContaining([...disclosure.classList]));
+    // Its type classes, that is; the transitions it turns off are its own (a later test).
+    const type = [...disclosure.classList].filter((name) => !name.endsWith('transition-none'));
+    expect([...source.classList]).toEqual(expect.arrayContaining(type));
     expect(disclosure.classList).toContain('text-14');
     for (const line of screen.getAllByText(/^Daily closes/, { ignore: false })) {
       expect([...line.classList]).toEqual(expect.arrayContaining(['text-14']));

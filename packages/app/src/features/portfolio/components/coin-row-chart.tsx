@@ -126,13 +126,17 @@ export function CoinRowChart({ coin, colour, currency, chart }: CoinRowChartProp
   }
 
   // One cell: a failure's line stands at the top of the frame, which keeps its height unseen. The column is the
-  // row's width (minmax(0, 1fr)), as the value chart's.
+  // row's width (minmax(0, 1fr)), as the value chart's. The frame and everything in it transition nothing, as the
+  // value chart's frame: a reduced-motion transition of the inherited visibility never ends in the closed table.
   return (
     <div data-slot="coin-row-chart" aria-busy={loading || undefined} className="grid grid-cols-1">
       <div
         inert={empty}
         aria-hidden={empty || undefined}
-        className={cn('col-start-1 row-start-1 flex flex-col gap-stack-xs', empty && 'invisible')}
+        className={cn(
+          'col-start-1 row-start-1 flex flex-col gap-stack-xs transition-none **:transition-none',
+          empty && 'invisible',
+        )}
       >
         {drawing}
         <p className="text-14 text-ink-2">{t('credit')}</p>
