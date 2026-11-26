@@ -109,7 +109,9 @@ describe('LogScreen: the set-aside line', () => {
 describe('LogScreen: the plan row set aside', () => {
   it('says the plan could not be read while live entries are stored, and links to Settings', async () => {
     await mount(memoryPlanStore({ ...withSetAside([], [{ id: 'plan', at: AT }]), plan: null }));
-    const text = screen.getByText(/^Your plan could not be read, so no entries are listed\. They stay on this device\./);
+    const text = screen.getByText(
+      /^Your plan could not be read, so no entries are listed\. They stay on this device\./,
+    );
     expect(text.textContent).toBe(
       'Your plan could not be read, so no entries are listed. They stay on this device. Import a JSON backup in Settings to bring the plan back.',
     );
