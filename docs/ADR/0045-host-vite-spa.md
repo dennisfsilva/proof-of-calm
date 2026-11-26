@@ -1699,5 +1699,9 @@ The decision stands; this records how the hash location of §9 and §10 treats t
   read `/index.html?tab=data#/settings` and a later `/settings` kept `tab=data` for `useSearch()`
   until a reload. The hash location is no longer `<Router hook={useHashLocation}>` but a hook in
   `packages/app/src/lib/navigation/provider.tsx` that reads `useHashLocation`'s path and navigates
-  with a `?` appended to a target without one, which clears the query, in push and replace alike;
-  `hrefs` keeps the `#` prefix. The browser and memory locations are unchanged.
+  with a `?` appended to a target without one, which clears the query, in push and replace alike.
+  A Link's href is `#<path>` for a target without a query and `?<search>#<path>` for one with a
+  query (`?tab=data#/settings`, relative to the page), the URL a plain press writes: wouter's
+  `#/settings?tab=data` left the query in the fragment, so a press the browser handles (a modifier
+  or middle click, a new tab, a copied link) read the path `/settings?tab=data`, which no route
+  matches, and the catch-all opened Today. The browser and memory locations are unchanged.
