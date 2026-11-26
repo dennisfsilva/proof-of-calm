@@ -7,6 +7,9 @@
     "setAside": "Continua neste dispositivo tal como foi guardado. <import>Importe uma cópia JSON</import> para o recuperar, ou <setup>crie um plano</setup>."
   },
   "setAside": "{count, plural, one {Não foi possível ler {figure} movimento guardado, por isso não aparece em Hoje nem no Portefólio. O <log>Registo</log> diz como o recuperar.} other {Não foi possível ler {figure} movimentos guardados, por isso não aparecem em Hoje nem no Portefólio. O <log>Registo</log> diz como os recuperar.}}",
+  "newer": {
+    "entries": "{count, plural, one {{figure} movimento foi guardado} other {{figure} movimentos foram guardados}} por uma versão mais recente da {product}, por isso não {count, plural, one {é mostrado} other {são mostrados}} aqui. Recarregue a página para {count, plural, one {o ver} other {os ver}}."
+  },
   "action": {
     "late": "O mês de {month} continua em aberto",
     "lateBody": "O dia de compra foi a {date}, há {days, plural, one {{figure} dia} other {{figure} dias}}. Registe a compra ou salte o mês.",

@@ -1207,8 +1207,7 @@
       "title": "Your plan was saved by a newer version of {product}.",
       "line": "This version cannot open it, so it stays as it was saved. Reload the page to open it in the newer version.",
       "again": "If this screen comes back after the reload, your plan stays on this device, unread; a newer version of {product} can open it.",
-      "reload": "Reload",
-      "entries": "{count, plural, one {{figure} entry was} other {{figure} entries were}} saved by a newer version of {product}, so {count, plural, one {it is} other {they are}} not shown here. Reload the page to see {count, plural, one {it} other {them}}."
+      "reload": "Reload"
     },
     "screenError": {
       "title": "This screen could not be loaded.",
@@ -1225,6 +1224,9 @@
       "setAside": "It stays on this device as it was saved. <import>Import a JSON backup</import> to bring it back, or <setup>set up a plan</setup>."
     },
     "setAside": "{count, plural, one {{figure} saved entry could not be read, so Today and Portfolio leave it out. The <log>Log</log> says how to bring it back.} other {{figure} saved entries could not be read, so Today and Portfolio leave them out. The <log>Log</log> says how to bring them back.}}",
+    "newer": {
+      "entries": "{count, plural, one {{figure} entry was} other {{figure} entries were}} saved by a newer version of {product}, so {count, plural, one {it is} other {they are}} not shown here. Reload the page to see {count, plural, one {it} other {them}}."
+    },
     "action": {
       "late": "{month} is still open",
       "lateBody": "Buy day was {date}, {days, plural, one {{figure} day} other {{figure} days}} ago. Record it or skip the month.",

@@ -7,6 +7,9 @@
     "setAside": "Er bleibt auf diesem Gerät, so wie er gespeichert wurde. <import>Importieren Sie ein JSON-Backup</import>, um ihn zurückzuholen, oder <setup>richten Sie einen Plan ein</setup>."
   },
   "setAside": "{count, plural, one {{figure} gespeicherter Eintrag konnte nicht gelesen werden, daher fehlt er in „Heute“ und im Portfolio. Im <log>Protokoll</log> steht, wie Sie ihn zurückholen.} other {{figure} gespeicherte Einträge konnten nicht gelesen werden, daher fehlen sie in „Heute“ und im Portfolio. Im <log>Protokoll</log> steht, wie Sie sie zurückholen.}}",
+  "newer": {
+    "entries": "{count, plural, one {{figure} Eintrag wurde} other {{figure} Einträge wurden}} von einer neueren Version von {product} gespeichert und {count, plural, one {wird} other {werden}} daher hier nicht angezeigt. Laden Sie die Seite neu, um {count, plural, one {ihn} other {sie}} zu sehen."
+  },
   "action": {
     "late": "{month} ist noch offen",
     "lateBody": "Der Kauftag war am {date}, vor {days, plural, one {{figure} Tag} other {{figure} Tagen}}. Tragen Sie den Kauf ein oder überspringen Sie den Monat.",

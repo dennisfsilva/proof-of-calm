@@ -13,14 +13,16 @@ import { test } from './support';
 // Rows a newer build wrote, on the viewport matrix (ADR-0019 Readings, "Row shape"; docs/RELEASE.md,
 // Versioning; docs/CONTENT-STYLE.md, Newer version): this build reads plans up to v3 and entries up to
 // v4 (`ROW_SCHEMA_VERSIONS`), so a plan row and an entry row one version above those bring the full
-// newer-version screen, and such an entry row beside a plan this build reads brings the one line above
-// Today. The rows are built by the store's own row builders, as `seed.ts` does, then raised one version
+// newer-version screen, and such an entry row beside a plan this build reads brings the one line under
+// Today's heading. The rows are built by the store's own row builders, as `seed.ts` does, then raised one version
 // above this build's with a payload this build does not know.
 
 const SEED_DEVICE_ID = '00000000-0000-4000-8000-00000000e2e1' as Parameters<typeof planRow>[1];
 const NEWER_PAYLOAD = { shape: 'a newer build' } as const;
 const NEWER_PLAN = { schemaVersion: ROW_SCHEMA_VERSIONS.plans + 1, payload: NEWER_PAYLOAD } as const;
 const NEWER_ENTRY = { schemaVersion: ROW_SCHEMA_VERSIONS.entries + 1, payload: NEWER_PAYLOAD } as const;
+const NEWER_LINE =
+  '1 entry was saved by a newer version of Proof of Calm, so it is not shown here. Reload the page to see it.';
 
 type Rows = { readonly plans: readonly PlanRow[]; readonly entries: readonly unknown[] };
 
@@ -85,19 +87,31 @@ test('a plan and an entry a newer version saved bring the newer-version screen',
   await expect(page.getByRole('heading', { name: 'Your data could not be opened.' })).toHaveCount(0);
 });
 
-test('an entry a newer version saved, beside a plan this version reads, brings the line above Today', async ({
+test('an entry a newer version saved, beside a plan this version reads, brings the line under Today’s heading', async ({
   page,
 }) => {
   const { plan, first, rest } = fixtureRows();
   await seedRows(page, { plans: [plan], entries: [{ ...first, ...NEWER_ENTRY }, ...rest] });
 
-  await expect(
-    page.getByText(
-      '1 entry was saved by a newer version of Proof of Calm, so it is not shown here. Reload the page to see it.',
-    ),
-  ).toBeVisible();
+  await expect(page.getByText(NEWER_LINE)).toBeVisible();
   await expect(
     page.getByRole('heading', { name: 'Your plan was saved by a newer version of Proof of Calm.' }),
   ).toHaveCount(0);
   await expect(page.getByRole('heading', { name: 'Your data could not be opened.' })).toHaveCount(0);
+});
+
+// A tab navigation puts the focus on the screen's heading, so a line above it would be skipped by a screen
+// reader reading on from there: the line follows the heading (docs/DESIGN.md §8).
+test('after a tab navigation the heading is followed by the newer line', async ({ page }) => {
+  const { plan, first, rest } = fixtureRows();
+  await seedRows(page, { plans: [plan], entries: [{ ...first, ...NEWER_ENTRY }, ...rest] });
+  const tab = (name: string) =>
+    page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name, exact: true });
+
+  await tab('Log').click();
+  await expect(page.getByRole('heading', { level: 1, name: 'Log' })).toBeFocused();
+  await tab('Today').click();
+  const heading = page.getByRole('heading', { level: 1, name: 'Today' });
+  await expect(heading).toBeFocused();
+  await expect(heading.locator('xpath=following-sibling::*[1]')).toHaveText(NEWER_LINE);
 });
