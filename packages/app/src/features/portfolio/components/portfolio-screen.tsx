@@ -18,6 +18,7 @@ import {
   type Units,
 } from '@proofofcalm/core';
 import { AllocationBar, type AllocationSegment } from '@proofofcalm/ui/charts/allocation-bar';
+import { buttonVariants } from '@proofofcalm/ui/components/button';
 import { coinColour, type SeriesColour } from '@proofofcalm/ui/lib/series';
 import { type ReactNode, useMemo } from 'react';
 import { useTranslations } from 'use-intl';
@@ -28,7 +29,7 @@ import { WhyLink } from '../../learn';
 import { NoPlan, PricesSlot, useOnline } from '../../today';
 import { useHistories } from '../lib/use-histories';
 import { chartCoins, chartState } from '../lib/value-chart';
-import { formatPnl, Holdings, pnlTone } from './holdings';
+import { formatPnl, Holdings, pnlTone, widestPnl } from './holdings';
 import { JanuaryValue } from './january-value';
 import { chartDiscloses, VALUE_CHART_VIEW_BOX, ValueChart } from './value-chart';
 
@@ -114,8 +115,32 @@ export function PortfolioScreen() {
   return <PlanPortfolio plan={plan} />;
 }
 
+const PNL_TERM = 'self-baseline text-ink-2';
+const PNL_ROW = 'flex flex-wrap items-center gap-x-stack-xs self-baseline';
+const PNL_FIGURE = 'nums col-start-1 row-start-1';
+/** Words drawn from the element's `data-line`, so no search, copy or screen reader finds them. */
+const DRAWN = 'before:content-[attr(data-line)]';
+/** The class list of the Why? link's standalone button, so its stand-in takes the same box. */
+const WHY_LINK = `${buttonVariants({ variant: 'link', size: 'inline' })} min-h-target min-w-target`;
+
+/**
+ * The P/L's cell, as wide as the P/L's widest forms stand unseen in it, so the row wraps its Why? the same way
+ * before the prices and after, whatever the font (docs/ENGINEERING.md §4).
+ */
+function PnlCell({ widest, children }: { readonly widest: readonly string[]; readonly children?: ReactNode }) {
+  return (
+    <span className="grid grid-cols-1">
+      {widest.map((line) => (
+        <span key={line} aria-hidden data-line={line} className={`${PNL_FIGURE} invisible ${DRAWN}`} />
+      ))}
+      {children}
+    </span>
+  );
+}
+
 function PlanPortfolio({ plan }: { plan: Plan }) {
   const t = useTranslations('portfolio');
+  const shell = useTranslations('shell');
   const format = useFormatters();
   const online = useOnline();
   const entries = useSnapshot((snapshot) => snapshot.entries);
@@ -155,6 +180,7 @@ function PlanPortfolio({ plan }: { plan: Plan }) {
   const byValue = value.value !== null && isPositive(value.value);
   const allocation = shares(value, colours, byValue, currency, format);
   const pnl = formatPnl(value, format, currency);
+  const widest = widestPnl(value.invested, format, currency);
   const facts: readonly (readonly [string, string, string])[] = [
     [t('summary.invested'), format.money(value.invested, currency), 'text-ink'],
     [t('summary.fees'), format.money(value.fees, currency), 'text-ink'],
@@ -189,18 +215,24 @@ function PlanPortfolio({ plan }: { plan: Plan }) {
           {pnl !== null && (
             <div className="contents">
               {/* The Why? target makes the row 44 px tall: the label meets the figure on its baseline. */}
-              <dt className="self-baseline text-ink-2">{t('summary.pnl')}</dt>
-              <dd className="flex flex-wrap items-center gap-x-stack-xs self-baseline">
-                <span className={`nums ${pnlTone(value)}`}>{pnl}</span>
+              <dt className={PNL_TERM}>{t('summary.pnl')}</dt>
+              <dd className={PNL_ROW}>
+                <PnlCell widest={widest}>
+                  <span className={`${PNL_FIGURE} ${pnlTone(value)}`}>{pnl}</span>
+                </PnlCell>
                 <WhyLink module="risk-honestly" name={t('summary.why')} standalone />
               </dd>
             </div>
           )}
-          {/* Unpriced, the P/L row keeps its 44 px place, unseen and unread. */}
+          {/* Unpriced, the P/L row keeps its place, unseen and unread: the same row, its words drawn from attributes
+              and its Why? a stand-in of the link's size that no focus reaches. */}
           {value.value === null && (
             <div aria-hidden data-reserve="pnl" className="contents invisible">
-              <dt>{' '}</dt>
-              <dd className="min-h-target" />
+              <dt data-line={t('summary.pnl')} className={`${PNL_TERM} ${DRAWN}`} />
+              <dd className={PNL_ROW}>
+                <PnlCell widest={widest} />
+                <span data-line={shell('why.link')} className={`${WHY_LINK} ${DRAWN}`} />
+              </dd>
             </div>
           )}
           {facts.map(([term, figure, tone]) => (
