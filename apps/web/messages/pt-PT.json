@@ -72,9 +72,9 @@
   "manifest": {
     "description": "Um planeador e um registo de compras de cripto num calendário mensal fixo.",
     "screenshots": {
-      "holdingDate": "Regras de detenção por país, com uma compra de exemplo em Portugal",
-      "countryPt": "A página de Portugal com a regra de detenção e as fontes",
-      "today": "Hoje, com um plano de exemplo e a compra deste mês registada",
+      "holdingDate": "Data de exclusão de tributação: compra de exemplo em Portugal",
+      "countryPt": "Declaração em Portugal: regras, fontes e data de revisão",
+      "today": "Hoje: plano de exemplo com a compra deste mês registada",
       "learn": "O índice de Aprender, com módulos curtos"
     }
   },

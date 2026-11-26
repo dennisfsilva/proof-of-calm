@@ -96,8 +96,8 @@
   "manifest": {
     "description": "A planner and log for buying crypto on a fixed monthly schedule.",
     "screenshots": {
-      "holdingDate": "Holding rules by country, with an example purchase in Portugal",
-      "countryPt": "Portugal's country page with its holding rule and sources",
+      "holdingDate": "The holding date of an example purchase in Portugal",
+      "countryPt": "Portugal's reporting rules, sources, and the date they were reviewed",
       "today": "Today with an example plan and this month's buy recorded",
       "learn": "The Learn index of short modules"
     }
