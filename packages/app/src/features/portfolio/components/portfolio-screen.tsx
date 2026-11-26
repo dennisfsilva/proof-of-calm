@@ -166,9 +166,10 @@ function PlanPortfolio({ plan }: { plan: Plan }) {
       <div className="flex flex-col gap-stack-sm">
         <dl>
           <dt className="text-14 text-ink-2">{t('summary.value')}</dt>
-          {/* Unpriced, the figure's line stands unseen under the words, so the prices' arrival moves nothing below. */}
+          {/* Unpriced, the figure's line stands unseen under the words, so the prices' arrival moves nothing below.
+              Keyed apart: one cell restyled into the other eases its font size through reduced motion's 1 ms. */}
           {value.value === null ? (
-            <dd className="grid grid-cols-1">
+            <dd key="unpriced" className="grid grid-cols-1">
               <span aria-hidden className="invisible col-start-1 row-start-1 font-semibold text-40">
                 {' '}
               </span>
@@ -177,7 +178,9 @@ function PlanPortfolio({ plan }: { plan: Plan }) {
               </span>
             </dd>
           ) : (
-            <dd className="nums font-semibold text-40">{format.money(value.value, currency)}</dd>
+            <dd key="priced" className="nums font-semibold text-40">
+              {format.money(value.value, currency)}
+            </dd>
           )}
         </dl>
         {/* One fetch gives every price the screen uses, so the line's time is the oldest of them. */}
