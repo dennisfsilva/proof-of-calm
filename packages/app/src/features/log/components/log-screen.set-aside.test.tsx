@@ -15,8 +15,8 @@ import shell from '../../../messages/en/shell.json';
 import { LogScreen } from './log-screen';
 
 // The Log's set-aside line (ADR-0019 Readings, 2026-11-26): saved entries that could not be read and are still
-// missing, how to bring them back and Hide this line, which writes `set-aside:<n>` and moves focus to the title;
-// and the empty text while the plan row is set aside. `hasFocus` is true because jsdom has no system focus.
+// missing, how to bring them back and Hide this line, which writes `set-aside:<n>` and moves focus to the title,
+// shown only while a plan is; and the empty text while the plan row is set aside. `hasFocus` is true because jsdom has no system focus.
 
 beforeEach(() => {
   vi.spyOn(document, 'hasFocus').mockReturnValue(true);
@@ -75,6 +75,47 @@ describe('LogScreen: the set-aside line', () => {
     expect(line.textContent).toMatch(/exported before 1\sOct\s2026 in Settings with Add missing entries only/);
     expect(screen.getByRole('link', { name: 'Settings' }).getAttribute('href')).toBe('/settings');
     expect(screen.getByRole('button', { name: HIDE })).toBeTruthy();
+  });
+
+  // A new record gets a new id, so the line stays after it: the two ways back exclude each other, the import first
+  // and recording only without a backup, ending in Hide this line.
+  it('names the backup first and recording only without one, then the hide', async () => {
+    await mount(memoryPlanStore(withSetAside([{ id: 'gone', at: AT }])));
+    const text = screen.getByText(LINE).textContent;
+    expect(text).toMatch(
+      /in Settings with Add missing entries only\. Without one, record it again, then hide this line\.$/,
+    );
+    expect(text).not.toMatch(/or record it again/);
+  });
+
+  it('names them in the plural the same way', async () => {
+    await mount(
+      memoryPlanStore(
+        withSetAside([
+          { id: 'gone', at: AT },
+          { id: 'lost', at: AT },
+        ]),
+      ),
+    );
+    const text = screen.getByText(/^2 saved entries could not be read, so they are not in this list\./).textContent;
+    expect(text).toMatch(/To bring them back, import a JSON backup exported before 1\sOct\s2026 in Settings/);
+    expect(text).toMatch(/Without one, record them again, then hide this line\.$/);
+    expect(text).not.toMatch(/or record them again/);
+  });
+
+  // With no plan the Log offers neither recording nor Add missing entries only, so its empty text names the way back.
+  it('shows no line while no plan is shown, only the empty text', async () => {
+    await mount(memoryPlanStore({ ...withSetAside([{ id: 'gone', at: AT }]), plan: null }));
+    expect(screen.queryByText(/saved entry could not be read/)).toBeNull();
+    expect(screen.queryByRole('button', { name: HIDE })).toBeNull();
+    expect(screen.getByText('No entries yet. Set up a plan or import a file.')).toBeTruthy();
+  });
+
+  it('shows no line while the plan row is set aside too', async () => {
+    await mount(memoryPlanStore({ ...withSetAside([{ id: 'gone', at: AT }], [{ id: 'plan', at: AT }]), plan: null }));
+    expect(screen.queryByText(/saved entry could not be read/)).toBeNull();
+    expect(screen.queryByRole('button', { name: HIDE })).toBeNull();
+    expect(screen.getByText(/^Your plan could not be read, so no entries are listed\./)).toBeTruthy();
   });
 
   it('hides the line by writing set-aside:<n> and moves focus to the title', async () => {
