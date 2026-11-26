@@ -203,8 +203,10 @@ export function applyImport(
   const added = missing.filter((entry) => entry.kind !== 'dca' || !months.has(entry.slot));
   const tooMany = overCap(liveEntries(current.entries).length + added.length, fileLive.length);
   if (tooMany !== null) return refuse(current, filePlan, tooMany);
+  // With no plan here, the file's skips date from its export: a month an entry kept here records stays recorded.
+  const skips = filePlan.skips.filter((skip) => !months.has(skip.slot));
   return checked(current, filePlan, {
-    plan: current.plan ?? filePlan,
+    plan: current.plan ?? { ...filePlan, skips },
     entries: [...current.entries, ...added.map(stamp)],
     added: added.length,
     skipped: fileLive.length - missing.length - deleted,
