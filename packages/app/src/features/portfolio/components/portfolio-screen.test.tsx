@@ -295,6 +295,10 @@ describe('PortfolioScreen', () => {
     expect(widestForms(pnl?.querySelector('dd > span'))).toEqual(WIDEST_PNL);
     expect(pnl?.querySelector('dd > span:last-child')?.getAttribute('data-line')).toBe('Why?');
     expect(pnl?.querySelectorAll('button, a, input, select, textarea, [tabindex]').length).toBe(0);
+    // The forms break anywhere, so in a box narrower than they are they add lines but never widen the row.
+    for (const form of pnl?.querySelectorAll('dd > span > [data-line]') ?? []) {
+      expect(form.className).toContain('wrap-anywhere');
+    }
   });
 
   // The P/L's cell is as wide as its widest form in both states, so its Why? wraps the same way on every font.
@@ -304,11 +308,12 @@ describe('PortfolioScreen', () => {
     expect(figure.className).toContain('text-positive');
     expect(widestForms(figure.parentElement)).toEqual(WIDEST_PNL);
     for (const form of figure.parentElement?.querySelectorAll('[data-line]') ?? []) {
-      expect([form.getAttribute('aria-hidden'), form.className.includes('invisible'), form.textContent]).toEqual([
-        'true',
-        true,
-        '',
-      ]);
+      expect([
+        form.getAttribute('aria-hidden'),
+        form.className.includes('invisible'),
+        form.className.includes('wrap-anywhere'),
+        form.textContent,
+      ]).toEqual(['true', true, true, '']);
     }
   });
 

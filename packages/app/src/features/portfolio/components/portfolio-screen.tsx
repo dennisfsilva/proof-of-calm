@@ -125,13 +125,14 @@ const WHY_LINK = `${buttonVariants({ variant: 'link', size: 'inline' })} min-h-t
 
 /**
  * The P/L's cell, as wide as the P/L's widest forms stand unseen in it, so the row wraps its Why? the same way
- * before the prices and after, whatever the font (docs/ENGINEERING.md §4).
+ * before the prices and after, whatever the font (docs/ENGINEERING.md §4). The forms break anywhere: in a box
+ * narrower than they are, they add lines to the row but never widen it past the box.
  */
 function PnlCell({ widest, children }: { readonly widest: readonly string[]; readonly children?: ReactNode }) {
   return (
     <span className="grid grid-cols-1">
       {widest.map((line) => (
-        <span key={line} aria-hidden data-line={line} className={`${PNL_FIGURE} invisible ${DRAWN}`} />
+        <span key={line} aria-hidden data-line={line} className={`${PNL_FIGURE} invisible wrap-anywhere ${DRAWN}`} />
       ))}
       {children}
     </span>
