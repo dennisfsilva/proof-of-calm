@@ -66,22 +66,32 @@ async function mount(
   entries: readonly Entry[] = ENTRIES,
   nowMs: number = fixtureNowMs('sell'),
   pastPerformance = false,
-): Promise<HTMLElement> {
+): Promise<{ readonly container: HTMLElement; show(next: HistoriesState): void }> {
   const services = createTestServices({
     snapshot: { ...fixtureSnapshot(), plan, entries: [...entries] },
     nowMs,
     rules: async () => NL,
   });
   await act(() => services.start());
-  const { container } = render(
+  const tree = (histories: HistoriesState) => (
     <ServicesProvider services={services}>
       <I18nProvider messages={{ portfolio: messages }}>
-        <JanuaryValue plan={plan} entries={entries} histories={state} rules={rules} pastPerformance={pastPerformance} />
+        <JanuaryValue
+          plan={plan}
+          entries={entries}
+          histories={histories}
+          rules={rules}
+          pastPerformance={pastPerformance}
+        />
       </I18nProvider>
-    </ServicesProvider>,
+    </ServicesProvider>
   );
-  return container;
+  const { container, rerender } = render(tree(state));
+  return { container, show: (next) => rerender(tree(next)) };
 }
+
+/** A read again after a failure, while it loads (use-histories). */
+const RETRYING: HistoriesState = { status: 'loading', afterFailure: true };
 
 /** The text with every space one U+0020, as nl-NL spaces its amounts with U+00A0. */
 const text = () => (document.body.textContent ?? '').replace(/\s/g, ' ');
@@ -102,7 +112,7 @@ const added = (date: string, deletedAt: string | null = null): Entry => {
 
 describe('JanuaryValue', () => {
   it.each(['PT', 'FR'])('renders nothing for the model of %s', async (code) => {
-    const container = await mount(await rulesOf(code));
+    const { container } = await mount(await rulesOf(code));
     expect(container.innerHTML).toBe('');
   });
 
@@ -217,6 +227,23 @@ describe('JanuaryValue', () => {
     expect(screen.getByText('Loading the daily closes of 31 Dec 2029.')).toBeDefined();
   });
 
+  // The block sits last on Portfolio: hidden across a retry, it can only add content below when it reads,
+  // never leave a heading over nothing after a second failure.
+  it('renders nothing while a retry after a failed read loads', async () => {
+    const view = await mount(NL, { status: 'failed', failure: { kind: 'network' } });
+    expect(view.container.innerHTML).toBe('');
+    act(() => view.show(RETRYING));
+    expect(view.container.innerHTML).toBe('');
+  });
+
+  it('shows the figure once the retry reads', async () => {
+    const view = await mount(NL, RETRYING);
+    expect(view.container.innerHTML).toBe('');
+    act(() => view.show(histories()));
+    expect(screen.getByText('Value on 1 January 2030')).toBeDefined();
+    expect(text()).toContain(dutchFormat.money('1345.5' as Decimal, 'EUR' as CurrencyCode).replace(/\s/g, ' '));
+  });
+
   it('names coins added after the eve only while such a live entry exists', async () => {
     await mount(NL, histories(), dutch(), [...ENTRIES, added('2029-12-31'), added('2030-01-02', '2030-01-03')]);
     expect(text()).not.toContain('Coins added');
@@ -233,7 +260,7 @@ describe('JanuaryValue', () => {
   });
 
   it('with nothing held on the eve says so only while coins were added after it', async () => {
-    const container = await mount(NL, histories(), dutch(), []);
+    const { container } = await mount(NL, histories(), dutch(), []);
     expect(container.innerHTML).toBe('');
     cleanup();
     await mount(NL, histories(), dutch(), [added('2030-01-02')]);

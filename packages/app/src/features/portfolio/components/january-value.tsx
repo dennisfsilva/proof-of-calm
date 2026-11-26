@@ -24,7 +24,10 @@ import { type HistoriesState, servesHistory } from '../lib/use-histories';
 // the coins it covers and the credit, unlinked at text-14 (ADR-0050); a coin without a close dated that day,
 // or outside the loaded histories, leaves no partial sum, and its name is said instead. Coins added in the
 // Log with a later date are named, since they may have been held that day (§2.2). A failed read says nothing
-// here: the value chart's line names it and the retry. Nothing held and nothing added later: no line.
+// here: the value chart's line names it and the retry. The retry's read keeps it hidden until it settles
+// (`afterFailure`, use-histories): the line sits last on Portfolio, so showing on success adds content below
+// and moves nothing, where a loading line would leave and shrink the page's end on a second failure, and a
+// reserved space would hold a heading over nothing. Nothing held and nothing added later: no line.
 // CoinGecko's last point is the price at the call, dated that UTC day (apps/web/lib/history/coingecko.ts),
 // and a copy lives 24 hours on the server and the device (ADR-0036): the point dated 31 December is that
 // day's close only in a copy fetched upstream at or after 00:10:30 UTC on 1 January. `fetchedAt` is the route's
@@ -91,6 +94,7 @@ function OpeningValue({ plan, entries, histories, pastPerformance }: Omit<Januar
   ];
 
   if (histories.status === 'failed') return null;
+  if (histories.status === 'loading' && histories.afterFailure === true) return null;
   if (value.coins.length === 0 && addedAfter.length === 0) return null;
   const date = format.date(eve);
   const loading = histories.status === 'loading' && value.coins.some((coin) => servesHistory(coin.coin));

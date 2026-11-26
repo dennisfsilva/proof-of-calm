@@ -134,7 +134,7 @@ describe('useHistories', () => {
     expect(result.current).toEqual({ status: 'failed', failure: { kind: 'network' } });
 
     reopen();
-    expect(result.current).toEqual({ status: 'loading' });
+    expect(result.current).toEqual({ status: 'loading', afterFailure: true });
     // The coin outside the catalogue is still never asked for.
     expect(source.calls.slice(2).map((call) => [call.coin, call.currency])).toEqual([
       ['BTC', 'EUR'],
@@ -153,6 +153,27 @@ describe('useHistories', () => {
     expect(result.current).toMatchObject({ status: 'ready' });
   });
 
+  it('a retry after a failure reads loading after the failure', async () => {
+    const source = waitingSource();
+    const { result, rerender } = mount(source, { coins: coins('BTC'), currency: 'EUR' });
+    // The first read loads as any read does.
+    expect(result.current).toEqual({ status: 'loading' });
+    await source.calls[0]?.answer(err({ kind: 'network' }));
+    reopen();
+    expect(result.current).toEqual({ status: 'loading', afterFailure: true });
+    // A retry that fails again shows the failure, and the next retry loads after it.
+    await source.calls[1]?.answer(err({ kind: 'http', status: 503 }));
+    expect(result.current).toEqual({ status: 'failed', failure: { kind: 'http', status: 503 } });
+    reopen();
+    expect(result.current).toEqual({ status: 'loading', afterFailure: true });
+    // Once the retry settles the field is gone; a read for other inputs loads as a first read.
+    await source.calls[2]?.answer(closes('BTC', 'EUR', '2026-10-20T10:00:00.000Z'));
+    expect(result.current).toMatchObject({ status: 'ready' });
+    expect(result.current).not.toHaveProperty('afterFailure');
+    rerender({ coins: coins('BTC'), currency: 'USD' });
+    expect(result.current).toEqual({ status: 'loading' });
+  });
+
   it('drops an answer from before a reopen', async () => {
     const source = waitingSource();
     const { result, rerender } = mount(source, { coins: coins('BTC'), currency: 'EUR' });
@@ -164,7 +185,7 @@ describe('useHistories', () => {
     reopen();
     expect(source.calls).toHaveLength(4);
     await source.calls[2]?.answer(closes('BTC', 'EUR', '2026-10-20T10:00:00.000Z'));
-    expect(result.current).toEqual({ status: 'loading' });
+    expect(result.current).toEqual({ status: 'loading', afterFailure: true });
     await source.calls[3]?.answer(closes('BTC', 'EUR', '2026-10-20T11:00:00.000Z'));
     expect(result.current).toMatchObject({ status: 'ready', fetchedAt: '2026-10-20T11:00:00.000Z' });
   });

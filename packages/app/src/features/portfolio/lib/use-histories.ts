@@ -12,16 +12,18 @@ import { useServices } from '../../../lib/services';
 // catalogue (an imported page file may carry one, docs/DOMAIN.md §3.13) is never asked for: the history route
 // serves the catalogue only (ADR-0036), so it has no closes, which the chart says, rather than a failed read.
 // After a failure, pressing Portfolio's own tab reads again, as the failure line says (`useReopens`);
-// such a press while loading or ready reads nothing.
+// such a press while loading or ready reads nothing. That read loads with `afterFailure` until it settles, so
+// what said nothing after the failure can go on saying nothing (january-value); the value chart ignores it.
 // The answer renders as a transition, which React splits into slices that yield to the browser, so the
 // drawn chart and its table never mount in one long task (docs/ENGINEERING.md §4).
 
 export type HistoriesState =
-  | { readonly status: 'loading' }
+  | { readonly status: 'loading'; readonly afterFailure?: true }
   | { readonly status: 'ready'; readonly histories: PriceHistories; readonly fetchedAt: Instant }
   | { readonly status: 'failed'; readonly failure: ApiFailure };
 
 const LOADING: HistoriesState = { status: 'loading' };
+const RETRYING: HistoriesState = { status: 'loading', afterFailure: true };
 
 /** Whether the history route serves the coin's closes: the coin catalogue, the route's allow-list (ADR-0036). */
 export function servesHistory(coin: CoinId): boolean {
@@ -43,7 +45,9 @@ export function useHistories(coins: readonly CoinId[], currency: CurrencyCode): 
   const reopens = useReopens();
   const [retry, setRetry] = useState({ reopens, attempt: 0 });
   const { attempt } = retry;
-  const shown = state.key === key && state.attempt === attempt ? state.value : LOADING;
+  // The same inputs' failure from an attempt before this one: the read again after it is still loading.
+  const waiting = state.key === key && state.value.status === 'failed' ? RETRYING : LOADING;
+  const shown = state.key === key && state.attempt === attempt ? state.value : waiting;
   if (retry.reopens !== reopens) {
     setRetry({ reopens, attempt: shown.status === 'failed' ? attempt + 1 : attempt });
   }
