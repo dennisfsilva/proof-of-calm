@@ -140,13 +140,11 @@ const SET = [
     ],
   },
   { name: 'today-narrow', project: 'android-small', height: 780, open: today, shows: () => [] },
-  {
-    name: 'learn-narrow',
-    project: 'android-small',
-    height: 816,
-    open: learn,
-    shows: (page: Page) => [page.getByRole('link', { name: 'Countries' })],
-  },
+  // The Learn index from the top to the gap before the Countries row, which no frame of 828 or less holds whole in
+  // the container (one more line). On Windows (2026-11-26) the gap runs from 715.2, the row above's foot (its text
+  // ends at 713.3), to 731.2; the edge at 723 leaves 7.8 px above it and 8.2 px below. The container's failed capture
+  // put the Countries row at the same 731.2 (84 % of its 101.2 px in an 816 px frame), so the rows above lie alike.
+  { name: 'learn-narrow', project: 'android-small', height: 723, open: learn, shows: () => [] },
   {
     name: 'holding-date-wide',
     project: 'desktop',

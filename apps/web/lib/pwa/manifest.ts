@@ -29,7 +29,7 @@ function screenshots() {
     shot('holding-date', 'narrow', '1080x2340', t('screenshots.holdingDate')),
     shot('country-pt', 'narrow', '1080x2469', t('screenshots.countryPt')),
     shot('today', 'narrow', '1080x2340', t('screenshots.today')),
-    shot('learn', 'narrow', '1080x2448', t('screenshots.learn')),
+    shot('learn', 'narrow', '1080x2169', t('screenshots.learn')),
     shot('holding-date', 'wide', '1280x720', t('screenshots.holdingDate')),
   ];
 }
