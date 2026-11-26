@@ -616,10 +616,27 @@ no coin: four narrow images and one wide, in `apps/web/public/screenshots/`, nam
   difference first (`docs/GROWTH.md` §4.6); then Portugal's country page, Today with the current
   month recorded and no price answer (a seeded plan with no sell window, no sale and no template's
   dates), and the Learn index. The wide image is the holding-date page again.
-- Each image is one viewport at the project's device scale factor, so its size follows from the
-  project alone: narrow is android-small, 360 × 780 at 3 (1080 × 2340 px); wide is desktop,
-  1280 × 800 at 1 (1280 × 800 px). `apps/web/lib/pwa/manifest.test.ts` holds each file to its size
-  and each label to 10 words or fewer, without "your", past the banned-words lint.
+- Each image is one frame at the project's device scale factor: narrow is android-small, 360 CSS
+  pixels wide at 3; wide is desktop, 1280 at 1. A frame's height is android-small's 780 (1080 ×
+  2340 px) unless no gap between blocks falls there; any other height keeps the longer side at most
+  2.3 times the shorter, Chrome's limit for the richer install sheet. The set: the holding-date page
+  1080 × 2340, Portugal's country page 1080 × 2469, Today 1080 × 2340, the Learn index
+  1080 × 2448, and the holding-date page wide 1280 × 720, ending after Portugal's result and the
+  line about the Log.
+- No line is cut at an edge: the frame's top and bottom fall in gaps between blocks, and the spec
+  fails on any text line, field, button or image that crosses either edge, and on anything a frame
+  must show that is not wholly inside it.
+- Portugal's frame runs from its second reporting rule (Anexo G Quadro 18B) to the date line: whole
+  rules, the section's Sources link and "Reviewed on … · general information, not advice" in one
+  image, with no row cut from its condition. From the Reporting heading to the date line is taller
+  than 2.3 widths, so the frame cannot start at the heading.
+- The capture's browser runs in en-GB (the `--lang` flag and the `LANG` and `LANGUAGE` variables that
+  Chromium on Linux reads), so the native date field reads 05/10/2026 like the result's "5 Oct 2026";
+  the context's locale alone does not reach that field. On Windows an English interface language
+  takes the system's date format, so only the container's render shows the order.
+- `apps/web/lib/pwa/manifest.test.ts` holds each file to its size and the 2.3 : 1 limit, and each
+  label in English, pt-PT and German to 10 words or fewer, without "your", in sentence case, past
+  the banned-words lint. A label says what its frame shows.
 - The capture runs as a step of `.github/workflows/snapshots.yml` in the pinned Playwright container
   (the header of that workflow): `apps/web/e2e/manifest-capture.spec.ts` with `MANIFEST_CAPTURE=1`,
   uploaded as the artifact `manifest-screenshots` and committed over the files. Counsel and brand
