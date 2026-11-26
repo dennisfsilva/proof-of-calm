@@ -223,15 +223,11 @@ test(`the Log at ${MAX_ENTRIES} entries: each input, Show all and its window at 
     () => showAll.click(),
     () => expect(range).toHaveText(firstWindow, loading),
   );
-  const older = await measure(
-    page,
-    () => page.getByRole('button', { name: 'Show older entries' }).click(),
-    () => expect(range).toHaveText(new RegExp(`^Entries ${LOG_WINDOW + 1} to ${2 * LOG_WINDOW} of `), loading),
+  const older = await measure(page, page.getByRole('button', { name: 'Show older entries' }), () =>
+    expect(range).toHaveText(new RegExp(`^Entries ${LOG_WINDOW + 1} to ${2 * LOG_WINDOW} of `), loading),
   );
-  const newer = await measure(
-    page,
-    () => page.getByRole('button', { name: 'Show newer entries' }).click(),
-    () => expect(range).toHaveText(firstWindow, loading),
+  const newer = await measure(page, page.getByRole('button', { name: 'Show newer entries' }), () =>
+    expect(range).toHaveText(firstWindow, loading),
   );
   const year = page.getByRole('combobox', { name: 'Go to year' });
   const choose = await measure(
