@@ -4,6 +4,7 @@ import { anEntry, aPlan, date, id, instant, month } from '../../test/builders';
 import { compareInstants, epochDay, instantFromEpochMs } from '../dates/calendar';
 import { MINOR_UNITS } from '../money/currency';
 import type { Entry } from '../schema/entry';
+import type { Skip } from '../schema/plan';
 import { applyImport, exportBackup } from './backup';
 
 const now = instant('2026-10-17T08:00:00Z');
@@ -116,6 +117,35 @@ describe('applyImport with no plan shown (docs/DOMAIN.md §3.13, ADR-0019)', () 
           expect(after.get(entry.id)?.deletedAt).toBeNull();
         }
         expect(result.plan).toEqual({ ...file.plan, updatedAt: now });
+      }),
+    );
+  });
+
+  // Each month: a monthly buy on the device, in the file, or the same one in both, live or deleted on each side; the
+  // file skips the month only when it records none there, as its own export would.
+  const side = fc.constantFrom('none', 'live', 'deleted');
+  const monthScene = fc.record({ device: side, file: side, same: fc.boolean(), skipped: fc.boolean() });
+  it('never leaves a month both recorded and skipped, nor recorded twice, whatever the file skips, in either mode', () => {
+    const modes = fc.constantFrom('replace' as const, 'add-missing' as const);
+    const scenes = fc.array(monthScene, { minLength: MONTHS.length, maxLength: MONTHS.length });
+    fc.assert(
+      fc.property(scenes, modes, (scenes, mode) => {
+        const device: Entry[] = [];
+        const entries: Entry[] = [];
+        const skips: Skip[] = [];
+        for (const [index, place] of scenes.entries()) {
+          const slot = month(MONTHS[index] ?? '2026-01');
+          const here = anEntry({ slot });
+          const there = place.same ? here : anEntry({ slot });
+          if (place.device !== 'none') device.push(place.device === 'deleted' ? { ...here, deletedAt } : here);
+          if (place.file !== 'none') entries.push(place.file === 'deleted' ? { ...there, deletedAt } : there);
+          if (place.skipped && place.file !== 'live') skips.push({ id: id(), slot, note: '', createdAt: now });
+        }
+        const file = { ...exportBackup(aPlan({ skips }), [], now), entries };
+        const result = applyImport({ plan: null, entries: device }, file, mode, now);
+        const recorded = result.entries.filter((entry) => entry.deletedAt === null).map((entry) => entry.slot);
+        expect(new Set(recorded).size).toBe(recorded.length);
+        expect(result.plan?.skips.filter((skip) => recorded.includes(skip.slot))).toEqual([]);
       }),
     );
   });
