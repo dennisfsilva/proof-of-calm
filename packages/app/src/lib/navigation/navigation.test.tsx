@@ -211,4 +211,70 @@ describe('NavigationProvider on the hash', () => {
     expect(window.location.hash).toBe('#/settings');
     expect(path()).toBe('/settings');
   });
+
+  /** One button per target and method, beside the hooks. */
+  function Targets() {
+    const router = useRouter();
+    return (
+      <>
+        <output data-testid="path">{usePathname()}</output>
+        <output data-testid="search">{useSearch()}</output>
+        <button type="button" onClick={() => router.push('/settings?tab=data')}>
+          push data
+        </button>
+        <button type="button" onClick={() => router.push('/settings')}>
+          push plain
+        </button>
+        <button type="button" onClick={() => router.replace('/settings?tab=data')}>
+          replace data
+        </button>
+        <button type="button" onClick={() => router.replace('/settings')}>
+          replace plain
+        </button>
+        <Link href="/settings">settings</Link>
+      </>
+    );
+  }
+
+  const renderTargets = () => {
+    window.history.replaceState(null, '', '/index.html#/today');
+    render(
+      <NavigationProvider location="hash">
+        <Targets />
+      </NavigationProvider>,
+    );
+  };
+  const search = () => screen.getByTestId('search').textContent;
+
+  it('writes the query of a target with a query, beside the hash', () => {
+    renderTargets();
+    click('push data');
+    expect(path()).toBe('/settings');
+    expect(search()).toBe('tab=data');
+    expect(window.location.search).toBe('?tab=data');
+    expect(window.location.hash).toBe('#/settings');
+  });
+
+  it('a plain target after a target with a query leaves no query', () => {
+    renderTargets();
+    click('push data');
+    click('push plain');
+    expect(search()).toBe('');
+    expect(window.location.search).toBe('');
+    click('push data');
+    click('settings');
+    expect(search()).toBe('');
+    expect(window.location.search).toBe('');
+    expect(window.location.hash).toBe('#/settings');
+  });
+
+  it('a plain replace after a replace with a query leaves no query', () => {
+    renderTargets();
+    click('replace data');
+    expect(search()).toBe('tab=data');
+    click('replace plain');
+    expect(search()).toBe('');
+    expect(window.location.search).toBe('');
+    expect(path()).toBe('/settings');
+  });
 });
