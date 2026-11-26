@@ -305,7 +305,15 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   the line, grown by the focus ring's extent, into the sheet's view by the same least scroll: the
   line sits below the fields, and a sheet too short to show the focused field and the line together
   would leave the refusal or the focus out of sight; with the focus on the line the person reads the
-  refusal in view, and Shift+Tab returns to the fields. A button disabled while its action runs
+  refusal in view, and Shift+Tab returns to the fields. The lines a Log form shows before Save (the
+  entry form's earlier-date line, holding warnings, data line and move line; the move form's fee,
+  short-source, duplicate and later-move lines) show at once with no live role. The form's one polite
+  status, visually hidden and placed after Save, repeats them, one paragraph per line, once the form
+  has stayed unchanged for 1,000 ms
+  (`SETTLE_MS` in `packages/app/src/features/log/components/form-status.tsx`), the lines showing at
+  opening included and only when the set differs from the last one it took; a
+  line that disappears is not spoken, and Save leaves the status alone, since the toast or the alert
+  speaks. A button disabled while its action runs
   stays focusable (Base UI's `focusableWhenDisabled`), since a browser drops the focus of a disabled
   button to `body` once the action outlasts a frame; so does a button whose action can only be
   refused again (Skip after `already skipped` or `already recorded`), with `aria-disabled`. A paste
