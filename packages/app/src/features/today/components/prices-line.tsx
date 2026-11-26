@@ -6,7 +6,8 @@ import { useClock, useFormatters } from '../../../lib/services';
 
 // The one prices line under a value, on Today and Portfolio alike (docs/CONTENT-STYLE.md §3: "Offline",
 // "Stale prices", "Prices attribution"). CoinGecko's prices carry its credit online, delayed and offline
-// (ADR-0036); prices typed by hand carry none and keep their "as of" line offline.
+// (ADR-0036); prices typed by hand carry none and keep their "as of" line offline. Since the line can carry
+// the credit, the screens set it at `text-14`, never smaller (ADR-0050).
 
 /** Each code's message, with CoinGecko's credit for its prices and without for any other source. */
 const KEYS = {

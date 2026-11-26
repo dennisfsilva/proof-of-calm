@@ -150,7 +150,7 @@ function PortfolioNumber({ plan }: { plan: Plan }) {
       <dt className="text-13 text-ink-2">{t(priced ? 'portfolio.value' : 'portfolio.invested')}</dt>
       <dd className="nums font-semibold text-40">{f.money(value.value ?? value.invested, plan.payCurrency)}</dd>
       {/* One line always, empty until priced: the reserved height (no layout shift). */}
-      <dd className="min-h-[1lh] text-13 text-ink-2">
+      <dd className="min-h-[1lh] text-14 text-ink-2">
         {priced && <PricesLine prices={prices} online={online} failure={failure} />}
       </dd>
     </dl>
