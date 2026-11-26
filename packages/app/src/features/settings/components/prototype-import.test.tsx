@@ -140,7 +140,9 @@ describe('PrototypeImport over entries kept in another currency', () => {
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Continue with Portugal' })));
     const dialog = await screen.findByRole('dialog');
     expect(within(dialog).getByRole('heading').textContent).toMatch(/^Show \d+ saved entries in EUR\?$/);
-    expect(within(dialog).getByText(/^They were saved with a plan that could not be read\. That plan was in GBP\./)).toBeDefined();
+    expect(
+      within(dialog).getByText(/^They were saved with a plan that could not be read\. That plan was in GBP\./),
+    ).toBeDefined();
     const stored = () => services.domain.store.getState().snapshot;
     expect(stored().plan).toBeNull();
     await act(async () => fireEvent.click(within(dialog).getByRole('button', { name: 'Import in EUR' })));
