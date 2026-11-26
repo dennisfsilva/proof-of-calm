@@ -267,6 +267,13 @@ platform without one.
   of another length wraps onto another number of lines (the chart's source line); the forms are built
   once for each set of locales, zone, year, clock changes and words, not on every mount. A failed
   read keeps the same structure, with its line in the empty frame's place (`docs/DESIGN.md` §6).
+- The store's reads at load (profiled 2026-11-25, not cut). At 4× CPU on a cold `/today` and
+  `/portfolio` (main 11e29df42, medians of seven), `packages/app/src/lib/adapters/idb/rows.ts`'s own
+  code took 1.58 and 1.08 ms and, with what it calls, 20.5 and 16.1 ms, almost all of it zod's and
+  core's first parse on a cold load (V8 compiling them), so it stays while zod validates every field
+  (ADR-0019). Left for the next round, each profiled first (#528 comment 7177276862): core's
+  `planIssues`, the load's long task split in `idb-store.ts`, the second plan read during the load,
+  and Today's unpriced `portfolio()` (8.0 to 9.7 ms at 4×, #526).
 - The Log at the cap (decided 2026-11-25). The rule: Chromium's CPU throttle at 6× stands in for a
   slow phone, and an input on the screen whose Event Timing duration, or the longest task it starts
   before the screen settles, passes 100 ms there is fixed: Event Timing ends at the next paint and
@@ -293,24 +300,30 @@ platform without one.
   sheet 80 to 88 ms, under the rule; Show all's longest task 17 to 20 s; the heading after 3.0 to
   3.7 s. Show all then mounted every row (its longest task 17 to 20 s); it now shows a window of
   `LOG_WINDOW` transactions with Show newer and Show older entries and Go to year (`docs/DOMAIN.md`
-  §3.9). With the window of 100 it keeps, six runs at 6× (2026-11-25, three at a time as the command
-  runs them; one stopped after Show older), as median and range of input / longest task: Show all
-  20 (16 to 24) / 331 (303 to 339) ms, Show older 16 (16 to 32) / 79 (65 to 115) ms, Show newer 24
-  (16 to 32) / 95 (71 to 114) ms, opening Go to year 32 (24 to 32) / 153 (138 to 162) ms, choosing
-  the oldest year 56 / 71 (56 to 226) ms, opening a row 96 (80 to 112) / 79 (55 to 97) ms, Edit
-  entry 212 (208 to 240) / 181 (170 to 207) ms, one keystroke 36 (32 to 48) / 0 ms, closing the
-  sheet 64 (56 to 88) / 53 (0 to 69) ms; the heading after 2.1 s (2.0 to 2.8 s, longest task 434 to
-  505 ms), and after a reload with Show all stored 2.3 s (2.2 to 2.3 s, longest task 392 to 423 ms),
-  the window's commit after it 55 (0 to 62) ms. A window of 48 was tried and not kept: Show all's
-  longest task (314 to 321 ms) and opening Go to year (172 to 197 ms) measured as at 100, and only
-  the moves shortened (0 to 52 ms), while a Log of 49 to 100 transactions would page. Over the rule
-  still (planned: M2): Show all's longest task, the same at 48 and 100 rows, so not the window's
-  render (suspected: the `logShowAll` preference write over the 10,000-entry snapshot; not
-  profiled); opening Go to year (suspected: the Base UI Select popup with about 28 years); choosing
-  the oldest year in two of five runs, Show older in one of six and Show newer in two of five
-  (suspected: the commit of a window of 100 rows, since at 48 the moves stayed under); opening a row, by Event Timing; Edit entry, a
-  profile of which finds the sheet's mount, focus and layout, no scan of the entries, and a store
-  with a move still pays the move line per keystroke.
+  §3.9). With the window of 100 it keeps, the figures are the session gate's of 2026-11-26 (00:03 to
+  00:10 UTC, a quiet machine): `--repeat-each=3 --workers=1` after a forced web build, main 11e29df42
+  run before and after the two branches below. One worker matters: with the config's default workers
+  the three repeats ran at once on the throttled CPU and inflated the figures of 2026-11-25. Input /
+  longest task at 6×, main's two runs: opening a row 64 to 80 / 0 to 64 ms, Show older 16 to 32 / 62
+  to 68 ms, Show newer 16 to 24 / 55 to 86 ms, choosing the oldest year 48 to 56 / 0 ms and one
+  keystroke in the amount 32 / 0 ms, under the rule; Show all 16 to 24 / 273 to 300 ms, Edit entry
+  184 to 224 / 156 to 192 ms and opening Go to year 24 to 32 / 113 to 160 ms, over it; the heading
+  after about 1.8 to 1.9 s (longest task before it 381 to 412 ms), and after a reload with Show all
+  stored a longest task to the heading of 370 to 425 ms. Show all now writes `logShowAll` alone
+  (`domain.writePrefs`, ADR-0019 Readings of 2026-11-25; #533), so the snapshot keeps its entries and
+  the Log its rows: 16 / 0 to 53 ms, under the rule. `LogRow` now compiles under the React Compiler
+  (`log-row.compile.test.ts`), and the sheet and the form scan what is held only where they use it (a
+  new entry's kinds, a sale's rows; #532): Edit entry 144 to 160 / 116 to 129 ms, still over. The
+  spec also records, measured on #533's build: Delete entry 32 / 288 to 297 ms, the toast's Undo 56
+  to 64 / 279 to 305 ms, Save with a changed amount 40 to 48 / 278 to 363 ms, and one keystroke in the
+  amount with a live move stored 416 to 440 / 408 to 428 ms. A window of 48 was tried and not kept
+  (2026-11-25, the repeats at once): Show all's longest task and opening Go to year measured as at
+  100, and only the moves shortened (0 to 52 ms), while a Log of 49 to 100 transactions would page.
+  Over the rule still (planned: M2): Edit entry, a profile of which finds the sheet's mount, focus
+  and layout, no scan of the entries; opening Go to year (suspected: the Base UI Select popup with
+  about 28 years); Delete entry, the Undo and Save, by their longest task (suspected: the writes'
+  `transactions()` over every entry); one keystroke with a live move stored, which runs the move line
+  on every keystroke.
 - An upstream outage may fail the production check. It measures what production serves: a 502 that
   reaches the browser is a fault people see, and `errors-in-console` names it. Since Portfolio's
   layout holds on that path (`lighthouse-vercel` run 40917845879 on a20d28d9, 2026-10-29, measured
