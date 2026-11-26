@@ -281,7 +281,9 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   (the review gives way to the next box on the same visit), so the focus moves to that
   same heading by the script focus move above, once the commit has removed the banner, since on a
   phone the heading is above the window once the foot has been scrolled to; a failed `Later` keeps the
-  review and the focus on its button, and the toast says so.
+  review and the focus on its button, and the toast says so. The Log's `Hide this line` under its
+  title takes the set-aside line away, so the focus moves to the Log's `h1` by the script focus move
+  above; a failed write keeps the line and the focus on its button, and the toast says so.
   `Mark as reviewed` on `/plan/review` gives way to its result line (`tabindex="-1"`), which takes the
   focus by the script focus move above once the commit has replaced the button; a failed write keeps
   the button and the focus on it, and the toast says so. A mark refused because another tab replaced
@@ -420,6 +422,12 @@ assistive technology reads the same table; empty cells lose their padding. The
 charts draw the core's geometry as SVG attributes (positions, path data) and keep text in HTML: the
 CSP allows no inline style attributes (`docs/SECURITY.md` §4), and stretched SVG text would distort.
 The strip tells its phases apart by weight and by the labels under it; the accent marks today only.
+
+The set-aside lines (`docs/CONTENT-STYLE.md` §3 Set aside) are plain `ink-2` text with no border
+directly under the `h1` of Today (with a plan) and of the Log, never at Today's foot: they say what a
+screen leaves out, so they stand before it. The Log's carries a secondary `Hide this line` button under
+the text; Today's has only its link to the Log, so the hide stays out of Today's code. Settings counts
+the set-aside rows in Currency & data's data section, after the export lines.
 
 Today's foot, under the strip, holds one thing at most: the banner `bannerFor` picks (the red-day
 banner, the rule-change notice, the annual review or the Backup needed banner, each a bordered box), or, when `docs/CONTENT-STYLE.md` §3 shows it

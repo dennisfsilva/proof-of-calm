@@ -282,6 +282,18 @@ The decision stands; these are the choices its text left open, made while implem
   next load. `domain.writePrefs` runs in the write queue, so a preference written before it is kept, and
   replaces only the snapshot's preferences. The forward, rollback and whole-record tests are in
   `packages/app/src/lib/adapters/idb-store.test.ts`.
+- **2026-11-26, the set-aside rows and the still-missing rule** (adds to Quarantine, "the one-line
+  notice"). The snapshot also holds `setAside`, the live plan and entry rows of the list by their key
+  with the time each was set aside (`setAsideRows` in `packages/app/src/lib/adapters/idb/quarantine.ts`);
+  tombstones, the prefs row and a list kept whole hold nothing a screen would miss. Additive: no row,
+  schema or migration change, and the list is read and written as before; `quarantined` still counts
+  it. Today and the Log show a line under their titles while a set-aside entry's id is in no snapshot
+  entry (`useMissingEntries`), so an import with Add missing entries only or Replace ends it; the Log's
+  Hide this line writes `set-aside:<n>` into `dismissedBanners`, n the set-aside entry rows, so one more
+  shows it again. Settings counts the list under Your data until Delete everything; a set-aside plan row
+  changes NoPlan's words and the Log's empty text. The read tests: the kinds in
+  `packages/app/src/lib/adapters/idb/quarantine.test.ts`, forward and rollback in
+  `packages/app/src/lib/adapters/idb-store.set-aside.test.ts`.
 
 ## Disagreement
 

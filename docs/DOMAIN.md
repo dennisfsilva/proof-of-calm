@@ -249,7 +249,8 @@ the Log offers Edit, which opens the move form on it, and Delete (§3.9).
 ### 2.3 Device-local preferences (not synced, not part of the plan)
 
 `theme`, `chartRange` (`7d | 30d | 90d | 1y | all`), `lastBackupAt`, `changedAt`, `dismissedBanners`
-(banner keys such as `red-day:<episode start>`, §3.11), `reviewedAt` (annual review, §3.12), `logShowAll`,
+(banner keys such as `red-day:<episode start>`, §3.11, and `set-aside:<n>`, the Log's Hide this line while
+n entry rows are set aside as unreadable, ADR-0019 Readings 2026-11-26), `reviewedAt` (annual review, §3.12), `logShowAll`,
 `motion` (`system | reduce`, the in-app reduced motion of `docs/DESIGN.md` §6; added on 2026-10-20 as an
 additive field with the default `system`, no migration number: a record written before it reads as
 `system`, and the build before it ignores the field on read and, since the fix of 2026-10-20, keeps it
@@ -881,6 +882,9 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   `entries: duplicate-id`); files at versions 2 to 6 import, the plan of a version 2 to 5 file read through `upgradePlan` (§2.1):
   a version 2 file's with no acknowledgement, a version 3 to 5 file's v3 plan in `en` when one is recorded; `applyImport(current, file, mode, now)` then does "Replace everything"
   or "Add missing entries only" (by `id`; the file's skips and pauses are not merged), as the prototype.
+  Either mode is also the way back for an entry row this device set aside as unreadable (ADR-0019
+  Readings 2026-11-26): the file's entry under the same id is stored again, and the lines Today and the Log
+  show for it end; the set-aside copy stays in `meta.corrupt` until Delete everything.
   Imported rows are stamped `updatedAt = now` (ADR-0019), or one millisecond after the row stored here
   (its `updatedAt`, and its `deletedAt` for a tombstone) when `now` is not later, so that a clock behind
   another tab's never moves a row's stamp back and the write is strictly later, so it wins in sync
