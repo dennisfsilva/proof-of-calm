@@ -3,8 +3,10 @@
 // snapshot so the screens can say so in one line. Only "Delete everything" clears the list.
 import { type Instant, InstantSchema } from '@proofofcalm/core';
 import * as z from 'zod/mini';
+import type { SetAsideRow, Snapshot } from '../../ports';
 import { issueCodes } from '../checks';
 import { STORE_NAMES, type StoreName } from './database';
+import { storedLive } from './rows';
 
 export const CORRUPT_KEY = 'corrupt';
 
@@ -34,4 +36,17 @@ export function quarantineList(raw: unknown, now: Instant): { readonly list: Qua
   if (parsed.success) return { list: parsed.data, fixed: false };
   const record = quarantineRecord('meta', CORRUPT_KEY, raw, issueCodes(parsed.error.issues, null), now);
   return { list: [record], fixed: true };
+}
+
+/**
+ * The plan and entry rows of the list that were live when set aside (`storedLive`), by their string key with
+ * the time, in the list's order: what the screens' lines read. Tombstones, the prefs row and a list kept whole
+ * hold nothing a screen would miss. The list itself is read and written as before (ADR-0019 Readings, 2026-11-26).
+ */
+export function setAsideRows(list: readonly Quarantined[]): Snapshot['setAside'] {
+  const rows = (store: 'plans' | 'entries'): SetAsideRow[] =>
+    list.flatMap((item) =>
+      item.store === store && typeof item.id === 'string' && storedLive(item.raw) ? [{ id: item.id, at: item.at }] : [],
+    );
+  return { plans: rows('plans'), entries: rows('entries') };
 }

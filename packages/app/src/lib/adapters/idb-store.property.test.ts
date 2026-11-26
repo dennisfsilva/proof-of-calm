@@ -238,7 +238,15 @@ const pricesArb = fc.option(
 
 const snapshotArb = fc
   .record({ plan: fc.option(planArb), entries: entriesArb, prefs: prefsArb, prices: pricesArb })
-  .map((rows): Snapshot => ({ ...rows, quarantined: 0, newer: { plans: 0, entries: 0 }, newerTombstones: 0 }));
+  .map(
+    (rows): Snapshot => ({
+      ...rows,
+      quarantined: 0,
+      setAside: { plans: [], entries: [] },
+      newer: { plans: 0, entries: 0 },
+      newerTombstones: 0,
+    }),
+  );
 
 /** A prefs write keeps the stored changedAt; the stamp sets it, as a plan or entries write does. */
 const stampOf = (prefs: Prefs): { changedAt?: Instant } =>
@@ -339,7 +347,14 @@ describe('idb plan store properties (ADR-0019)', () => {
     await fc.assert(
       fc.asyncProperty(snapshotArb, (snapshot) =>
         withStore(async (store) => {
-          const { prices, quarantined: _none, newer: _unread, newerTombstones: _gone, ...rows } = snapshot;
+          const {
+            prices,
+            quarantined: _none,
+            setAside: _aside,
+            newer: _unread,
+            newerTombstones: _gone,
+            ...rows
+          } = snapshot;
           await store.write({ ...rows, ...stampOf(rows.prefs), ...(prices === null ? {} : { prices }) });
           expect(await store.load()).toStrictEqual(snapshot);
         }),

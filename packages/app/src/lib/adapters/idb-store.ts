@@ -29,7 +29,7 @@ import {
   touches,
 } from './idb/database';
 import { idbHistoryCache, sweepHistory } from './idb/history';
-import { CORRUPT_KEY, type Quarantined, quarantineList, quarantineRecord } from './idb/quarantine';
+import { CORRUPT_KEY, type Quarantined, quarantineList, quarantineRecord, setAsideRows } from './idb/quarantine';
 import {
   entryRow,
   isLaterVersion,
@@ -67,7 +67,7 @@ export type IdbPlanStore = PlanStore & {
 
 type Tx = IDBPTransaction<StorageSchema, StoreName[], 'readwrite'>;
 type Store<N extends StoreName> = IDBPObjectStore<StorageSchema, StoreName[], N, 'readwrite'>;
-type SetAside = { readonly store: 'plans' | 'entries' | 'prefs'; readonly key: string };
+type Rejected = { readonly store: 'plans' | 'entries' | 'prefs'; readonly key: string };
 
 /** One store's rows as a wipe read them: keys and values in the same (key) order. */
 type Taken = { readonly name: StoreName; readonly keys: readonly IDBValidKey[]; readonly values: readonly unknown[] };
@@ -191,10 +191,10 @@ export function idbPlanStore(options: IdbPlanStoreOptions): IdbPlanStore {
       tx.objectStore('prices').get(PRICES_KEY),
       tx.objectStore('meta').get(CORRUPT_KEY),
     ]);
-    const setAside: SetAside[] = [];
+    const rejected: Rejected[] = [];
     const found: Quarantined[] = [];
-    const reject = (store: SetAside['store'], key: string, raw: unknown, issues: readonly string[]) => {
-      setAside.push({ store, key });
+    const reject = (store: Rejected['store'], key: string, raw: unknown, issues: readonly string[]) => {
+      rejected.push({ store, key });
       found.push(quarantineRecord(store, key, raw, issues, now));
     };
     /**
@@ -238,14 +238,16 @@ export function idbPlanStore(options: IdbPlanStoreOptions): IdbPlanStore {
     const expiredPrices = pricesRaw !== undefined && prices === null;
 
     const { list, fixed } = quarantineList(corruptRaw, now);
+    const kept = [...list, ...found];
     await Promise.all([
-      ...setAside.map(({ store, key }) => tx.objectStore(store).delete(key)),
-      ...(found.length > 0 || fixed ? [tx.objectStore('meta').put([...list, ...found], CORRUPT_KEY)] : []),
+      ...rejected.map(({ store, key }) => tx.objectStore(store).delete(key)),
+      ...(found.length > 0 || fixed ? [tx.objectStore('meta').put(kept, CORRUPT_KEY)] : []),
       ...(expiredPrices ? [tx.objectStore('prices').delete(PRICES_KEY)] : []),
       sweepHistory(tx.objectStore('history'), now),
     ]);
     const plan = newest(livePlans, (item) => item.row)?.plan ?? null;
-    return { plan, entries: loaded, prefs, prices, quarantined: list.length + found.length, newer, newerTombstones };
+    const setAside = setAsideRows(kept);
+    return { plan, entries: loaded, prefs, prices, quarantined: kept.length, setAside, newer, newerTombstones };
   }
 
   return {

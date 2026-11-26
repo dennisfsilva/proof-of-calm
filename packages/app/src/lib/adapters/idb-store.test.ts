@@ -588,7 +588,13 @@ describe('idb plan store: quarantine (ADR-0019)', () => {
     await put('entries', noPayload);
 
     const snapshot = await open().load();
-    expect(snapshot).toStrictEqual({ ...EMPTY_SNAPSHOT, entries: [kept], prefs, quarantined: 3 });
+    expect(snapshot).toStrictEqual({
+      ...EMPTY_SNAPSHOT,
+      entries: [kept],
+      prefs,
+      quarantined: 3,
+      setAside: { plans: [{ id: plan.id, at: NOW }], entries: [floating, missing].map(({ id }) => ({ id, at: NOW })) },
+    });
     const [corrupt] = (await raw('meta')).filter(Array.isArray) as Record<string, unknown>[][];
     expect(corrupt).toEqual([
       { store: 'plans', id: plan.id, raw: badPlan, issues: ['payload.split: split-sum'], at: NOW },
@@ -760,7 +766,11 @@ describe('idb plan store: quarantine (ADR-0019)', () => {
     await store.write({ entries: [entry] });
     const [row] = (await raw('entries')) as Record<string, unknown>[];
     await put('entries', { ...row, payload: other });
-    expect(await store.load()).toEqual({ ...EMPTY_SNAPSHOT, quarantined: 1 });
+    expect(await store.load()).toEqual({
+      ...EMPTY_SNAPSHOT,
+      quarantined: 1,
+      setAside: { plans: [], entries: [{ id: entry.id, at: NOW }] },
+    });
     expect(await raw('meta')).toContainEqual([
       expect.objectContaining({ id: entry.id, issues: ['payload.id: not the row id'] }),
     ]);
