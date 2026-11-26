@@ -87,5 +87,5 @@ export function KeptQuestion({ question, format, onAnswer, invalid }: Props) {
 export function SavedEntriesLine({ count, format }: { readonly count: number; readonly format: Formatters }) {
   const t = useTranslations('onboarding.summary.kept');
   if (count === 0) return null;
-  return <p className="text-14 text-ink-2">{t('stay', { count, figure: figureOf(format, count) })}</p>;
+  return <p className="text-16 text-ink-2">{t('stay', { count, figure: figureOf(format, count) })}</p>;
 }
