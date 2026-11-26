@@ -67,7 +67,13 @@
   "empty": {
     "noPlan": "Ainda sem movimentos. Crie um plano ou importe um ficheiro.",
     "firstBuy": "Ainda sem movimentos. O primeiro dia de compra é a {date}.",
-    "firstBuyPast": "Ainda sem movimentos. O primeiro dia de compra foi a {date}."
+    "firstBuyPast": "Ainda sem movimentos. O primeiro dia de compra foi a {date}.",
+    "planSetAside": "Não foi possível ler o plano, por isso nenhum movimento é listado. Os movimentos continuam neste dispositivo."
+  },
+  "setAside": {
+    "line": "{count, plural, one {Não foi possível ler {figure} movimento guardado, por isso não está nesta lista. Para o recuperar, importe nas <settings>Definições</settings> uma cópia JSON exportada antes de {date}, com «Adicionar só o que falta», ou registe-o de novo.} other {Não foi possível ler {figure} movimentos guardados, por isso não estão nesta lista. Para os recuperar, importe nas <settings>Definições</settings> uma cópia JSON exportada antes de {date}, com «Adicionar só o que falta», ou registe-os de novo.}}",
+    "hide": "Ocultar esta linha",
+    "failed": "Não foi possível ocultar a linha. Tente de novo."
   },
   "form": {
     "movesShort": "Depois desta alteração, a transferência para {to} de {date} envia mais {short} do que o Registo mostra fora de {to} nesse dia. Verifique a data e os locais dessa transferência no Registo depois de guardar.",

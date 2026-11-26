@@ -79,6 +79,7 @@ describe('a control named inside a pt-PT sentence', () => {
         'settings.country.question.country',
         'settings.country.payCurrency.button',
         'settings.data.import.replace',
+        'settings.data.import.addMissing',
         'settings.data.confirm.replace',
         'today.action.asPlanned',
       ]),
@@ -167,11 +168,12 @@ describe('a control named inside a German sentence', () => {
     expect(showsBare(sentence, title, ['„', '“'])).toBe(false);
   });
 
-  // German Portfolio names the Log's control in a sentence, so the check reads it.
-  it('finds the control German Portfolio names', () => {
+  // German Portfolio names the Log's control in a sentence, and the Log's set-aside line the import's option,
+  // so the check reads both.
+  it('finds the controls German Portfolio and Log sentences name', () => {
     const inPortfolioOrLog = german.filter(({ key }) => /^(?:portfolio|log)\./u.test(key));
     expect(new Set(inPortfolioOrLog.map(({ labelKey, key }) => `${labelKey} in ${key}`))).toEqual(
-      new Set(['log.recordHeld in portfolio.notBought']),
+      new Set(['log.recordHeld in portfolio.notBought', 'settings.data.import.addMissing in log.setAside.line']),
     );
   });
 

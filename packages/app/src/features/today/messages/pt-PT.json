@@ -2,8 +2,11 @@
   "title": "Hoje",
   "empty": {
     "title": "Ainda sem plano",
-    "noPlan": "<setup>Crie um plano</setup> ou <import>importe um ficheiro</import>."
+    "noPlan": "<setup>Crie um plano</setup> ou <import>importe um ficheiro</import>.",
+    "setAsideTitle": "Não foi possível ler o plano",
+    "setAside": "Continua neste dispositivo tal como foi guardado. <import>Importe uma cópia JSON</import> para o recuperar, ou <setup>crie um plano</setup>."
   },
+  "setAside": "{count, plural, one {Não foi possível ler {figure} movimento guardado, por isso não aparece em Hoje nem no Portefólio. O <log>Registo</log> diz como o recuperar.} other {Não foi possível ler {figure} movimentos guardados, por isso não aparecem em Hoje nem no Portefólio. O <log>Registo</log> diz como os recuperar.}}",
   "action": {
     "late": "O mês de {month} continua em aberto",
     "lateBody": "O dia de compra foi a {date}, há {days, plural, one {{figure} dia} other {{figure} dias}}. Registe a compra ou salte o mês.",
