@@ -970,14 +970,14 @@
         "tooManyInFile": "This export from the DCA plan page holds {file} purchases, more than the {max} entries a plan holds, so nothing was imported. Delete purchases there, export again, then import the new file.",
         "tooLarge": "This file is larger than {max} MB, so it was not read. If it is an exchange's export, export a shorter period there, then choose the new file.",
         "newerRows": "A newer version of {product} saved or deleted entries on this device, so nothing was imported. Reload the page, then import again.",
-        "changed": "The plan or entries on this device changed in another tab, so nothing was imported. Choose the file again.",
+        "changed": "The plan or entries on this device changed in another browser tab, so nothing was imported. Choose the file again.",
         "invalidEntries": "{count, plural, one {{figure} entry} other {{figure} entries}} in this import cannot be stored, so nothing was imported. Export a new backup from {product} on the device that made it, then import the new file.",
         "invalidEntriesPasted": "{count, plural, one {{figure} entry} other {{figure} entries}} in the pasted text cannot be stored, so nothing was imported. Export a new backup from {product} on the device that made it, then paste the new text."
       },
       "kept": {
         "title": "{count, plural, one {Show {figure} saved entry in {file}?} other {Show {figure} saved entries in {file}?}}",
-        "known": "{count, plural, one {It holds an amount or a fee in {kept}, the currency of your plan that could not be read. This file's plan is in {file}. A plan holds one currency, and nothing is converted. To keep it in {kept}, import a backup in {kept} or set up a plan.} other {They hold amounts or fees in {kept}, the currency of your plan that could not be read. This file's plan is in {file}. A plan holds one currency, and nothing is converted. To keep them in {kept}, import a backup in {kept} or set up a plan.}}",
-        "unknown": "{count, plural, one {Its currency could not be read. This file's plan is in {file}. A plan holds one currency, and nothing is converted. To choose its currency, set up a plan.} other {Their currency could not be read. This file's plan is in {file}. A plan holds one currency, and nothing is converted. To choose their currency, set up a plan.}}",
+        "known": "{count, plural, one {It was saved with a plan that could not be read. That plan was in {kept}. This file's plan is in {file}. A plan holds one currency, and nothing is converted. To keep it in {kept}, import a backup in {kept} or set up a plan.} other {They were saved with a plan that could not be read. That plan was in {kept}. This file's plan is in {file}. A plan holds one currency, and nothing is converted. To keep them in {kept}, import a backup in {kept} or set up a plan.}}",
+        "unknown": "{count, plural, one {The currency of the plan it was saved with could not be read. This file's plan is in {file}. A plan holds one currency, and nothing is converted. To choose its currency, set up a plan.} other {The currency of the plan they were saved with could not be read. This file's plan is in {file}. A plan holds one currency, and nothing is converted. To choose their currency, set up a plan.}}",
         "cancel": "Do not import",
         "import": "Import in {file}"
       },
