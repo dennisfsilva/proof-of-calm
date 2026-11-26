@@ -147,7 +147,7 @@ function PortfolioNumber({ plan }: { plan: Plan }) {
   const priced = value.value !== null && prices !== null;
   return (
     <dl className="flex flex-col">
-      <dt className="text-13 text-ink-2">{t(priced ? 'portfolio.value' : 'portfolio.invested')}</dt>
+      <dt className="text-14 text-ink-2">{t(priced ? 'portfolio.value' : 'portfolio.invested')}</dt>
       <dd className="nums font-semibold text-40">{f.money(value.value ?? value.invested, plan.payCurrency)}</dd>
       {/* One line always, empty until priced: the reserved height (no layout shift). */}
       <dd className="min-h-[1lh] text-14 text-ink-2">
