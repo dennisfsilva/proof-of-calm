@@ -487,15 +487,19 @@ the form), so it waits for a screen that does. Notes, and the values this docume
   emptied, so it holds no chart), over the value chart's range, its line in the coin's colour as in the
   allocation bar, and only while the value chart draws or loads. While the closes load, the row's frame
   stands unseen with its legend, table toggle and credit, so no label offers what is not there; with
-  the closes unavailable, the frame's top holds the value chart's line, seen and not announced (the
-  chart's own slot speaks it), whether the row opened before or after the failure, since the chart's
+  the closes unavailable, the frame's top holds the value chart's line, the same `ink-2` line at the
+  same size in light and dark, seen and not announced (the chart's own slot speaks it), whether the
+  row opened before or after the failure, since the chart's
   line is then off screen (`docs/CONTENT-STYLE.md` rule 8). While that chart shows a line instead
   (no purchase yet, the closes unavailable, too few closes, a range with nothing to draw, closes that
   end before the first entry, nothing held), an open row draws nothing: it would be the path's first
   historic view without the past-performance line (`docs/LEGAL.md` §4). With the closes unavailable,
   the row keeps its empty frame's place, unseen, as the value chart keeps its own. Pressing Portfolio's
   own tab then reads the closes again, as the value chart's line says; the same press while they load
-  or once they are read reads nothing. A coin with closes but fewer
+  or once they are read reads nothing. A row opened while the closes load gives up its unseen frame
+  when the read ends in another state with nothing to draw, so the rows below it move once: design
+  check DC-B measured that shift at CLS 0.002 to 0.071 and kept it over a memory per row of whether
+  its frame was shown (#545's comment 7183874702, 2026-11-26). A coin with closes but fewer
   than two inside the range shows no chart and one `ink-2` line of its own in its place, naming the coin
   and the range's dates (`docs/CONTENT-STYLE.md` §3); a coin with no closes at all shows nothing, and the
   value chart's line says why. The allocation bar shows only while something is held: a bar weighed by
