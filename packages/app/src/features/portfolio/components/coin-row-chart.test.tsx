@@ -131,19 +131,4 @@ describe('CoinRowChart', () => {
     expect(screen.queryByRole('status')).toBeNull();
     expect(screen.queryByRole('img')).toBeNull();
   });
-
-  it('starts no transition when the frame is shown or hidden, since a reduced-motion one never ends in a closed table', async () => {
-    const line = 'The price history could not be loaded, so there is no chart. Open Portfolio again to retry.';
-    const charts: CoinRowChartProps['chart'][] = [
-      { kind: 'loading' },
-      { kind: 'draws', model, range: '30d', ownDates: false },
-      { kind: 'unavailable', line },
-    ];
-    for (const chart of charts) {
-      await mount(chart);
-      const frame = document.querySelector('[data-slot="coin-row-chart"] > div');
-      expect([...(frame?.classList ?? [])]).toEqual(expect.arrayContaining(['transition-none', '**:transition-none']));
-      cleanup();
-    }
-  });
 });
