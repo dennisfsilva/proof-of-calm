@@ -69,7 +69,7 @@ describe('idb plan store: the set-aside rows (ADR-0019 Readings, 2026-11-26)', (
     expect(snapshot.entries).toStrictEqual([kept]);
     expect(snapshot.quarantined).toBe(2);
     expect(snapshot.setAside).toStrictEqual({
-      plans: [{ id: plan.id, at: NOW }],
+      plans: [{ id: plan.id, at: NOW, currency: plan.payCurrency }],
       entries: [{ id: broken.id, at: NOW }],
     });
   });
@@ -108,7 +108,7 @@ describe('idb plan store: the set-aside rows (ADR-0019 Readings, 2026-11-26)', (
     const snapshot = await open().load();
     expect(snapshot.quarantined).toBe(5);
     expect(snapshot.setAside).toStrictEqual({
-      plans: [{ id: 'p-live', at: EARLIER }],
+      plans: [{ id: 'p-live', at: EARLIER, currency: null }],
       entries: [{ id: 'e-live', at: EARLIER }],
     });
     expect(snapshot.entries).toStrictEqual([entry]);
@@ -125,6 +125,40 @@ describe('idb plan store: the set-aside rows (ADR-0019 Readings, 2026-11-26)', (
     const previous = await open({ rowVersions: PREVIOUS_BUILD }).load();
     expect(previous.quarantined).toBe(first.quarantined);
     expect(previous.setAside).toStrictEqual(first.setAside);
+    expect(await dump()).toBe(before);
+  });
+});
+
+describe('idb plan store: the currency of a set-aside plan row (ADR-0019 Readings, 2026-11-26)', () => {
+  // What the previous build stored under meta's "corrupt" key for a plan row whose deviceId broke: the row as
+  // read, its payload naming EUR. The snapshot reads the currency from it; nothing stored gains a field.
+  const list = [
+    {
+      store: 'plans',
+      id: 'p-eur',
+      raw: { id: 'p-eur', deviceId: 7, payload: { payCurrency: 'EUR', split: { BTC: '70', ETH: '20' } } },
+      issues: ['deviceId: invalid_type'],
+      at: EARLIER,
+    },
+  ];
+  // The entries saved with that plan stay live beside the list.
+  beforeEach(() => open().write({ entries: [anEntry()] }));
+
+  it('forward: a stored set-aside plan row with payCurrency EUR loads with currency EUR', async () => {
+    await put('meta', list, 'corrupt');
+    const snapshot = await open().load();
+    expect(snapshot.plan).toBeNull();
+    expect(snapshot.setAside.plans).toStrictEqual([{ id: 'p-eur', at: EARLIER, currency: 'EUR' }]);
+  });
+
+  it('rollback: the stored list is byte-equal after a load, so the previous version reads it as before', async () => {
+    await put('meta', list, 'corrupt');
+    const before = await dump();
+    await open().load();
+    expect(await dump()).toBe(before);
+    expect(await withDb((db) => db.get('meta', 'corrupt'))).toStrictEqual(list);
+    const previous = await open({ rowVersions: PREVIOUS_BUILD }).load();
+    expect(previous.setAside.plans).toStrictEqual([{ id: 'p-eur', at: EARLIER, currency: 'EUR' }]);
     expect(await dump()).toBe(before);
   });
 });
