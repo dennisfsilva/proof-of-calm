@@ -621,8 +621,12 @@ no coin: four narrow images and one wide, in `apps/web/public/screenshots/`, nam
   2340 px) unless no gap between blocks falls there; any other height keeps the longer side at most
   2.3 times the shorter, Chrome's limit for the richer install sheet. The set: the holding-date page
   1080 × 2340, Portugal's country page 1080 × 2469, Today 1080 × 2340, the Learn index
-  1080 × 2448, and the holding-date page wide 1280 × 720, ending after Portugal's result and the
+  1080 × 2169, and the holding-date page wide 1280 × 720, ending after Portugal's result and the
   line about the Log.
+- The Learn index's frame ends in the gap before the Countries row, after "When the market drops":
+  in the container that row's description wraps to one more line, so it ends past 828 CSS pixels,
+  more than a narrow frame within 2.3 : 1 holds. The edge sits about 8 CSS pixels from each side of
+  the gap (the capture spec records the measured positions), since the container's fonts run taller.
 - No line is cut at an edge: the frame's top and bottom fall in gaps between blocks, and the spec
   fails on any text line, field, button or image that crosses either edge, and on anything a frame
   must show that is not wholly inside it.
