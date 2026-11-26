@@ -76,8 +76,8 @@ describe('DataSection: the kept entries before an import in another currency', (
   it('asks before a GBP backup is imported over entries kept in EUR, with Do not import focused', async () => {
     const { dialog, services } = await ask();
     expect(within(dialog).getByRole('heading').textContent).toBe(`Show ${question.count} saved entries in GBP?`);
-    expect(within(dialog).getByText(/^They hold amounts or fees in EUR/).textContent).toBe(
-      "They hold amounts or fees in EUR, the currency of your plan that could not be read. This file's plan is in GBP. " +
+    expect(within(dialog).getByText(/^They were saved with a plan that could not be read/).textContent).toBe(
+      "They were saved with a plan that could not be read. That plan was in EUR. This file's plan is in GBP. " +
         'A plan holds one currency, and nothing is converted. To keep them in EUR, import a backup in EUR or set up a plan.',
     );
     await waitFor(() => expect(document.activeElement?.textContent).toBe('Do not import'));
@@ -93,9 +93,9 @@ describe('DataSection: the kept entries before an import in another currency', (
     await choose(gbp);
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Import this backup' })));
     const dialog = await screen.findByRole('dialog');
-    expect(within(dialog).getByText(/^Their currency could not be read/).textContent).toBe(
-      "Their currency could not be read. This file's plan is in GBP. A plan holds one currency, and nothing is " +
-        'converted. To choose their currency, set up a plan.',
+    expect(within(dialog).getByText(/^The currency of the plan they were saved with/).textContent).toBe(
+      "The currency of the plan they were saved with could not be read. This file's plan is in GBP. A plan holds " +
+        'one currency, and nothing is converted. To choose their currency, set up a plan.',
     );
   });
 
@@ -142,7 +142,7 @@ describe('DataSection: the kept entries before an import in another currency', (
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     const alert = screen.getByRole('alert');
     expect(alert.textContent).toBe(
-      'The plan or entries on this device changed in another tab, so nothing was imported. Choose the file again.',
+      'The plan or entries on this device changed in another browser tab, so nothing was imported. Choose the file again.',
     );
     await waitFor(() => expect(document.activeElement).toBe(alert));
     expect(live(services).plan?.payCurrency).toBe('EUR');

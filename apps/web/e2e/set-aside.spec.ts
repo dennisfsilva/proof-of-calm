@@ -244,9 +244,7 @@ test('a GBP backup over a readable EUR row asks first, and Do not import keeps t
   await opener.click();
   const dialog = page.getByRole('dialog');
   await expect(dialog).toHaveAccessibleName(/^Show \d+ saved entries in GBP\?$/);
-  await expect(dialog).toContainText(
-    'They hold amounts or fees in EUR, the currency of your plan that could not be read.',
-  );
+  await expect(dialog).toContainText('They were saved with a plan that could not be read. That plan was in EUR.');
   await expect(dialog.getByRole('button', { name: 'Do not import' })).toBeFocused();
   await dialog.getByRole('button', { name: 'Do not import' }).click();
   await expect(dialog).toHaveCount(0);
