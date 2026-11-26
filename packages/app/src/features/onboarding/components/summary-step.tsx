@@ -1,12 +1,13 @@
 import type { ContentLanguage } from '@proofofcalm/content';
-import { isPositive, type Percent, type Plan } from '@proofofcalm/core';
-import type { ReactNode } from 'react';
+import { type CurrencyCode, isPositive, type KeptCurrencyQuestion, type Percent, type Plan } from '@proofofcalm/core';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { useLocale, useTranslations } from 'use-intl';
 import { useCountryArgs } from '../../../lib/countries';
 import type { Formatters } from '../../../lib/format';
 import { textLang } from '../../../lib/i18n';
 import { CountryDateLine, type HoldingCountry, holdingRuleText } from '../../plan';
 import type { SetupDraft } from '../model/draft';
+import { KeptQuestion, paidIn, SavedEntriesLine } from './kept-question';
 import { StartRow } from './start-row';
 
 // The last step of both paths: the plan as `checkPlan` reads it, one row per choice, then the one
@@ -27,21 +28,41 @@ export type SummaryStepProps = {
   readonly format: Formatters;
   /** The plan is being written: Start waits for it. */
   readonly pending?: boolean | undefined;
+  /** What to ask about the entries kept with no plan (ADR-0053), or null when nothing is asked. */
+  readonly question?: KeptCurrencyQuestion | null | undefined;
+  /** The live entries saved on this device: with nothing asked, one line says they stay. */
+  readonly savedEntries?: number | undefined;
   onBack(): void;
-  onStart(): void;
+  /** Takes the currency the plan is written in: the answer, or the plan's own when nothing is asked. */
+  onStart(paid: CurrencyCode): void;
 };
 
 export function SummaryStep({
-  plan,
+  plan: built,
   holding,
   templateName,
   templateLanguage,
   reminder,
   format,
   pending,
+  question = null,
+  savedEntries = 0,
   onBack,
   onStart,
 }: SummaryStepProps) {
+  const [answer, setAnswer] = useState<CurrencyCode | null>(null);
+  const [refused, setRefused] = useState(0);
+  const section = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (refused === 0) return;
+    // An invalid group is no tab stop itself: its own stop, a radio, takes the focus (as country-section.tsx).
+    const invalid = section.current?.querySelector<HTMLElement>('[aria-invalid="true"]');
+    (invalid?.querySelector<HTMLElement>('[tabindex="0"]') ?? invalid)?.focus();
+  }, [refused]);
+  const paid = question === null ? built.payCurrency : answer;
+  // The rows show the plan Start writes: in the answered currency once one is chosen.
+  const plan = (paid === null ? null : paidIn(built, paid)) ?? built;
+  const start = () => (paid === null ? setRefused((count) => count + 1) : onStart(paid));
   const t = useTranslations('onboarding');
   const rule = useTranslations('plan.holdingRule');
   const forms = useCountryArgs();
@@ -112,7 +133,7 @@ export function SummaryStep({
     [t('summary.reminder'), t('summary.reminderValue', { choice: reminder ?? 'later' }), false],
   ];
   return (
-    <section className="flex flex-col gap-stack-md">
+    <section ref={section} className="flex flex-col gap-stack-md">
       <h2 tabIndex={-1} className="font-semibold text-20 tracking-heading">
         {t('summary.heading')}
       </h2>
@@ -129,7 +150,18 @@ export function SummaryStep({
             </div>
           ))}
       </dl>
-      <StartRow onBack={onBack} onStart={onStart} pending={pending} />
+      {question === null ? (
+        <SavedEntriesLine count={savedEntries} format={format} />
+      ) : (
+        <KeptQuestion
+          key={`${question.kept}-${question.next}`}
+          question={question}
+          format={format}
+          onAnswer={setAnswer}
+          invalid={refused > 0 && answer === null}
+        />
+      )}
+      <StartRow onBack={onBack} onStart={start} pending={pending} />
     </section>
   );
 }

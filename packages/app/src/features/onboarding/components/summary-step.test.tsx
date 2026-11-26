@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { Coin, Money, Plan } from '@proofofcalm/core';
+import type { CalendarDate, Coin, KeptCurrencyQuestion, Money, Plan } from '@proofofcalm/core';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createFormatters } from '../../../lib/format';
@@ -246,5 +246,90 @@ describe('SummaryStep on a pt-PT screen: content text keeps its own language (AD
       holding: { ...GENERIC, unreviewed: { ...unreviewed, text: 'Não se aplica isenção.', language: 'pt-PT' } },
     });
     expect(langOf('Não se aplica isenção.')).toBeNull();
+  });
+});
+
+// Entries kept with no plan beside a plan in GBP (ADR-0053 Readings, 2026-11-26): the summary asks what they were paid in.
+describe('SummaryStep with saved entries', () => {
+  const inGbp = (): Plan => ({ ...fixturePlan(), payCurrency: 'GBP', displayCurrency: 'GBP' });
+  const asked = (question: Partial<KeptCurrencyQuestion> = {}): KeptCurrencyQuestion => ({
+    kept: 'EUR',
+    next: 'GBP',
+    count: 14,
+    first: '2026-01-05' as CalendarDate,
+    last: '2026-10-05' as CalendarDate,
+    ...question,
+  });
+  const legend = () =>
+    document.getElementById(screen.getByRole('radiogroup').getAttribute('aria-labelledby') ?? '')?.textContent;
+  const cards = () => screen.getAllByRole('radio').map((card) => card.textContent);
+
+  it('asks with the kept currency first and nothing chosen', () => {
+    mount({ plan: inGbp(), question: asked(), savedEntries: 14 });
+    expect(legend()).toBe(
+      '14 saved entries, from 5 Jan 2026 to 5 Oct 2026, hold amounts or fees. Which currency were they paid in?',
+    );
+    expect(screen.getByText('They were saved with your plan that could not be read, which was in EUR.')).toBeTruthy();
+    expect(cards()).toEqual([
+      'Paid in EURThe plan is set up in EUR instead of GBP, and they show in EUR, as typed.',
+      'Paid in GBPThe plan is set up in GBP, and they show in GBP, as typed.',
+    ]);
+    expect(screen.getAllByRole('radio').map((card) => card.getAttribute('aria-checked'))).toEqual(['false', 'false']);
+    expect(
+      screen.getByText('A plan holds one currency, and its entries show in it. Nothing is converted.'),
+    ).toBeTruthy();
+    expect(row('Monthly amount')).toBe('£100.00');
+  });
+
+  it('refuses Start with no answer: the alert under the group, the focus on its radio', async () => {
+    const { onStart } = mount({ plan: inGbp(), question: asked(), savedEntries: 14 });
+    await act(() => fireEvent.click(screen.getByRole('button', { name: START })));
+    expect(onStart).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert').textContent).toBe('Choose the currency they were paid in.');
+    expect(screen.getByRole('radiogroup').getAttribute('aria-invalid')).toBe('true');
+    expect(document.activeElement).toBe(screen.getByRole('radio', { name: /^Paid in EUR/ }));
+  });
+
+  it('shows the plan in the answered currency and starts with it', async () => {
+    const { onStart } = mount({ plan: inGbp(), question: asked(), savedEntries: 14 });
+    await act(() => fireEvent.click(screen.getByRole('radio', { name: /^Paid in EUR/ })));
+    expect([row('Monthly amount'), row('Starting amount')]).toEqual(['€100.00', '€1,000.00']);
+    await act(() => fireEvent.click(screen.getByRole('button', { name: START })));
+    expect(onStart).toHaveBeenCalledWith('EUR');
+  });
+
+  it('says "on" for entries saved on one day, and one entry in the singular', () => {
+    const day = '2026-10-20' as CalendarDate;
+    mount({ plan: inGbp(), question: asked({ count: 2, first: day, last: day }), savedEntries: 2 });
+    expect(legend()).toBe('2 saved entries, on 20 Oct 2026, hold amounts or fees. Which currency were they paid in?');
+    cleanup();
+    mount({ plan: inGbp(), question: asked({ count: 1, first: day, last: day }), savedEntries: 1 });
+    expect(legend()).toBe('1 saved entry, on 20 Oct 2026, holds an amount or a fee. Which currency was it paid in?');
+    expect(cards()[0]).toBe('Paid in EURThe plan is set up in EUR instead of GBP, and it shows in EUR, as typed.');
+  });
+
+  it('offers the plan’s currency first, then the rest, when the kept one could not be read', () => {
+    mount({ plan: inGbp(), question: asked({ kept: null }), savedEntries: 14 });
+    expect(screen.getByText('The currency of the plan they were saved with could not be read.')).toBeTruthy();
+    expect(cards().map((card) => card?.slice(0, 11))).toEqual([
+      'Paid in GBP',
+      'Paid in EUR',
+      'Paid in USD',
+      'Paid in CHF',
+    ]);
+  });
+
+  it('says the saved entries stay when nothing is asked', async () => {
+    const { onStart } = mount({ question: null, savedEntries: 14 });
+    expect(screen.queryByRole('radiogroup')).toBeNull();
+    expect(screen.getByText('14 entries saved on this device stay and show in this plan.')).toBeTruthy();
+    await act(() => fireEvent.click(screen.getByRole('button', { name: START })));
+    expect(onStart).toHaveBeenCalledWith('EUR');
+    cleanup();
+    mount({ question: null, savedEntries: 1 });
+    expect(screen.getByText('1 entry saved on this device stays and shows in this plan.')).toBeTruthy();
+    cleanup();
+    mount();
+    expect(screen.queryByText(/saved on this device/)).toBeNull();
   });
 });

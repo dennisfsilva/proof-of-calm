@@ -10,8 +10,9 @@ import {
   templateById,
 } from '@proofofcalm/content';
 import {
-  type CalendarDate,
+  type CurrencyCode,
   EntityIdSchema,
+  liveEntries,
   type Plan,
   type PlanIssueCode,
   suggestCountry,
@@ -21,22 +22,12 @@ import { buttonVariants } from '@proofofcalm/ui/components/button';
 import { useEffect, useEffectEvent, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'use-intl';
 import { deviceLocale } from '../../../lib/adapters';
-import { createFormatters, createNumberInput, type Formatters } from '../../../lib/format';
+import { createFormatters, createNumberInput } from '../../../lib/format';
 import { localesFor } from '../../../lib/i18n';
 import { Link } from '../../../lib/navigation';
 import { useClock, useDrafts, useServices, useSnapshot, useToday } from '../../../lib/services';
-import {
-  type EarlyNotice,
-  earlyOpenOf,
-  type HoldingCountry,
-  holdingCountryOf,
-  reminderFile,
-  ruleNameOf,
-  type ScheduleIssue,
-  type SplitIssue,
-  sellWindowValueOf,
-  useReminderWords,
-} from '../../plan';
+import { keptQuestion } from '../../../lib/store';
+import { reminderFile, type ScheduleIssue, type SplitIssue, useReminderWords } from '../../plan';
 import { useOnboardingActions } from '../actions';
 import { ONBOARDING_DRAFT, OnboardingDraftSchema, resumeStep, type SetupDraft, type Step } from '../model/draft';
 import {
@@ -50,8 +41,10 @@ import {
   scheduleValueOf,
 } from '../model/setup';
 import { CoinsStep } from './coins-step';
+import { cardOf, earlyOf } from './country-card';
 import { CountryStep } from './country-step';
 import { DatesStep } from './dates-step';
+import { paidIn } from './kept-question';
 import { NumbersStep } from './numbers-step';
 import { ReminderStep } from './reminder-step';
 import { SummaryStep } from './summary-step';
@@ -73,28 +66,6 @@ type Issues = {
 /** A new country or template is a new plan: the issues of the old one no longer apply. */
 const NO_ISSUES: Issues = { fields: [], plan: [], coins: [], schedule: [] };
 
-/** The early opening the template's own dates ask to accept under the country's rule, if any, with its card. */
-function earlyOf(
-  template: Template,
-  profile: CountryProfile,
-  format: Formatters,
-  today: CalendarDate,
-): EarlyNotice | null {
-  const rules = countryRules(profile);
-  const { holdingRule } = rules;
-  if (template.lastBuy === undefined) return null;
-  const early = earlyOpenOf({ lastBuy: template.lastBuy, holdingRule }, sellWindowValueOf(template.sellWindow));
-  if (early === null) return null;
-  return { ...early, rule: ruleNameOf(holdingRule, rules), country: cardOf(profile, format, today) };
-}
-
-/** The country's card from its profile; `countryRules` gives a copy, which carries no mark: the profile's (ADR-0057). */
-function cardOf(profile: CountryProfile, format: Formatters, today: CalendarDate): HoldingCountry {
-  const rules = countryRules(profile);
-  const card = holdingCountryOf(rules, format.date(rules.status.lastReviewed), profile, today);
-  return { ...card, language: contentLanguageOf(profile) };
-}
-
 /** The steps both paths share after numbers or dates: each needs a plan whose dry run passes. */
 const SHARED: readonly Step[] = ['why', 'reminder', 'summary'];
 /** The step before the shared ones: dates on the custom path, numbers on the template path. */
@@ -114,7 +85,9 @@ const ENGLISH_TEXTS: ReadonlyMap<string, TemplateTexts> = new Map();
 export function OnboardingScreen({ device }: OnboardingScreenProps) {
   const t = useTranslations('onboarding');
   const errors = useTranslations('errors');
-  const stored = useSnapshot((snapshot) => snapshot.plan !== null);
+  // The whole snapshot: the summary asks about the entries kept with no plan from the rows as this render sees them.
+  const snapshot = useSnapshot((current) => current);
+  const stored = snapshot.plan !== null;
   const today = useToday();
   const clock = useClock();
   const reminderWords = useReminderWords();
@@ -139,7 +112,8 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
   const [issues, setIssues] = useState<Issues>(NO_ISSUES);
   const [refused, setRefused] = useState(0);
   const [found, setFound] = useState(false);
-  const [failed, setFailed] = useState(false);
+  /** A failed write or a plan the steps cannot build, or a kept currency another tab changed (ADR-0053). */
+  const [failed, setFailed] = useState<'unknown' | 'changed' | null>(null);
   const steps = useRef<HTMLDivElement>(null);
   const shown = useRef(step);
   useEffect(() => {
@@ -210,14 +184,17 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
     const locales = localesFor(language, chosen === undefined ? null : countryRules(chosen));
     return createFormatters(locales.numbers, locales.ui);
   };
-  const write = (plan: Plan) => {
+  // The write is told the question this render showed; a `changed` outcome writes nothing and keeps the draft.
+  const write = (plan: Plan, next: CurrencyCode) => {
     setIssues(NO_ISSUES);
-    createPlan(plan, { next: plan.payCurrency, shown: null }).then(
+    setFailed(null);
+    createPlan(plan, { next, shown: keptQuestion(snapshot, next) }).then(
       (outcome) => {
+        if (outcome === 'changed') return setFailed('changed');
         drafts.clear(form, entity);
         setFound(outcome === 'stored');
       },
-      () => setFailed(true),
+      () => setFailed('unknown'),
     );
   };
   /** Numbers' and Dates' Continue: the plan's dry run, so every refusal comes before the sentence. */
@@ -235,7 +212,7 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
       setIssues({ ...NO_ISSUES, plan: error.code === 'invalid-plan' ? error.issues : [] });
     }
     // The coins were read on their own Continue; an issue of the whole custom plan has no field.
-    else setFailed(true);
+    else setFailed('unknown');
     setRefused((count) => count + 1);
   };
   /** The plan the summary shows and Start writes, read again at each render and at the tap. */
@@ -244,11 +221,12 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
     const result = checkPlan(draft, contextOf(profile));
     return result.ok ? result.value : null;
   };
-  // Start acknowledges the disclosure above it at the tap's time (docs/LEGAL.md §4).
-  const start = () => {
+  // Start acknowledges the disclosure above it at the tap's time (docs/LEGAL.md §4), in the currency answered.
+  const start = (paid: CurrencyCode) => {
     const plan = planned();
-    if (plan === null) setFailed(true);
-    else write(plan);
+    const written = plan === null ? null : paidIn(plan, paid);
+    if (plan === null || written === null) setFailed('unknown');
+    else write(written, plan.payCurrency);
   };
   const toDates = () => {
     if (profile === undefined) return;
@@ -342,6 +320,8 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
         reminder={draft.reminder}
         format={formatOf(profile)}
         pending={pending}
+        question={keptQuestion(snapshot, plan.payCurrency)}
+        savedEntries={liveEntries(snapshot.entries).length}
         onBack={() => setStep('reminder')}
         onStart={start}
       />
@@ -394,7 +374,11 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
       ) : (
         numbers()
       )}
-      {failed && <p className="text-negative">{errors('unknown')}</p>}
+      {failed !== null && (
+        <p role="alert" className="text-negative">
+          {failed === 'changed' ? t('summary.kept.changed') : errors('unknown')}
+        </p>
+      )}
     </div>
   );
 }
