@@ -44,6 +44,7 @@ import {
   typeSent,
   withSource,
 } from '../lib/move-form';
+import { FormStatus } from './form-status';
 
 export type MoveFormProps = {
   /** The live move to edit; null for a new one. */
@@ -193,6 +194,38 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
   const drafted = moveDraft(state, numberInput);
   const fee = typedFee(state, numberInput);
   const lines = drafted.ok ? moveLines(drafted.value, ctx, holding, { ids, now: clock.now() }) : null;
+  // The lines before Save, worded once, in the column's order: the fee, the short source, the duplicate, a later move.
+  const feeLine = fee === null ? null : t('log.move.fee', { units: prose(fee) });
+  const short =
+    lines === null || lines.short === null || !drafted.ok
+      ? null
+      : t('log.move.sourceShort', {
+          at: drafted.value.from === null ? 'none' : 'venue',
+          from: drafted.value.from ?? '',
+          to: drafted.value.to,
+          held: prose(lines.short.held, lines.short.short),
+          short: prose(lines.short.short, lines.short.held),
+          date: format.date(drafted.value.date),
+          found: lines.found === null ? 'no' : 'yes',
+        }) +
+        (lines.found === null
+          ? ''
+          : ` ${t('log.move.sourceFound', {
+              to: drafted.value.to,
+              outside: prose(lines.found.outside, lines.found.short, lines.found.sent),
+              short: prose(lines.found.short, lines.found.outside, lines.found.sent),
+            })}`);
+  const same =
+    lines?.same === true && drafted.ok ? t('log.move.duplicate', { date: format.date(drafted.value.date) }) : null;
+  const later =
+    lines === null || lines.later === null
+      ? null
+      : t('log.move.laterShort', {
+          to: lines.later.to,
+          date: format.date(lines.later.date),
+          short: proseIn(lines.later.coin, lines.later.short),
+        });
+  const formLines = [feeLine, short, same, later];
   const coins = movableCoins(ctx);
   const from = sources.findIndex((place) => place.venue === state.from);
   const units = (field: 'sent' | 'received', onValue: (typed: string) => void, after?: ReactNode) => (
@@ -268,39 +301,14 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
         </Button>,
       )}
       {units('received', (received) => set({ received, receivedTyped: true }))}
-      {fee !== null && <p className="text-14">{t('log.move.fee', { units: prose(fee) })}</p>}
-      {lines !== null && lines.short !== null && drafted.ok && (
-        <p role="status" className="text-14">
-          {t('log.move.sourceShort', {
-            at: drafted.value.from === null ? 'none' : 'venue',
-            from: drafted.value.from ?? '',
-            to: drafted.value.to,
-            held: prose(lines.short.held, lines.short.short),
-            short: prose(lines.short.short, lines.short.held),
-            date: format.date(drafted.value.date),
-            found: lines.found === null ? 'no' : 'yes',
-          })}
-          {lines.found !== null &&
-            ` ${t('log.move.sourceFound', {
-              to: drafted.value.to,
-              outside: prose(lines.found.outside, lines.found.short, lines.found.sent),
-              short: prose(lines.found.short, lines.found.outside, lines.found.sent),
-            })}`}
-        </p>
-      )}
-      {lines?.same === true && drafted.ok && (
-        <p role="status" className="text-14">
-          {t('log.move.duplicate', { date: format.date(drafted.value.date) })}
-        </p>
-      )}
-      {lines !== null && lines.later !== null && (
-        <p role="status" className="text-14">
-          {t('log.move.laterShort', {
-            to: lines.later.to,
-            date: format.date(lines.later.date),
-            short: proseIn(lines.later.coin, lines.later.short),
-          })}
-        </p>
+      {/* The lines before Save show at once with no live role; the status after Save repeats them (DESIGN §6). */}
+      {formLines.map(
+        (line, at) =>
+          line !== null && (
+            <p key={at} data-form-line className="text-14">
+              {line}
+            </p>
+          ),
       )}
       <Field invalid={problem('note') !== null}>
         <FieldLabel>{t('log.move.note')}</FieldLabel>
@@ -319,6 +327,7 @@ function PlanMoveForm({ plan, numberInput: mounted, editing, onDone }: PlanMoveF
       <Button type="submit" disabled={pending} focusableWhenDisabled>
         {t('log.move.save')}
       </Button>
+      <FormStatus lines={formLines} typed={state} />
     </form>
   );
 }

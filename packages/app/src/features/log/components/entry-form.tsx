@@ -45,6 +45,7 @@ import { reveal } from '../lib/reveal-box';
 import { freshIds } from '../lib/source';
 import { EntryDetails } from './entry-details';
 import { FormHints } from './form-hints';
+import { FormStatus } from './form-status';
 import { useFormLines } from './use-form-lines';
 
 export type EntryFormProps = {
@@ -294,13 +295,22 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
           </fieldset>
         );
       })}
-      {earlier !== null && <output className="text-13 text-ink-2">{earlier}</output>}
+      {/* The lines before Save show at once with no live role; the status after Save repeats them (DESIGN §6). */}
+      {earlier !== null && (
+        <p data-form-line className="text-13 text-ink-2">
+          {earlier}
+        </p>
+      )}
       {warnings.map((warning) => (
-        <p key={warning.key} role="status" className="text-14">
+        <p key={warning.key} data-form-line className="text-14">
           {warning.text}
         </p>
       ))}
-      {note !== null && <p className="text-13 text-ink-2">{note}</p>}
+      {note !== null && (
+        <p data-form-line className="text-13 text-ink-2">
+          {note}
+        </p>
+      )}
       {!added &&
         numberField(
           'fee',
@@ -320,7 +330,7 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
         onChange={set}
       />
       {moveShort !== null && (
-        <p role="status" className="text-14">
+        <p data-form-line className="text-14">
           {moveShort}
         </p>
       )}
@@ -345,6 +355,7 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
           {t('log.form.save')}
         </Button>
       </div>
+      <FormStatus lines={[earlier, ...warnings.map((warning) => warning.text), note, moveShort]} typed={state} />
     </form>
   );
 }
