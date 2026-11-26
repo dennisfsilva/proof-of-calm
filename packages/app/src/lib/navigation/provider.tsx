@@ -1,7 +1,7 @@
 import { createContext, type ReactNode, useState } from 'react';
 import { Router } from 'wouter';
 import { memoryLocation } from 'wouter/memory-location';
-import { useHashLocation } from 'wouter/use-hash-location';
+import { navigate as navigateHash, useHashLocation } from 'wouter/use-hash-location';
 
 // The navigation adapter (ADR-0045 §9): wouter is imported only in this folder (dependency rule
 // wouter-only-in-navigation). The web host reads the browser's history, the static-export host the
@@ -55,9 +55,28 @@ function MemoryRouter({ initialPath, children }: { initialPath: string; children
   );
 }
 
+/**
+ * wouter's hash navigate writes the page's query (`/index.html?tab=data#/settings`) only when the
+ * target holds a `?`, so a later plain target kept the old one; an empty `?` clears it.
+ */
+const navigateHashWithSearch: typeof navigateHash = (to, options) =>
+  navigateHash(to.includes('?') ? to : `${to}?`, options);
+
+function useHashWithSearch(): [string, typeof navigateHash] {
+  const [path] = useHashLocation();
+  return [path, navigateHashWithSearch];
+}
+
+const hashHrefs = (href: string) => `#${href}`;
+
 function LocationRouter({ location, initialPath = '/', children }: NavigationProviderProps) {
   if (location === 'memory') return <MemoryRouter initialPath={initialPath}>{children}</MemoryRouter>;
-  if (location === 'hash') return <Router hook={useHashLocation}>{children}</Router>;
+  if (location === 'hash')
+    return (
+      <Router hook={useHashWithSearch} hrefs={hashHrefs}>
+        {children}
+      </Router>
+    );
   return <Router>{children}</Router>;
 }
 
