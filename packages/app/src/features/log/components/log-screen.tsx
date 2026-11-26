@@ -352,7 +352,7 @@ export function LogScreen() {
       <h1 ref={heading} tabIndex={-1} className="text-28">
         {t('title')}
       </h1>
-      <SetAsideLine heading={heading} />
+      {plan !== null && <SetAsideLine heading={heading} />}
       {plan !== null && (
         <Button className="self-start" onClick={record}>
           {t('record')}

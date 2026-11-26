@@ -71,7 +71,7 @@
     "planSetAside": "Não foi possível ler o plano, por isso nenhum movimento é listado. Os movimentos continuam neste dispositivo. Importe uma cópia JSON nas <settings>Definições</settings> para recuperar o plano."
   },
   "setAside": {
-    "line": "{count, plural, one {Não foi possível ler {figure} movimento guardado, por isso não está nesta lista. Para o recuperar, importe nas <settings>Definições</settings> uma cópia JSON exportada antes de {date}, com «Adicionar só o que falta», ou registe-o de novo.} other {Não foi possível ler {figure} movimentos guardados, por isso não estão nesta lista. Para os recuperar, importe nas <settings>Definições</settings> uma cópia JSON exportada antes de {date}, com «Adicionar só o que falta», ou registe-os de novo.}}",
+    "line": "{count, plural, one {Não foi possível ler {figure} movimento guardado, por isso não está nesta lista. Para o recuperar, importe nas <settings>Definições</settings> uma cópia JSON exportada antes de {date}, com «Adicionar só o que falta». Se não tiver nenhuma, registe-o de novo e depois oculte esta linha.} other {Não foi possível ler {figure} movimentos guardados, por isso não estão nesta lista. Para os recuperar, importe nas <settings>Definições</settings> uma cópia JSON exportada antes de {date}, com «Adicionar só o que falta». Se não tiver nenhuma, registe-os de novo e depois oculte esta linha.}}",
     "hide": "Ocultar esta linha",
     "failed": "Não foi possível ocultar a linha. Tente de novo."
   },

@@ -1,5 +1,5 @@
 // The set-aside entries a person would miss (ADR-0019 Readings, 2026-11-26): those whose id no snapshot entry
-// holds, since an import or a new record with that id brings it back. Hidden on this device by the key
+// holds, since only an import of that row brings it back (a new record gets a new id). Hidden on this device by the key
 // `set-aside:<n>` in `prefs.dismissedBanners`, n the set-aside entry rows, so a later one shows the line again.
 import type { Entry, Instant } from '@proofofcalm/core';
 import type { SetAsideRow } from '../ports';

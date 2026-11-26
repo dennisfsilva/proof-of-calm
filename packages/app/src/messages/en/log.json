@@ -71,7 +71,7 @@
     "planSetAside": "Your plan could not be read, so no entries are listed. They stay on this device. Import a JSON backup in <settings>Settings</settings> to bring the plan back."
   },
   "setAside": {
-    "line": "{count, plural, one {{figure} saved entry could not be read, so it is not in this list. To bring it back, import a JSON backup exported before {date} in <settings>Settings</settings> with Add missing entries only, or record it again.} other {{figure} saved entries could not be read, so they are not in this list. To bring them back, import a JSON backup exported before {date} in <settings>Settings</settings> with Add missing entries only, or record them again.}}",
+    "line": "{count, plural, one {{figure} saved entry could not be read, so it is not in this list. To bring it back, import a JSON backup exported before {date} in <settings>Settings</settings> with Add missing entries only. Without one, record it again, then hide this line.} other {{figure} saved entries could not be read, so they are not in this list. To bring them back, import a JSON backup exported before {date} in <settings>Settings</settings> with Add missing entries only. Without one, record them again, then hide this line.}}",
     "hide": "Hide this line",
     "failed": "The line could not be hidden. Try again."
   },

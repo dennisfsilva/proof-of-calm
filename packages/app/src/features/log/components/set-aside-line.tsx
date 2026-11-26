@@ -10,9 +10,10 @@ import { focusInView } from './row-focus';
 
 /**
  * Saved entries that could not be read and are still missing (ADR-0019 Readings, 2026-11-26): how to bring
- * them back, and a button that hides the line on this device until another is set aside. Hidden, focus goes to
- * the Log's title, since the button is gone; when the write fails a toast says so and focus stays on the button
- * (docs/DESIGN.md §6).
+ * them back, and a button that hides the line on this device until another is set aside. The import ends the
+ * line; a new record gets a new id and never does, so the line names recording only without a backup, then the
+ * hide. Shown only while a plan is, since only then does the Log record. Hidden, focus goes to the Log's title,
+ * since the button is gone; when the write fails a toast says so and focus stays on the button (docs/DESIGN.md §6).
  */
 export function SetAsideLine({ heading }: { readonly heading: RefObject<HTMLHeadingElement | null> }) {
   const t = useTranslations('log');
