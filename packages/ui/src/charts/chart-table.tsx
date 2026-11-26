@@ -6,7 +6,7 @@ import { StackProbe, useStack } from '../lib/stack';
 // the columns are wider than the box (useStack, docs/DESIGN.md §8), the box being the cell when it sits in a table.
 
 type ChartTableProps = {
-  /** The disclosure's label, such as "Show as a table". */
+  /** The disclosure's label, such as "Show the values as a table". */
   summary: string;
   caption?: string;
   columns: readonly string[];

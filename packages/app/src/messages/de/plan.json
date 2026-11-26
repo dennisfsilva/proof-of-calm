@@ -183,7 +183,7 @@
     "label": "Plan {open, select, yes {ab {start}, ohne festgelegtes Ende} other {vom {start} bis {end}}}.",
     "labelToday": "Plan {open, select, yes {ab {start}, ohne festgelegtes Ende} other {vom {start} bis {end}}}. Heute, am {date}, ist der Plan {phase}.",
     "table": {
-      "summary": "Als Tabelle anzeigen",
+      "summary": "Die Meilensteine als Tabelle anzeigen",
       "date": "Datum",
       "milestone": "Meilenstein"
     }

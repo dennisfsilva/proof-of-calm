@@ -49,7 +49,7 @@ const items = [
   { href: '/log', label: 'Log', icon: ListIcon },
   { href: '/learn', label: 'Learn', icon: BookOpenIcon },
 ];
-const table = { summary: 'Show as a table', columns: ['Date', 'Price'], rows: [['17 Oct 2026', '61 640 €']] };
+const table = { summary: 'Show the values as a table', columns: ['Date', 'Price'], rows: [['17 Oct 2026', '61 640 €']] };
 const axis = { top: '64 000 €', bottom: '52 000 €', start: 'Nov 2025', end: 'Oct 2026' };
 
 const components: [string, ReactNode][] = [
@@ -120,7 +120,7 @@ const components: [string, ReactNode][] = [
       label="Plan"
       description="Buy until 2028, sell in 2030."
       references={[{ id: 'peak', label: 'Expected peak', detail: '2030', from: 0.7, to: 0.8 }]}
-      table={{ summary: 'Show as a table', columns: ['Date', 'Milestone'], rows: [['17 Oct 2026', 'Today']] }}
+      table={{ summary: 'Show the milestones as a table', columns: ['Date', 'Milestone'], rows: [['17 Oct 2026', 'Today']] }}
     />,
   ],
   [

@@ -37,7 +37,7 @@ test('in the buy phase: the plan in its words, the timeline, no sellable lines',
   } else {
     await expect(timeline.locator('[aria-current="date"]')).toBeVisible();
   }
-  await expect(timeline.getByText('Show as a table')).toBeVisible();
+  await expect(timeline.getByText('Show the milestones as a table')).toBeVisible();
 });
 
 test('in the sell window: one sellable line per coin and the holding line once', async ({ page }) => {
