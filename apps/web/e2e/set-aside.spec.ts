@@ -76,6 +76,10 @@ test('an unreadable entry brings the lines on Today and the Log, and Add missing
   await expect(page.getByText(TODAY_LINE)).toBeVisible();
   await openLog(page);
   await expect(page.getByText(LOG_LINE)).toBeVisible();
+  // A new record gets a new id and never ends the line, so recording is the way back only without a backup.
+  await expect(page.getByText(LOG_LINE)).toContainText(
+    'with Add missing entries only. Without one, record it again, then hide this line.',
+  );
   await expect(page.getByRole('button', { name: 'Hide this line' })).toBeVisible();
 
   if (fixture.plan === null) throw new Error('the fixture holds a plan');
