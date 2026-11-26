@@ -4,7 +4,7 @@ import { EMPTY_SNAPSHOT } from '../../lib/adapters';
 import { AppShell } from './app-shell';
 
 // Rows a newer build wrote, inside the shell (ADR-0019 readings): a newer plan takes the screen area with
-// the heading, its line and Reload; newer entries alone add one line above Today. At 360 and 1280 px,
+// the heading, its line and Reload; newer entries alone add nothing here. At 360 and 1280 px,
 // light and dark, with axe. The test services' platform records the reload instead of loading the page.
 
 const meta = {
@@ -37,14 +37,11 @@ export const NewerPlan: Story = {
   },
 };
 
+// Newer entries alone leave the screen as it is: Today says so under its own heading (NewerEntriesLine).
 export const NewerEntries: Story = {
   parameters: { snapshot: { ...EMPTY_SNAPSHOT, newer: { plans: 0, entries: 2 } } },
   play: async ({ canvas }) => {
     await expect(await canvas.findByRole('heading', { level: 1, name: 'Today' })).toBeVisible();
-    await expect(
-      canvas.getByText(
-        '2 entries were saved by a newer version of Proof of Calm, so they are not shown here. Reload the page to see them.',
-      ),
-    ).toBeVisible();
+    await expect(canvas.queryByText(/saved by a newer version/)).toBeNull();
   },
 };

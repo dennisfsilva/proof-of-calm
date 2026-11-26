@@ -36,8 +36,7 @@
     "title": "O plano foi guardado por uma versão mais recente da {product}.",
     "line": "Esta versão não o consegue abrir, por isso fica como foi guardado. Recarregue a página para o abrir na versão mais recente.",
     "again": "Se este ecrã voltar depois de recarregar a página, o plano fica neste dispositivo, por ler; uma versão mais recente da {product} consegue abri-lo.",
-    "reload": "Recarregar",
-    "entries": "{count, plural, one {{figure} movimento foi guardado} other {{figure} movimentos foram guardados}} por uma versão mais recente da {product}, por isso não {count, plural, one {é mostrado} other {são mostrados}} aqui. Recarregue a página para {count, plural, one {o ver} other {os ver}}."
+    "reload": "Recarregar"
   },
   "screenError": {
     "title": "Não foi possível carregar este ecrã.",

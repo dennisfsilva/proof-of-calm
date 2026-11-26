@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { countryRules, loadProfile } from '@proofofcalm/content';
 import type { CalendarDate, CoinId, Entry, Instant, Pause, Percent, Plan } from '@proofofcalm/core';
+import { instant } from '@proofofcalm/core/testing';
 import { act, cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EMPTY_SNAPSHOT } from '../../../lib/adapters';
@@ -84,6 +85,30 @@ const reviewedOn = (snapshot: Snapshot, day: string): Snapshot => ({
 });
 
 describe('TodayScreen', () => {
+  // Entries a newer build wrote (ADR-0019 Readings, "Row shape"): the line stands under the heading, where a tab
+  // navigation puts the focus, then the set-aside line, then the action card (docs/DESIGN.md §8).
+  it('puts the newer-entries line after the heading', async () => {
+    const rows = [{ id: 'gone-1', at: instant('2026-10-01T08:00:00.000Z') }];
+    const snapshot: Snapshot = {
+      ...fixtureSnapshot(),
+      newer: { plans: 0, entries: 2 },
+      quarantined: 1,
+      setAside: { plans: [], entries: rows },
+    };
+    await mount(snapshot, at('2026-10-20'));
+    const heading = screen.getByRole('heading', { level: 1, name: 'Today' });
+    const line = heading.nextElementSibling;
+    expect(line?.textContent).toBe(
+      '2 entries were saved by a newer version of Proof of Calm, so they are not shown here. Reload the page to see them.',
+    );
+    expect(line?.nextElementSibling?.textContent).toMatch(/^1 saved entry could not be read/);
+    cleanup();
+    await mount({ ...EMPTY_SNAPSHOT, newer: { plans: 0, entries: 1 } }, at('2026-10-20'));
+    expect(screen.getByRole('heading', { level: 1, name: 'Today' }).nextElementSibling?.textContent).toMatch(
+      /^1 entry was saved by a newer version of Proof of Calm/,
+    );
+  });
+
   it('without a plan: one "No plan yet" and the two links, never a repeated "No … yet"', async () => {
     await mount(EMPTY_SNAPSHOT, at('2026-10-20'));
     expect(screen.getByRole('heading', { level: 1, name: 'Today' })).toBeDefined();

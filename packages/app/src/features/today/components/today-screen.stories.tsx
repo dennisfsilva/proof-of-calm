@@ -152,8 +152,9 @@ export const RuleNoticeDismissed: Story = {
   },
 };
 
-// Two saved entries could not be read and are still missing: the plain line under the title, with the Log's link,
-// above the action card (ADR-0019 Readings, 2026-11-26).
+// Two saved entries could not be read and are still missing, and one a newer build wrote (ADR-0019 Readings,
+// 2026-11-26 and "Row shape"): under the title the newer line, then the set-aside line with the Log's link, then the
+// action card (docs/DESIGN.md §8).
 export const SetAside: Story = {
   parameters: {
     services: () => {
@@ -165,6 +166,7 @@ export const SetAside: Story = {
         prefs: { ...fixture.prefs, reviewedAt: now },
         prices: pricesAt(FIXTURE_PRICES, nowMs),
         quarantined: 2,
+        newer: { plans: 0, entries: 1 },
         setAside: {
           plans: [],
           entries: [
@@ -179,7 +181,10 @@ export const SetAside: Story = {
   play: async ({ canvas }) => {
     const line = await canvas.findByText(/^2 saved entries could not be read/);
     await expect(line).toBeVisible();
-    await expect(canvas.getByRole('heading', { level: 1, name: 'Today' }).nextElementSibling).toBe(line);
+    const newer = canvas.getByText(/^1 entry was saved by a newer version of Proof of Calm/);
+    await expect(newer).toBeVisible();
+    await expect(canvas.getByRole('heading', { level: 1, name: 'Today' }).nextElementSibling).toBe(newer);
+    await expect(newer.nextElementSibling).toBe(line);
     await expect(canvas.getByRole('link', { name: 'Log' })).toBeVisible();
   },
 };

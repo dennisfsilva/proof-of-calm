@@ -12,12 +12,9 @@ import shell from '../../messages/en/shell.json';
 import { NewerVersion } from './newer-version';
 
 // Rows a newer build wrote (ADR-0019 readings, "Row shape"): a newer plan takes the screen area with
-// Reload, so nothing here writes a second plan beside it; newer entries alone are one line on Today.
+// Reload, so nothing here writes a second plan beside it; newer entries alone are Today's line, not the shell's.
 
 afterEach(cleanup);
-
-const LINE =
-  '2 entries were saved by a newer version of Proof of Calm, so they are not shown here. Reload the page to see them.';
 
 async function setup(newer: { plans: number; entries: number }, path = '/today', locale: 'en' | 'de' = 'en') {
   const platform = recordingPlatform();
@@ -57,7 +54,6 @@ describe('NewerVersion (ADR-0019 readings)', () => {
       ),
     ).toBeTruthy();
     expect(screen.queryByRole('heading', { name: 'The screen' })).toBeNull();
-    expect(screen.queryByText(LINE)).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Reload' }));
     expect(platform.calls.reloads).toBe(1);
   });
@@ -70,32 +66,15 @@ describe('NewerVersion (ADR-0019 readings)', () => {
     );
   });
 
-  it('one line on Today, above the screen, when only entries are newer', async () => {
+  // Today draws the entries line under its own heading (NewerEntriesLine), so the focus a tab navigation puts
+  // on that heading never skips it; the shell adds nothing above any screen.
+  it('shows no entries line above the screen', async () => {
     await setup({ plans: 0, entries: 2 });
-    expect(screen.getByText(LINE)).toBeTruthy();
     expect(screen.getByRole('heading', { level: 1, name: 'The screen' })).toBeTruthy();
+    expect(document.body.textContent).not.toMatch(/saved by a newer version/);
     expect(screen.queryByRole('button', { name: 'Reload' })).toBeNull();
-  });
-
-  // docs/CONTENT-STYLE.md §4: the count is a figure in the country's number format, never ICU's `#`.
-  it('counts the newer entries, one or many, as a grouped figure', async () => {
-    await setup({ plans: 0, entries: 1 });
-    expect(
-      screen.getByText(
-        '1 entry was saved by a newer version of Proof of Calm, so it is not shown here. Reload the page to see it.',
-      ),
-    ).toBeTruthy();
-    cleanup();
-    await setup({ plans: 0, entries: 1234 });
-    expect(screen.getByText(/^1,234 entries were saved by a newer version of Proof of Calm, so they are/)).toBeTruthy();
-  });
-
-  it('no line on the other screens, and nothing at all without newer rows', async () => {
-    await setup({ plans: 0, entries: 2 }, '/log');
-    expect(screen.queryByText(LINE)).toBeNull();
     cleanup();
     await setup({ plans: 0, entries: 0 });
-    expect(screen.queryByText(LINE)).toBeNull();
     expect(screen.getByRole('heading', { level: 1, name: 'The screen' })).toBeTruthy();
   });
 });

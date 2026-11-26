@@ -41,6 +41,7 @@ import {
 import { WhyLink } from '../../learn';
 import { todayActions } from '../actions';
 import { AnnualReviewBanner } from './annual-review-banner';
+import { NewerEntriesLine } from './newer-entries-line';
 import { PendingList } from './pending-list';
 import { PricesSlot, useOnline } from './prices-line';
 import { PrimaryAction } from './primary-action';
@@ -96,6 +97,7 @@ export function TodayScreen() {
   return (
     <div className={SCREEN}>
       <h1 className="scroll-mt-result text-28">{t('title')}</h1>
+      <NewerEntriesLine />
       {plan !== null && <SetAsideLine />}
       {plan === null ? <NoPlan /> : <TodayBody plan={plan} />}
     </div>
