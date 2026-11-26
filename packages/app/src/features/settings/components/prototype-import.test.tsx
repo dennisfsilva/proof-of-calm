@@ -1,7 +1,9 @@
 // @vitest-environment jsdom
 import type { CoinId, CountryCode, Percent } from '@proofofcalm/core';
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { FIXTURE_RULES, type FixtureCountry } from '@proofofcalm/core/testing/country-change';
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import twoCoins from '../../../../../core/test/golden/two-coins.json';
 import { I18nProvider, type UiLanguage } from '../../../lib/i18n';
 import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
@@ -9,7 +11,21 @@ import { createTestServices } from '../../../lib/services/testing';
 import en from '../../../messages/en/settings.json';
 import pt from '../../../messages/pt-PT/settings.json';
 import type { ReportNote } from '../actions';
+import { choose, mount, NOW } from './data-section.testing';
 import { PrototypeImport, PrototypeReport } from './prototype-import';
+
+// The profiles and the lazy namespaces load in memory, as in data-section.import.test.tsx, so the country step of
+// the section's import needs no round trip under parallel load (lib/services/testing-modules.ts).
+vi.mock('@proofofcalm/content', async (original) =>
+  (await import('../../../lib/services/testing-modules')).profilesInMemory(
+    await original<typeof import('@proofofcalm/content')>(),
+  ),
+);
+vi.mock('../../../lib/i18n/namespaces', async (original) =>
+  (await import('../../../lib/services/testing-modules')).namespacesInMemory(
+    await original<typeof import('../../../lib/i18n/namespaces')>(),
+  ),
+);
 
 // The country step suggests from the device (`deviceLocale()`): the device is a Lisbon one, as in onboarding's
 // tests, so the suggestion does not depend on the machine's time zone (CI's runner is UTC).
@@ -107,5 +123,29 @@ describe('PrototypeImport’s country step', () => {
     expect(logged.mock.calls.filter((call) => String(call[0]).includes('MISSING_MESSAGE'))).toEqual([]);
     logged.mockRestore();
     services.dispose();
+  });
+});
+
+// ADR-0053 Readings, 2026-11-26: a file from the DCA plan page with no plan asks first, as a backup does
+// (data-section.set-aside.test.tsx), when the entries kept here were last shown in another currency. The page's
+// export is in EUR; the plan row set aside named GBP.
+describe('PrototypeImport over entries kept in another currency', () => {
+  it('asks before the file’s plan shows them in EUR, and Import in EUR imports it', async () => {
+    const snapshot = fixtureSnapshot();
+    const setAside = { plans: [{ id: 'plan', at: NOW, currency: 'GBP' as const }], entries: [] };
+    const { services } = await mount({ ...snapshot, plan: null, setAside }, undefined, {
+      rules: async (code) => FIXTURE_RULES[code as FixtureCountry] ?? null,
+    });
+    await choose(JSON.stringify(twoCoins.state));
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Continue with Portugal' })));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByRole('heading').textContent).toMatch(/^Show \d+ saved entries in EUR\?$/);
+    expect(within(dialog).getByText(/^They hold amounts or fees in GBP, the currency of your plan/)).toBeDefined();
+    const stored = () => services.domain.store.getState().snapshot;
+    expect(stored().plan).toBeNull();
+    await act(async () => fireEvent.click(within(dialog).getByRole('button', { name: 'Import in EUR' })));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(stored().plan?.payCurrency).toBe('EUR');
+    expect(screen.getByRole('status').textContent).toMatch(/^Plan imported\. Entries now: \d+\./);
   });
 });
