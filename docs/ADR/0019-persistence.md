@@ -305,14 +305,22 @@ The decision stands; these are the choices its text left open, made while implem
   `packages/app/src/lib/adapters/idb-store.set-aside.test.ts` (the set-aside plan row's currency).
 - **2026-11-26, the Settings count after a recovery and the newer line's place** (adds to the two
   readings above and to "Row shape"). Settings still counts the whole list until Delete everything,
-  since the unreadable copies stay in it; once an import brings rows back, the line names how many are
-  back in the data and the exports (`recovered` in
-  `packages/app/src/features/settings/components/set-aside-count.tsx`: set-aside entry ids live in the
-  snapshot again, plus a set-aside plan row whose id is the plan shown) and, while some are not, how
-  many exports still leave out (the count minus those back), since an export handed on as complete
-  would be wrong; only once every item is back does it say that only the unreadable copies stay. The
-  newer-entries line moves from the shell into Today, under Today's title and before the set-aside line, so the two read in that order (`docs/CONTENT-STYLE.md` §3, Newer
-  version). Neither touches the store: no row, schema or list change, so no read test is owed.
+  since the unreadable copies stay in it; once an import brings rows back, the line names how many
+  are back in the data and the exports (`recovered` in
+  `packages/app/src/features/settings/components/set-aside-count.tsx`: set-aside entry ids live in
+  the snapshot again, plus a set-aside plan row whose id is the plan shown). `recovered` counts
+  nothing while no plan is shown, since no export exists then (#562's close). A recovered entry
+  deleted later counts as not back in Settings, since exports leave it out, while Today's and the
+  Log's lines count its tombstone as present and stay hidden; each follows its own rule (the
+  refuter's judgment, #562's close). While some are not back, the line says how many exports still
+  leave out (the count minus those back), since an export handed on as complete would be wrong; only
+  once every item is back does it say that only the unreadable copies stay. The newer-entries line
+  moves from the shell into Today, under Today's title and before the set-aside line, so the two
+  read in that order (`docs/CONTENT-STYLE.md` §3, Newer version). While a new risk wording waits
+  for its acknowledgement, `/today` shows that screen instead of Today, and the line waits with
+  Today until the wording is acknowledged; it is not repeated on that screen (27g's integration
+  read, #562). None of these touches the store: no row, schema or list change, so no read test is
+  owed.
 
 ## Disagreement
 
