@@ -231,15 +231,20 @@ test("/portfolio's end keeps its place across a retry that fails again", async (
   await seedPlan(page, { ...fixture, plan });
   // 15 March 2030: the fixture's coins were held at the end of 31 December 2029, so the block has a line.
   await page.clock.setFixedTime(new Date(fixtureNowMs('sell')));
-  // The first read fails at once; the retry's requests wait for the release, then fail again.
+  // The first read fails at once; the retry's requests wait for the release, then fail again. Only requests
+  // after the press are held: the seed's Today can still ask for the closes after this route is in place, and
+  // counting those held the first read itself (CI run 45822358259, the reduced-motion project).
   let release = () => {};
   const held = new Promise<void>((resolve) => {
     release = resolve;
   });
-  let requests = 0;
+  let hold = false;
+  let retried = 0;
   await page.route('**/api/history/*', async (route) => {
-    requests += 1;
-    if (requests > 2) await held;
+    if (hold) {
+      retried += 1;
+      await held;
+    }
     await route.fulfill({ status: 503 });
   });
   await page.goto('/portfolio');
@@ -251,8 +256,10 @@ test("/portfolio's end keeps its place across a retry that fails again", async (
   const before = await scrollHeight(page);
   const shifts = await shiftsFromNow(page);
 
+  hold = true;
   await page.getByRole('link', { name: 'Portfolio', exact: true }).click();
-  await expect.poll(() => requests).toBe(4);
+  // One request per served coin, BTC and ETH.
+  await expect.poll(() => retried).toBeGreaterThanOrEqual(2);
   expect(await scrollHeight(page)).toBe(before);
   await expect(page.getByText(/^Loading the daily closes/)).toHaveCount(0);
   release();
