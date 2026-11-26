@@ -2,14 +2,16 @@ import { expect, type Page } from '@playwright/test';
 import { DATABASE_NAME } from '@proofofcalm/app/lib/adapters';
 import { type EntryRow, entryRow, type PlanRow, planRow } from '@proofofcalm/app/lib/adapters/idb/rows';
 import { FIXTURE_DATES, fixtureNowMs, fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
+import { templateById } from '@proofofcalm/content';
 import { exportBackup, type Instant } from '@proofofcalm/core';
-import { test } from './support';
+import { chooseCountry, test } from './support';
 
 // Rows this build cannot read, on the viewport matrix (ADR-0019, Quarantine, and its Readings of 2026-11-26):
 // an entry row with a payload that fails validation is set aside on load, so Today and the Log say so under
 // their titles until a backup's Add missing entries only brings it back, or Hide this line hides both; a plan
-// row set aside changes NoPlan's words and the Log's empty text. The rows are built by the store's own row
-// builders, as `newer-version.spec.ts` does, then given a payload no schema reads.
+// row set aside changes NoPlan's words and the Log's empty text, and onboarding over it asks which currency the
+// kept entries were paid in (ADR-0053 Readings, 2026-11-26). The rows are built by the store's own row builders,
+// as `newer-version.spec.ts` does, then given a payload no schema reads.
 
 const SEED_DEVICE_ID = '00000000-0000-4000-8000-00000000e2e1' as Parameters<typeof planRow>[1];
 const UNREADABLE = { payload: { shape: 'unreadable' } } as const;
@@ -138,4 +140,74 @@ test('an unreadable plan row changes the no-plan words on Today and the Log', as
   );
   await expect(text).toBeVisible();
   await expect(text.getByRole('link', { name: 'Settings' })).toHaveAttribute('href', '/settings');
+});
+
+/** The fixture's entries under its plan row set aside, the row's payload `payload` (ADR-0053 Readings, 2026-11-26). */
+function withPlanRowSetAside(payload: unknown): Rows {
+  const { plan, entries } = fixture;
+  if (plan === null) throw new Error('the fixture holds a plan');
+  return {
+    plans: [{ ...planRow(plan, SEED_DEVICE_ID), payload } as PlanRow],
+    entries: entries.map((entry) => entryRow(entry, plan.id, SEED_DEVICE_ID)),
+  };
+}
+
+/** From onboarding's country to its summary on the two-coins template, the reminder for later. */
+async function toSummary(page: Page, country?: string) {
+  await page.goto('/onboarding');
+  await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+  await chooseCountry(page, country === undefined ? {} : { country, confirm: `Continue with the ${country}` });
+  await page.getByRole('radio', { name: templateById('two-coins')?.name ?? 'two-coins', exact: true }).click();
+  const next = page.getByRole('button', { name: 'Continue', exact: true });
+  await next.click();
+  await page.getByLabel(/^Monthly amount/).fill('100');
+  await page.getByLabel(/^Last buy/).fill('2036-10-01');
+  await next.click();
+  await expect(page.getByRole('heading', { level: 2, name: 'In one sentence, why are you doing this?' })).toBeFocused();
+  await next.click();
+  await expect(page.getByRole('heading', { level: 2, name: 'Where should the monthly reminder go?' })).toBeFocused();
+  await page.getByRole('button', { name: 'Later', exact: true }).click();
+  await expect(page.getByRole('heading', { level: 2, name: 'Check your plan' })).toBeFocused();
+}
+
+const START = 'Accept and start the plan';
+
+test('onboarding over an unreadable plan row asks with four cards and starts in the answered currency', async ({
+  page,
+}) => {
+  await seedRows(page, withPlanRowSetAside(UNREADABLE.payload));
+  await toSummary(page);
+  const cards = page.getByRole('radio');
+  await expect(cards).toHaveCount(4);
+  await expect(cards.first()).toHaveAccessibleName(/^Paid in EUR/);
+  for (const card of await cards.all()) await expect(card).not.toBeChecked();
+  await page.getByRole('button', { name: START }).click();
+  await expect(page.getByRole('alert')).toHaveText('Choose the currency they were paid in.');
+  await expect(cards.first()).toBeFocused();
+
+  await page.getByRole('radio', { name: /^Paid in USD/ }).click();
+  await page.getByRole('button', { name: START }).click();
+  await expect(page).toHaveURL(/\/today$/);
+  await expect(screenArea(page)).toContainText('US$');
+  await expect(screenArea(page)).not.toContainText('€');
+});
+
+test('the United Kingdom over a plan row kept in EUR asks with two cards, Paid in EUR first', async ({ page }) => {
+  const { plan } = fixture;
+  if (plan === null) throw new Error('the fixture holds a plan');
+  await seedRows(page, withPlanRowSetAside({ ...planRow(plan, SEED_DEVICE_ID).payload, coins: 'unreadable' }));
+  await toSummary(page, 'United Kingdom');
+  const cards = page.getByRole('radio');
+  await expect(cards).toHaveCount(2);
+  await expect(cards.first()).toHaveAccessibleName(/^Paid in EUR/);
+  await expect(cards.nth(1)).toHaveAccessibleName(/^Paid in GBP/);
+  await expect(
+    page.getByText('They were saved with your plan that could not be read, which was in EUR.'),
+  ).toBeVisible();
+
+  await cards.first().click();
+  await page.getByRole('button', { name: START }).click();
+  await expect(page).toHaveURL(/\/today$/);
+  await expect(screenArea(page)).toContainText('€');
+  await expect(screenArea(page)).not.toContainText('£');
 });
