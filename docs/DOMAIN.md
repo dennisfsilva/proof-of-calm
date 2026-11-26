@@ -887,7 +887,10 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   (`stampAfter`; ADR-0021: a later write wins, an equal stamp goes to the higher device id); a replace keeps what it removes as tombstones (`deletedAt = now` for a row
   live here), so that sync deletes those rows rather than bringing them back, and stamps the tombstones it
   keeps as well (their `deletedAt` stays), so that an undo of their delete refuses (§6 "Delete entry");
-  with no plan yet, both modes take the file's plan. The result counts `added`,
+  with no plan yet, both modes take the file's plan. With no plan but live entries stored (the plan row set aside
+  by the quarantine, ADR-0019), a replace, which the import with no plan runs for a backup and a DCA plan page file
+  alike, takes the file's plan and adds the missing entries as "Add missing entries only" does (decided 2026-11-26),
+  so it tombstones none of them, which no later add could bring back. The result counts `added`,
   `skipped` (live here already), `deleted` and `taken`: in "Add missing entries only" a deletion on
   this device wins, because a restored row would carry `updatedAt = now` and beat the tombstone in
   sync, so the file never brings back an entry deleted here and counts it as `deleted`. After the id
