@@ -105,8 +105,7 @@ test('an entry a newer version saved, beside a plan this version reads, brings t
 test('after a tab navigation the heading is followed by the newer line', async ({ page }) => {
   const { plan, first, rest } = fixtureRows();
   await seedRows(page, { plans: [plan], entries: [{ ...first, ...NEWER_ENTRY }, ...rest] });
-  const tab = (name: string) =>
-    page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name, exact: true });
+  const tab = (name: string) => page.getByRole('navigation', { name: 'Main' }).getByRole('link', { name, exact: true });
 
   await tab('Log').click();
   await expect(page.getByRole('heading', { level: 1, name: 'Log' })).toBeFocused();
