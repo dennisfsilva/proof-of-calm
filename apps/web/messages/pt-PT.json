@@ -70,7 +70,13 @@
     "legal": "Informação legal"
   },
   "manifest": {
-    "description": "Um planeador e um registo de compras de cripto num calendário mensal fixo."
+    "description": "Um planeador e um registo de compras de cripto num calendário mensal fixo.",
+    "screenshots": {
+      "holdingDate": "Regras de detenção por país, com uma compra de exemplo em Portugal",
+      "countryPt": "A página de Portugal com a regra de detenção e as fontes",
+      "today": "Hoje, com um plano de exemplo e a compra deste mês registada",
+      "learn": "O índice de Aprender, com módulos curtos"
+    }
   },
   "offline": {
     "title": "Sem ligação",
