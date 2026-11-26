@@ -5,19 +5,20 @@ import { Link } from '../../../lib/navigation';
 import { useFormatters, useSnapshot, useToday } from '../../../lib/services';
 
 /**
- * The Log's text while no entry is listed (docs/CONTENT-STYLE.md §3, the Empty rows): with live entries stored
- * but the plan set aside as unreadable, it says why none is listed and links to Settings' import (ADR-0019
- * Readings, 2026-11-26).
+ * The Log's text while no entry is listed (docs/CONTENT-STYLE.md §3, the Empty rows): with the plan set aside as
+ * unreadable and entries on this device, live (`stored`) or set aside too, it says why none is listed and links to
+ * Settings' import (ADR-0019 Readings, 2026-11-26).
  */
 export function LogEmpty({ plan, stored }: { readonly plan: Plan | null; readonly stored: boolean }) {
   const t = useTranslations('log');
   const f = useFormatters();
   const today = useToday();
   const unread = useSnapshot((snapshot) => snapshot.setAside.plans.length > 0);
+  const entriesSetAside = useSnapshot((snapshot) => snapshot.setAside.entries.length > 0);
   const past = plan !== null && compareDates(plan.firstBuy, today) < 0;
   const text =
     plan === null
-      ? unread && stored
+      ? unread && (stored || entriesSetAside)
         ? t.rich('empty.planSetAside', {
             settings: (chunks) => (
               <Link href="/settings" className="text-ink underline underline-offset-4">
