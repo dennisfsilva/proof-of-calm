@@ -47,7 +47,7 @@ const layoutShift = (page: Page) =>
       }),
   );
 
-test.beforeEach(async ({ page }) => {
+test.beforeEach(async ({ page, browserName }) => {
   const nowMs = fixtureNowMs('buy');
   await page.clock.setFixedTime(new Date(nowMs));
   await page.route('**/api/prices?*', (route) =>
@@ -58,7 +58,8 @@ test.beforeEach(async ({ page }) => {
       },
     }),
   );
-  await pinNetwork(page, true);
+  // WebKit follows the host's network, which CDP cannot pin there (./network.ts).
+  if (browserName === 'chromium') await pinNetwork(page, true);
   await seedPlan(page, fixtureSnapshot());
 });
 
