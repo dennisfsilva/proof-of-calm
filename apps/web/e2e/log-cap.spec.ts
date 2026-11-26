@@ -109,7 +109,8 @@ const settle = (page: Page) =>
 /**
  * A click on `target` resolved before the window opens: a locator resolves again on every action, and Playwright's
  * `getByRole` over the Log's rows made a 75 to 101 ms task inside the window (#537's profile). The trial click waits
- * until the click would land; the handle's click inside the window then runs no selector.
+ * until the click would land; the handle's click inside the window then resolves no selector (the `shown` wait after
+ * it still polls its selector in the page inside the window, in short tasks).
  */
 async function resolved(page: Page, target: Locator): Promise<() => Promise<void>> {
   await target.click({ ...loading, trial: true });
@@ -122,8 +123,9 @@ async function resolved(page: Page, target: Locator): Promise<() => Promise<void
 /**
  * The longest Event Timing duration of an interaction `act` makes, in ms (0: none reached 16 ms), the longest task
  * from clearing the arrays until `shown` holds and the page settles, and the longest of those that started before the
- * input, the harness's own work, since the app is idle once settled (0: none). A locator as `act` is clicked, resolved
- * before the window opens.
+ * input, the harness's own work, since the app is idle once settled. The observer sees only long tasks (50 ms or more),
+ * so that last figure is 0 when no long harness task precedes the input; `shown` polling after the input, and harness
+ * tasks under 50 ms, never show in it. A locator as `act` is clicked, resolved before the window opens.
  */
 async function measure(page: Page, act: (() => Promise<void>) | Locator, shown: () => Promise<void>) {
   await settle(page);

@@ -280,8 +280,11 @@ platform without one.
   misses a render that blocks the main thread after it, which a person waits through all the same.
   `apps/web/e2e/log-cap.spec.ts` fills the fixture plan to `MAX_ENTRIES` live entries and records
   each input's duration and longest task as annotations, with the longest task that starts before
-  the input, which is the harness's own work, since the app is idle once settled (0 ms: the window
-  holds only what the input made); it asserts only the inputs measured under
+  the input, which is the harness's own work, since the app is idle once settled. That figure counts
+  only long tasks, of 50 ms or more, that start before the input, so 0 ms means no long harness task
+  precedes the input, not that the window holds only what the input made: the wait for the shown
+  state after the input polls a selector in the page inside the window, in short tasks, and a
+  harness task under 50 ms before the input is not counted. It asserts only the inputs measured under
   half the rule here (none with the window of 100) and takes about half a minute, so it runs only on request (`LOG_CAP=1` on the desktop project, the command in
   `CLAUDE.md`). The figures are local: Windows, Playwright's Chromium, five runs, 2026-11-25. Fixed
   here, with nothing the Log shows changed: each row built its own formatters and every toggle
@@ -342,8 +345,9 @@ platform without one.
   made a 75 to 101 ms task before the Delete and Undo clicks, and the spec's first run with the
   task before the input recorded (2026-11-26, a loaded machine) found one before Show older and Show
   newer entries too (123 and 210 ms, the longest task of both windows); the spec now waits on those
-  four buttons with a trial click and clicks them by handle, so no selector runs inside the window,
-  and the figures above for them were measured with the harness's task inside the window. The gate
+  four buttons with a trial click and clicks them by handle, so their click resolves no selector
+  inside the window (the wait for the shown state after it still polls one, in short tasks), and
+  the figures above for them were measured with the harness's task inside the window. The gate
   took one keystroke with a live move stored under the rule, with one caveat: the spec's move sits
   on the oldest entry's date
   (`apps/web/e2e/log-cap.spec.ts`), so the measured keystroke takes the gate's skipped path, and a
