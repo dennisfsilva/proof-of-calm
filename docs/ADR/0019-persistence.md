@@ -303,6 +303,15 @@ The decision stands; these are the choices its text left open, made while implem
   plan were last shown in, for onboarding's question (ADR-0053, `docs/DOMAIN.md` §2.1). The read tests: the
   currency cases in `packages/app/src/lib/adapters/idb/quarantine.test.ts`, forward and rollback in
   `packages/app/src/lib/adapters/idb-store.set-aside.test.ts` (the set-aside plan row's currency).
+- **2026-11-26, the Settings count after a recovery and the newer line's place** (adds to the two
+  readings above and to "Row shape"). Settings still counts the whole list until Delete everything,
+  since the unreadable copies stay in it; once an import brings rows back, the line names how many are
+  back in the data and the exports (`recovered` in
+  `packages/app/src/features/settings/components/set-aside-count.tsx`: set-aside entry ids live in the
+  snapshot again, plus a set-aside plan row whose id is the plan shown), so it no longer says exports
+  leave them out. The newer-entries line moves from the shell into Today, under Today's title and
+  before the set-aside line, so the two read in that order (`docs/CONTENT-STYLE.md` §3, Newer
+  version). Neither touches the store: no row, schema or list change, so no read test is owed.
 
 ## Disagreement
 
