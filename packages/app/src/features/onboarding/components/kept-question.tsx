@@ -17,7 +17,7 @@ import { createNumberInput, type Formatters } from '../../../lib/format';
 // Settings' currency question is (currency-question.tsx); the answer only relabels, nothing is converted.
 
 /** The cards in their order: the kept currency, then the plan's; with the kept one unread, the plan's, then the rest. */
-export const cardsOf = ({ kept, next }: KeptCurrencyQuestion): CurrencyCode[] =>
+const cardsOf =({ kept, next }: KeptCurrencyQuestion): CurrencyCode[] =>
   kept === null ? [next, ...CURRENCIES.filter((code) => code !== next)] : [kept, next];
 
 /** The plan Start writes for entries paid in `paid`: in that currency, or null when the plan would not pass. */
