@@ -27,6 +27,12 @@ test.use({
   launchOptions: { args: ['--lang=en-GB'], env: { ...process.env, LANG: 'en_GB.UTF-8', LANGUAGE: 'en_GB:en' } },
 });
 
+// The frames are Chromium's (android-small and desktop), and `--lang` is a Chromium flag: WebKit on Linux refuses to
+// start with it (CI's iphone project, run 45797836318), and a skip inside the test comes after the launch. The browser
+// name is known before any launch, so the other engines skip the whole file here.
+// biome-ignore lint/suspicious/noSkippedTests: WebKit cannot start with the Chromium flag these frames need
+test.skip(({ browserName }) => browserName !== 'chromium', 'the manifest frames are taken in Chromium');
+
 /** The catalogue's names and tickers on the screen, each string the page reads matched on its own (lib/pwa). */
 const coinsOn = async (page: Page) => coinWords(await page.locator('body').evaluate(readableStrings));
 
