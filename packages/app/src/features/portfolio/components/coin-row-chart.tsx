@@ -12,10 +12,12 @@ import { COIN_CHART_VIEW_BOX, type CoinChartModel, type CoinChartPoint } from '.
 // dates and its first and last close with no change figure (by its own dates alone when the closes start
 // after the range), with the table view; under it the credit in fixed words (ADR-0036). No past-performance
 // line: a row chart draws only while the value chart above it draws, and that chart carries the line
-// (docs/LEGAL.md §4, docs/CONTENT-STYLE.md §3). While the closes load, the same frame stands empty, out of
-// reach and unread, so an open row keeps its height when the chart draws; when the closes cannot be had, that
-// frame stays unseen as well, so the row keeps it then too, and the value chart's line says why. A coin with
-// fewer than two closes inside the range gets one line in the chart's place, with the coin and the range's dates.
+// (docs/LEGAL.md §4, docs/CONTENT-STYLE.md §3). While the closes load, the same frame stands empty and unseen,
+// its legend, table toggle and credit too, out of reach and unread, so an open row keeps its height when the
+// chart draws; when the closes cannot be had, that frame keeps its place unseen as well, with the value chart's
+// line at its top, seen but not live (the chart's own slot speaks it), whether the row opened before or after
+// the failure. A coin with fewer than two closes inside the range gets one line in the chart's place, with the
+// coin and the range's dates.
 
 export type CoinRowChartProps = {
   coin: CoinId;
@@ -23,7 +25,8 @@ export type CoinRowChartProps = {
   currency: CurrencyCode;
   chart:
     | { readonly kind: 'loading' }
-    | { readonly kind: 'unavailable' }
+    /** The value chart's line, which the row shows at its frame's top, next to the chart it is about. */
+    | { readonly kind: 'unavailable'; readonly line: string }
     | { readonly kind: 'few-closes'; readonly start: CalendarDate; readonly end: CalendarDate }
     | {
         readonly kind: 'draws';
@@ -44,7 +47,7 @@ export function CoinRowChart({ coin, colour, currency, chart }: CoinRowChartProp
     return <p className="text-14 text-ink-2">{t('fewCloses', { coin, start, end })}</p>;
   }
   const loading = chart.kind === 'loading';
-  const failed = chart.kind === 'unavailable';
+  const empty = chart.kind !== 'draws';
   const legend = {
     price: t('legend.price', { coin }),
     buy: t('legend.buy'),
@@ -122,17 +125,19 @@ export function CoinRowChart({ coin, colour, currency, chart }: CoinRowChartProp
     );
   }
 
+  // One cell: a failure's line stands at the top of the frame, which keeps its height unseen. The column is the
+  // row's width (minmax(0, 1fr)), as the value chart's.
   return (
-    <div
-      data-slot="coin-row-chart"
-      aria-busy={loading || undefined}
-      aria-hidden={failed || undefined}
-      className={cn('flex flex-col gap-stack-xs', failed && 'invisible')}
-    >
-      <div inert={loading || failed} aria-hidden={loading || failed || undefined}>
+    <div data-slot="coin-row-chart" aria-busy={loading || undefined} className="grid grid-cols-1">
+      <div
+        inert={empty}
+        aria-hidden={empty || undefined}
+        className={cn('col-start-1 row-start-1 flex flex-col gap-stack-xs', empty && 'invisible')}
+      >
         {drawing}
+        <p className="text-14 text-ink-2">{t('credit')}</p>
       </div>
-      <p className={cn('text-14 text-ink-2', loading && 'invisible')}>{t('credit')}</p>
+      {chart.kind === 'unavailable' && <p className="col-start-1 row-start-1 text-14 text-ink-2">{chart.line}</p>}
     </div>
   );
 }
