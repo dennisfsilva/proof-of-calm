@@ -216,6 +216,39 @@ export const FarFromTabBar: Story = {
   },
 };
 
+const goToYears = ['2026', '2025', '2024', '2023', '2022', '2021', '2020'];
+
+// A choice 3rem above the phone tab bar at 125 % text (the Log's Go to year at the page's end): all seven years show,
+// above the bar, and when the list covers its trigger, the chosen year sits on it (2026-11-26).
+export const NearTabBar: Story = {
+  globals: { textZoom: '125' },
+  render: () => (
+    <div className="flex min-h-dvh flex-col justify-end gap-12">
+      <div className="flex flex-col gap-stack-xs">
+        <Select defaultValue="2026">
+          <SelectLabel>Go to year</SelectLabel>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {goToYears.map((year) => (
+              <SelectItem key={year} value={year}>
+                {year}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <TabBar label="Main" items={[{ href: '#log', label: 'Log', icon: ListIcon, current: true }]} />
+    </div>
+  ),
+  play: async ({ canvas }) => {
+    const trigger = canvas.getByRole('combobox', { name: 'Go to year' });
+    window.scrollTo(0, trigger.ownerDocument.documentElement.scrollHeight);
+    await opensInView(trigger, 7);
+  },
+};
+
 const countries = ['Portugal', 'Germany', 'Spain', 'France', 'Italy', 'Ireland', 'Austria', 'Belgium'];
 
 // A long list whose trigger sits mid-screen with the phone tab bar at 125 % text (onboarding's country): the list
