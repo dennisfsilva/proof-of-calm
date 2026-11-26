@@ -47,6 +47,55 @@ describe('DataSection: the set-aside count', () => {
   });
 });
 
+// ADR-0019 Readings, 2026-11-26: the count stays until Delete everything, so once an import brings a set-aside
+// entry or the plan back, the line says what is back and that only the unreadable copies stay set aside.
+describe('DataSection: the set-aside count after a recovery', () => {
+  const snapshot = fixtureSnapshot();
+  const gone = liveEntries(snapshot.entries)[0];
+  if (snapshot.plan === null || gone === undefined) throw new Error('the fixture has a plan and a live entry');
+  const plan = snapshot.plan;
+  const BACK = /back in your data and exports/;
+
+  it('after Add missing entries only brings an entry back, the line says it is back', async () => {
+    await mount({
+      ...snapshot,
+      entries: snapshot.entries.filter((entry) => entry.id !== gone.id),
+      quarantined: 1,
+      setAside: { plans: [], entries: [{ id: gone.id, at: NOW }] },
+    });
+    expect(screen.getByText(LINE).textContent).toMatch(/exports leave it out\.$/);
+    await choose(JSON.stringify(exportBackup(plan, snapshot.entries, NOW)));
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Add missing entries only' })));
+    await waitFor(() =>
+      expect(screen.getByText(LINE).textContent).toBe(
+        '1 saved item could not be read, so Proof of Calm set it aside. It is back in your data and exports ' +
+          'again, and only its unreadable copy stays set aside on this device.',
+      ),
+    );
+  });
+
+  it('counts the plan back too, and keeps the count of everything set aside', async () => {
+    await mount({
+      ...snapshot,
+      quarantined: 3,
+      setAside: { plans: [{ id: plan.id, at: NOW, currency: 'EUR' }], entries: [{ id: gone.id, at: NOW }] },
+    });
+    expect(screen.getByText(LINE).textContent).toBe(
+      '3 saved items could not be read, so Proof of Calm set them aside. 2 of them are back in your data and ' +
+        'exports again, and only the unreadable copies stay set aside on this device.',
+    );
+  });
+
+  it('at zero, nothing', async () => {
+    await mount({ ...snapshot, quarantined: 0, setAside: { plans: [], entries: [{ id: gone.id, at: NOW }] } });
+    expect(screen.queryByText(LINE)).toBeNull();
+    cleanup();
+    await mount({ ...snapshot, quarantined: 2, setAside: { plans: [], entries: [{ id: 'gone', at: NOW }] } });
+    expect(screen.getByText(LINE).textContent).toMatch(/exports leave them out\.$/);
+    expect(screen.queryByText(BACK)).toBeNull();
+  });
+});
+
 // ADR-0053 Readings, 2026-11-26: an import with no plan over entries kept in another currency asks first. The plan
 // row set aside named EUR; the file's plan is in GBP. Nothing is converted either way.
 describe('DataSection: the kept entries before an import in another currency', () => {

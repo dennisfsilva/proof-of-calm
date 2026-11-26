@@ -64,6 +64,7 @@
     "exportLeftOut": "As exportações deixam de fora {figure} {count, plural, one {movimento guardado} other {movimentos guardados}} por uma versão mais recente da {product}. Recarregue a página e depois exporte para {count, plural, one {o incluir} other {os incluir}}.",
     "noPlan": "Ainda não há nada para exportar. Crie um plano ou importe um ficheiro.",
     "setAside": "{count, plural, one {Não foi possível ler {figure} elemento guardado, por isso a {product} pô-lo de parte. Continua neste dispositivo tal como foi guardado, e as exportações deixam-no de fora.} other {Não foi possível ler {figure} elementos guardados, por isso a {product} pô-los de parte. Continuam neste dispositivo tal como foram guardados, e as exportações deixam-nos de fora.}}",
+    "setAsideBack": "{count, plural, one {Não foi possível ler {figure} elemento guardado, por isso a {product} pô-lo de parte. Voltou aos dados e às exportações, e só a cópia ilegível continua de parte neste dispositivo.} other {Não foi possível ler {figure} elementos guardados, por isso a {product} pô-los de parte. {recovered, plural, one {{back} deles voltou aos dados e às exportações, e só as cópias ilegíveis continuam de parte neste dispositivo.} other {{back} deles voltaram aos dados e às exportações, e só as cópias ilegíveis continuam de parte neste dispositivo.}}}}",
     "taxYear": {
       "label": "Ano fiscal",
       "span": "{from} a {to}",

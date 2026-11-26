@@ -5,7 +5,7 @@ import twoCoins from '../../../../../core/test/golden/two-coins.json';
 import { fixtureNowMs, fixtureSnapshot } from '../../../lib/services/fixtures';
 import { DataSection } from './data-section';
 
-// The data section with the fixture plan, with entries from a newer version left out of the exports, before a
+// The data section with the fixture plan, with entries from a newer version left out of the exports, with a set-aside plan brought back, before a
 // plan exists, Replace everything over a plan, which asks first, and a file from the DCA plan page with no plan, chosen or pasted, which asks for the country; the test projects of vitest.config.ts render each at 360 and 1280 px, light and
 // dark, with axe.
 const withPlan = { path: '/settings', snapshot: fixtureSnapshot(), nowMs: fixtureNowMs('buy') };
@@ -56,6 +56,23 @@ export const NewerEntriesLeftOut: Story = {
     );
     await expect(canvas.getByRole('button', { name: 'Export JSON backup' })).toBeVisible();
     await expect(canvas.getByRole('button', { name: 'Export CSV log' })).toBeVisible();
+  },
+};
+
+// ADR-0019 Readings, 2026-11-26: an import brought the set-aside plan back; the count stays, and says so.
+const recovered = fixtureSnapshot();
+export const SetAsideBack: Story = {
+  parameters: {
+    ...withPlan,
+    snapshot: {
+      ...recovered,
+      quarantined: 3,
+      setAside: { plans: [{ id: recovered.plan?.id ?? 'plan', at: '2026-10-17T09:00:00.000Z' as Instant, currency: 'EUR' }], entries: [] },
+    },
+  },
+  play: async ({ canvas }) => {
+    await waitFor(() => expect(canvas.getByText(/^3 saved items could not be read/)).toBeVisible());
+    await expect(canvas.getByText(/1 of them is back in your data and exports again/)).toBeVisible();
   },
 };
 
