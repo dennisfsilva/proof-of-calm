@@ -370,6 +370,17 @@ describe('applyImport (docs/DOMAIN.md §3.13, ADR-0019)', () => {
       expect(result.entries[0]).toEqual(recorded);
     }
   });
+
+  it('with no plan but live entries stored, a file paying in another currency keeps them live (ADR-0053, 2026-11-26)', () => {
+    // No plan is left to compare with, and an entry carries no currency: the kept entries read in the file's plan's.
+    const dollars = exportBackup(aPlan({ payCurrency: 'USD' }), [theirs], exportedAt);
+    for (const mode of ['replace', 'add-missing'] as const) {
+      const result = applyImport({ plan: null, entries: [mine] }, dollars, mode, now);
+      expect(result.refused).toBeNull();
+      expect(result.plan).toEqual({ ...dollars.plan, updatedAt: now });
+      expect(result.entries).toEqual([mine, { ...theirs, updatedAt: now }]);
+    }
+  });
 });
 
 // A plan holds at most MAX_ENTRIES live entries (docs/DOMAIN.md §9), so that its next export reads back.
