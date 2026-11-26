@@ -970,6 +970,7 @@
         "tooManyInFile": "This export from the DCA plan page holds {file} purchases, more than the {max} entries a plan holds, so nothing was imported. Delete purchases there, export again, then import the new file.",
         "tooLarge": "This file is larger than {max} MB, so it was not read. If it is an exchange's export, export a shorter period there, then choose the new file.",
         "newerRows": "A newer version of {product} saved or deleted entries on this device, so nothing was imported. Reload the page, then import again.",
+        "changed": "The plan or entries on this device changed in another tab, so nothing was imported. Choose the file again.",
         "invalidEntries": "{count, plural, one {{figure} entry} other {{figure} entries}} in this import cannot be stored, so nothing was imported. Export a new backup from {product} on the device that made it, then import the new file.",
         "invalidEntriesPasted": "{count, plural, one {{figure} entry} other {{figure} entries}} in the pasted text cannot be stored, so nothing was imported. Export a new backup from {product} on the device that made it, then paste the new text."
       },

@@ -25,7 +25,6 @@ import {
   holdingContext,
   type ImportMode,
   type ImportNote,
-  type ImportRefusal,
   type ImportResult,
   type Instant,
   importPrototype,
@@ -42,6 +41,7 @@ import { BRAND } from '../../lib/brand';
 import { reportError } from '../../lib/errors';
 import type { Snapshot, WipedRows } from '../../lib/ports';
 import type { Services } from '../../lib/services';
+import { type DataRefusal, type ImportShown, leavesRowsOut, prototypeCurrency, turnRefusal } from './import-guard';
 import { importedPrefs } from './model/import';
 import { downloadTaxYear, type TaxYearWords } from './tax-year';
 
@@ -55,8 +55,6 @@ type ExportOutcome = 'saved' | 'not-saved' | 'date-not-stored';
 export type ImportOutcome =
   | { readonly kind: 'replaced' | 'imported' | 'added'; readonly result: ImportResult }
   | { readonly kind: 'refused'; readonly refusal: DataRefusal };
-/** Why an import applied nothing: the core's refusals, and the one only the stored rows can give. */
-export type DataRefusal = ImportRefusal | { readonly code: 'newer-rows' };
 /**
  * A note of the report as Settings words it: the core's, two with the value of the plan taken that their words
  * name, and the purchases Add missing stored of a coin this plan does not list.
@@ -77,13 +75,18 @@ export type DataActions = {
   exportCsv(): Promise<boolean>;
   /** Saves the file of the tax year ending in `endingIn`, its header in `words` (./tax-year); false as exportCsv. */
   exportTaxYear(endingIn: number, words: TaxYearWords): Promise<boolean>;
-  /** Applies the file to what the device holds and writes the plan and the entries in one write. */
-  importBackup(file: BackupFile, mode: ImportMode): Promise<ImportOutcome>;
+  /** Applies the file to what the device holds in one write; `changed` when the turn finds other than `shown`. */
+  importBackup(file: BackupFile, mode: ImportMode, shown: ImportShown): Promise<ImportOutcome>;
   /**
    * Imports an export of the DCA plan page (docs/DOMAIN.md §7) as a backup is imported. The plan's country
    * when a plan exists, else `country`, confirmed by the person (ADR-0014): the import never guesses one.
    */
-  importPrototype(json: unknown, mode: ImportMode, country: ProfileCode | null): Promise<PrototypeOutcome>;
+  importPrototype(
+    json: unknown,
+    mode: ImportMode,
+    country: ProfileCode | null,
+    shown: ImportShown,
+  ): Promise<PrototypeOutcome>;
   /**
    * "Delete everything": the plan, the entries and what the device keeps beside them go at once; the rows
    * come back for the undo. Null when nothing is left to delete, so a second press keeps the first undo.
@@ -106,12 +109,6 @@ async function current(services: Services): Promise<{ snapshot: Snapshot; now: I
   if (read === null) throw new Error('the queued read did not run');
   return read;
 }
-
-/** Whether live rows a newer version wrote are on this device: an export leaves them out. */
-const leavesRowsOut = ({ newer }: Snapshot) => newer.plans + newer.entries > 0;
-
-/** Whether any row a newer version wrote is on this device, a tombstone included: an import is refused. */
-export const holdsNewerRows = (snapshot: Snapshot) => leavesRowsOut(snapshot) || snapshot.newerTombstones > 0;
 
 export function dataActions(services: Services): DataActions {
   const { domain, platform, clock, analytics, ui } = services;
@@ -153,11 +150,12 @@ export function dataActions(services: Services): DataActions {
       const { plan, entries } = (await current(services)).snapshot;
       return plan !== null && downloadTaxYear(services, { plan, entries }, endingIn, words);
     },
-    async importBackup(file, mode) {
+    async importBackup(file, mode, shown) {
       let outcome: ImportOutcome | null = null;
       await domain.write((snapshot) => {
-        if (holdsNewerRows(snapshot)) {
-          outcome = { kind: 'refused', refusal: { code: 'newer-rows' } };
+        const refusal = turnRefusal(snapshot, file.plan.payCurrency, shown);
+        if (refusal !== null) {
+          outcome = { kind: 'refused', refusal };
           return {};
         }
         const result = applyImport(snapshot, file, mode, clock.now());
@@ -174,7 +172,7 @@ export function dataActions(services: Services): DataActions {
       if (outcome === null) throw new Error('the import did not run');
       return outcome;
     },
-    async importPrototype(json, mode, confirmed) {
+    async importPrototype(json, mode, confirmed, shown) {
       // The rules load before the write; a plan whose country another tab changed meanwhile loads them again.
       for (let attempt = 0; attempt < 3; attempt += 1) {
         const country = (await current(services)).snapshot.plan?.country ?? confirmed;
@@ -185,8 +183,9 @@ export function dataActions(services: Services): DataActions {
         const ids = (Array.isArray(purchases) ? purchases : []).map(() => EntityIdSchema.parse(crypto.randomUUID()));
         let outcome: PrototypeOutcome | null = null;
         await domain.write((snapshot) => {
-          if (holdsNewerRows(snapshot)) {
-            outcome = { kind: 'refused', refusal: { code: 'newer-rows' }, report: [] };
+          const refusal = turnRefusal(snapshot, prototypeCurrency(json), shown);
+          if (refusal !== null) {
+            outcome = { kind: 'refused', refusal, report: [] };
             return {};
           }
           if ((snapshot.plan?.country ?? confirmed) !== country) return {};

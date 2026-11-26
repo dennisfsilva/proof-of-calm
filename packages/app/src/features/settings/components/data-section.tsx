@@ -18,7 +18,8 @@ import { reportError } from '../../../lib/errors';
 import { createNumberInput } from '../../../lib/format';
 import type { Messages } from '../../../lib/i18n';
 import { useClock, useFormatters, useServices, useSnapshot } from '../../../lib/services';
-import { type DataRefusal, dataActions, type ImportOutcome, type PrototypeOutcome, type ReportNote } from '../actions';
+import { dataActions, type ImportOutcome, type PrototypeOutcome, type ReportNote } from '../actions';
+import { type DataRefusal, importShown } from '../import-guard';
 import { type ReadImport, readImport, unreadable } from '../model/import';
 import { DeletePlanDialog } from './delete-plan-dialog';
 import { type ExchangeDone, ExchangeImport, useExchangeResult } from './exchange-import';
@@ -163,11 +164,11 @@ export function DataSection() {
     busy.current = true;
     setImporting(true);
     try {
-      const read = chosen.read;
+      const shown = importShown(services.domain.store.getState().snapshot, chosen.read);
       const done: PrototypeOutcome =
-        read.kind === 'backup'
-          ? { ...(await actions.importBackup(read.file, mode)), report: [] }
-          : await actions.importPrototype(read.json, mode, country);
+        chosen.read.kind === 'backup'
+          ? { ...(await actions.importBackup(chosen.read.file, mode, shown)), report: [] }
+          : await actions.importPrototype(chosen.read.json, mode, country, shown);
       setChosen(null);
       const ended = done.kind === 'invalid' || done.kind === 'refused';
       setProblem(
@@ -278,8 +279,8 @@ export function DataSection() {
             ? tErrors('unknown', { product })
             : problem.code === 'too-large'
               ? t('import.tooLarge', { max: figure(IMPORT_MAX_BYTES / 1_000_000), product })
-              : problem.code === 'newer-rows'
-                ? t('import.newerRows', { product })
+              : problem.code === 'newer-rows' || problem.code === 'changed'
+                ? t(problem.code === 'changed' ? 'import.changed' : 'import.newerRows', { product })
                 : problem.code === 'currency-mismatch'
                   ? t(problem.pasted ? 'import.currencyMismatchPasted' : 'import.currencyMismatch', {
                       file: problem.file,
