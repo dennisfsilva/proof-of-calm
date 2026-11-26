@@ -311,6 +311,11 @@ For each slot, in order:
 and the entries. Nothing in the UI nags about `skipped` or `paused` slots; both appear in the Log and
 the Plan progress as honest history ("Skipped · travelling").
 
+A buy kept from before the plan counts for its month in the new plan (decided 2026-11-26, #552, settling
+design check DC-G's A4, #545): a month is `done` when a live `dca` entry's `slot` equals it, whichever plan
+the entry was logged under, so a buy kept from 5 October 2026 makes the new plan's Today say "October 2026 is
+recorded", which is true, since that buy was made in October.
+
 ### 3.3 Focus slot and the actions for today — `focusSlot`, `actionsNow`, `primaryAction`, `leadAction`
 
 Port of `focusSlot()`, `nowActions()`, `nextAction()`:
