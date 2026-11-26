@@ -1418,6 +1418,14 @@ Past-cycle drawdowns shown on the Red day page are content (`packages/content`),
   entries left out. A tombstone holds nothing a person would lose, so an export beside tombstones alone
   stamps `lastBackupAt` as usual and names nothing. Below the import, a write whose plan is held at a later
   version writes nothing at all (ADR-0019 Readings, "Row shape").
+- What the screen showed (ADR-0053, Readings of 2026-11-26): both imports take `shown`, whether a plan was
+  stored and the kept-currency question (§2, `keptCurrencyQuestion` with the file's pay currency, which
+  `prototypePayCurrency` reads from a DCA plan page file as §7 does, `EUR` when unreadable), and check it in
+  the same turn, after the newer rows: a plan stored since a screen that showed none, or a question other than
+  the one shown, refuses `changed`, nothing is written, and the import alert asks for the file again
+  (`docs/CONTENT-STYLE.md` §3). So an import with no plan never replaces a plan another tab stored.
+  `packages/app/src/features/settings/import-guard.test.ts` pins it, with a forward read of an import in GBP
+  through the row readers and a rollback read of every store left unchanged by a refusal.
 - "Delete everything" (the stores cleared at once, with an Undo) is owned by ADR-0019 Readings.
 - CSV export of the log (`proof-of-calm-log-YYYY-MM-DD.csv`), `logCsv(plan, entries, context)`: columns
   `date, coin, kind, slot, amount, currency, units, price, fee, holding_eligible_from, note, venue, to_venue, units_received`

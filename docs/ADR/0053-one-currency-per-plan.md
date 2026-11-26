@@ -118,9 +118,18 @@ entry carries no currency of its own (`packages/core/src/schema/entry.ts`), so t
 in the file's plan's pay currency, whatever the set-aside plan paid in. Nothing is converted. Decided
 by the session on 2026-11-26: keeping them was chosen over tombstoning them, a silent loss no later
 import can undo, since a deletion on this device wins, and over refusing the import, which would
-block the recovery the quarantine notice points a person to. A guard that asks before a plan is
-written beside stored entries, for this import and for onboarding, is the next session's work
-(planned: M2). `packages/core/src/export/backup.test.ts` pins the reading.
+block the recovery the quarantine notice points a person to. Onboarding asks before it writes (the
+next Reading). The import sends what its screen showed, whether a plan was stored and the kept
+currency question (`importShown`, `packages/app/src/features/settings/import-guard.ts`), and its
+write checks both again in its own turn: a plan stored since a screen that showed none, or a
+question other than the one shown, refuses the import with `changed` and writes nothing, so an
+import with no plan never replaces a plan another tab stored. The file's currency is read before
+the import as the import reads it (`prototypePayCurrency` for a DCA plan page file). The import's
+screen that asks the question is still to come (planned: M2).
+`packages/core/src/export/backup.test.ts` pins the reading;
+`packages/app/src/features/settings/import-guard.test.ts` pins the guard, with a forward read (an
+import in GBP read back through the row readers) and a rollback read (a refusal leaves every store
+unchanged).
 
 ### Reading of 2026-11-26: onboarding asks before a plan is written beside kept entries
 
