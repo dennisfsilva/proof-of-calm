@@ -1,4 +1,4 @@
-import { expect, type Page, type TestInfo } from '@playwright/test';
+import { expect, type Locator, type Page, type TestInfo } from '@playwright/test';
 import type { Snapshot } from '@proofofcalm/app/lib/ports';
 import { fixtureSnapshot } from '@proofofcalm/app/lib/services/fixtures';
 import { type CalendarDate, type Entry, LOG_WINDOW, liveEntries, MAX_ENTRIES } from '@proofofcalm/core';
@@ -107,19 +107,34 @@ const settle = (page: Page) =>
   );
 
 /**
+ * A click on `target` resolved before the window opens: a locator resolves again on every action, and Playwright's
+ * `getByRole` over the Log's rows made a 75 to 101 ms task inside the window (#537's profile). The trial click waits
+ * until the click would land; the handle's click inside the window then runs no selector.
+ */
+async function resolved(page: Page, target: Locator): Promise<() => Promise<void>> {
+  await target.click({ ...loading, trial: true });
+  const handle = await target.elementHandle(loading);
+  if (handle === null) throw new Error(`${target} matched no element`);
+  await settle(page);
+  return () => handle.click();
+}
+
+/**
  * The longest Event Timing duration of an interaction `act` makes, in ms (0: none reached 16 ms), the longest task
  * from clearing the arrays until `shown` holds and the page settles, and the longest of those that started before the
- * input, the harness's own work, since the app is idle once settled (0: none).
+ * input, the harness's own work, since the app is idle once settled (0: none). A locator as `act` is clicked, resolved
+ * before the window opens.
  */
-async function measure(page: Page, act: () => Promise<void>, shown: () => Promise<void>) {
+async function measure(page: Page, act: (() => Promise<void>) | Locator, shown: () => Promise<void>) {
   await settle(page);
+  const perform = typeof act === 'function' ? act : await resolved(page, act);
   await page.evaluate(() => {
     const { perf } = window as unknown as { perf: Perf };
     perf.events.length = 0;
     perf.tasks.length = 0;
     perf.inputAt = null;
   });
-  await act();
+  await perform();
   await shown();
   await settle(page);
   const { events, tasks, inputAt } = await perfOf(page);
@@ -274,15 +289,11 @@ test(`the Log at ${MAX_ENTRIES} entries: each input, Show all and its window at 
   const before = (await range.textContent()) ?? '';
   const monthly = page.locator('tbody button[aria-expanded]', { hasText: 'Monthly buy' }).first();
   await monthly.click();
-  const remove = await measure(
-    page,
-    () => page.getByRole('button', { name: 'Delete entry' }).click(),
-    () => expect(range).not.toHaveText(before, loading),
+  const remove = await measure(page, page.getByRole('button', { name: 'Delete entry' }), () =>
+    expect(range).not.toHaveText(before, loading),
   );
-  const undo = await measure(
-    page,
-    () => page.getByRole('button', { name: 'Undo' }).click(),
-    () => expect(range).toHaveText(before, loading),
+  const undo = await measure(page, page.getByRole('button', { name: 'Undo' }), () =>
+    expect(range).toHaveText(before, loading),
   );
   // The Undo puts the row back in a deferred render, which can replace the row a first click reached.
   const editEntry = page.getByRole('button', { name: 'Edit entry' });
