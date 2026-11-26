@@ -138,6 +138,13 @@
       "invalidEntries": "{count, plural, one {{figure} Eintrag in diesem Import kann} other {{figure} Einträge in diesem Import können}} nicht gespeichert werden, daher wurde nichts importiert. Exportieren Sie ein neues Backup aus {product} auf dem Gerät, das es erstellt hat, und importieren Sie dann die neue Datei.",
       "invalidEntriesPasted": "{count, plural, one {{figure} Eintrag im eingefügten Text kann} other {{figure} Einträge im eingefügten Text können}} nicht gespeichert werden, daher wurde nichts importiert. Exportieren Sie ein neues Backup aus {product} auf dem Gerät, das es erstellt hat, und fügen Sie dann den neuen Text ein."
     },
+    "kept": {
+      "title": "{count, plural, one {{figure} gespeicherten Eintrag in {file} anzeigen?} other {{figure} gespeicherte Einträge in {file} anzeigen?}}",
+      "known": "{count, plural, one {Er hat einen Betrag oder eine Gebühr in {kept}, der Währung Ihres Plans, der nicht gelesen werden konnte. Der Plan dieser Datei ist in {file}. Ein Plan hat eine einzige Währung, und nichts wird umgerechnet. Um ihn in {kept} zu behalten, importieren Sie ein Backup in {kept} oder richten Sie einen Plan ein.} other {Sie haben Beträge oder Gebühren in {kept}, der Währung Ihres Plans, der nicht gelesen werden konnte. Der Plan dieser Datei ist in {file}. Ein Plan hat eine einzige Währung, und nichts wird umgerechnet. Um sie in {kept} zu behalten, importieren Sie ein Backup in {kept} oder richten Sie einen Plan ein.}}",
+      "unknown": "{count, plural, one {Die Währung dieses Eintrags konnte nicht gelesen werden. Der Plan dieser Datei ist in {file}. Ein Plan hat eine einzige Währung, und nichts wird umgerechnet. Um die Währung zu wählen, richten Sie einen Plan ein.} other {Die Währung dieser Einträge konnte nicht gelesen werden. Der Plan dieser Datei ist in {file}. Ein Plan hat eine einzige Währung, und nichts wird umgerechnet. Um die Währung zu wählen, richten Sie einen Plan ein.}}",
+      "cancel": "Nicht importieren",
+      "import": "In {file} importieren"
+    },
     "exchange": {
       "summary": "Fügt {count, plural, one {{figure} Eintrag} other {{figure} Einträge}} hinzu: {kinds}.",
       "kinds": {

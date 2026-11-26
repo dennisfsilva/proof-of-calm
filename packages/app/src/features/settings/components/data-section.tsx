@@ -16,14 +16,15 @@ import { readFileText } from '../../../lib/adapters';
 import { BRAND } from '../../../lib/brand';
 import { reportError } from '../../../lib/errors';
 import { createNumberInput } from '../../../lib/format';
-import type { Messages } from '../../../lib/i18n';
 import { useClock, useFormatters, useServices, useSnapshot } from '../../../lib/services';
 import { dataActions, type ImportOutcome, type PrototypeOutcome, type ReportNote } from '../actions';
-import { type DataRefusal, importShown } from '../import-guard';
+import { type ImportShown, importShown } from '../import-guard';
 import { type ReadImport, readImport, unreadable } from '../model/import';
 import { DeletePlanDialog } from './delete-plan-dialog';
 import { type ExchangeDone, ExchangeImport, useExchangeResult } from './exchange-import';
-import { type ExchangeProblem, exchangeProblem, useExchangeProblemText } from './exchange-problem';
+import { exchangeProblem } from './exchange-problem';
+import { type Problem, useImportProblemText } from './import-problem';
+import { KeptImportDialog } from './kept-import-dialog';
 import { PrototypeImport, PrototypePaste, PrototypeReport } from './prototype-import';
 import { SetAsideCount } from './set-aside-count';
 import { TaxYearExport } from './tax-year-export';
@@ -33,6 +34,8 @@ import { TaxYearExport } from './tax-year-export';
 // (delete-plan-dialog.tsx), then the import of a JSON backup as "Replace everything" or "Add missing entries only", or as the one "Import this backup" with no
 // plan, where both modes take the file's plan. Replacing a plan first asks, with the count and an export, as "Delete the plan" does (docs/CONTENT-STYLE.md §3), and
 // the confirming button is the destructive one (docs/DESIGN.md §8); the safe one takes the focus when it opens.
+// With no plan, a file whose plan would show the entries kept here in another currency first asks, with the same focus
+// (kept-import-dialog.tsx); the write's turn compares what the screen showed, and a change in another tab refuses.
 // Every handler awaits its action and words a failure in an alert. An import's end takes the focus to what reports
 // it, its alert or else its result line (docs/DESIGN.md §6); a cancelled replace gives it back to the button that asked.
 // Add missing from a file in another pay currency adds nothing, and the alert names both (docs/DOMAIN.md §3.13)
@@ -46,18 +49,12 @@ import { TaxYearExport } from './tax-year-export';
 // names the exchange exports the import reads; an exchange's file it cannot take has its own alert (exchange-problem.ts),
 // and one it reads opens its preview (exchange-import.tsx), whose Cancel gives the focus back to "Choose a file".
 
-/** Why a chosen file was not imported: a backup error, the generic line, a file over the byte cap, or a refusal. */
-type Problem =
-  | { readonly code: keyof Messages['errors']['backup'] }
-  | { readonly code: 'unknown' | 'too-large' }
-  | { readonly code: 'exchange'; readonly problem: ExchangeProblem }
-  | (DataRefusal & { readonly pasted: boolean });
 type Chosen = { readonly name: string | null; readonly read: ReadImport };
 
 export function DataSection() {
   const t = useTranslations('settings.data');
   const tErrors = useTranslations('errors');
-  const exchangeText = useExchangeProblemText();
+  const problemText = useImportProblemText();
   const exchangeResult = useExchangeResult();
   const services = useServices();
   const actions = useMemo(() => dataActions(services), [services]);
@@ -91,6 +88,13 @@ export function DataSection() {
   const [importing, setImporting] = useState(false);
   const [exportFailed, setExportFailed] = useState<'not-saved' | 'date' | 'unknown' | null>(null);
   const [confirming, setConfirming] = useState(false);
+  /** The import the kept dialog asks about, with what the screen showed when it was asked for. */
+  const [asking, setAsking] = useState<{ mode: ImportMode; country: ProfileCode | null; shown: ImportShown } | null>(
+    null,
+  );
+  const snapshot = useSnapshot((stored) => stored);
+  const read = chosen?.read.kind === 'exchange' ? undefined : chosen?.read;
+  const rendered = read === undefined ? null : importShown(snapshot, read);
   const product = BRAND.name;
   /** The import buttons while one writes: focusable, so the focus stays on the one pressed (docs/DESIGN.md §6). */
   const pending = { disabled: importing, focusableWhenDisabled: true };
@@ -158,13 +162,15 @@ export function DataSection() {
     </p>
   );
 
-  // The dialog stays open until the replace is written, so that its closing knows where the focus goes.
-  const run = async (mode: ImportMode, country: ProfileCode | null = null) => {
-    if (chosen === null || chosen.read.kind === 'exchange' || busy.current) return;
+  // A dialog stays open until the import is written, so that its closing knows where the focus goes. The turn checks
+  // what the screen showed (`shown`, or what the kept dialog asked about), so a change it never showed refuses.
+  const run = async (mode: ImportMode, country: ProfileCode | null = null, asked?: ImportShown) => {
+    if (chosen === null || chosen.read.kind === 'exchange' || rendered === null || busy.current) return;
+    if (asked === undefined && rendered.question !== null) return setAsking({ mode, country, shown: rendered });
+    const shown = asked ?? rendered;
     busy.current = true;
     setImporting(true);
     try {
-      const shown = importShown(services.domain.store.getState().snapshot, chosen.read);
       const done: PrototypeOutcome =
         chosen.read.kind === 'backup'
           ? { ...(await actions.importBackup(chosen.read.file, mode, shown)), report: [] }
@@ -186,11 +192,12 @@ export function DataSection() {
     }
     // The dialog's closing moves the focus to what reports the end; outside it, the next render does, since the
     // buttons may unmount with the chosen file.
-    replaced.current = confirming;
-    settled.current = !confirming;
+    replaced.current = confirming || asked !== undefined;
+    settled.current = !replaced.current;
     busy.current = false;
     setImporting(false);
     setConfirming(false);
+    setAsking(null);
   };
   /** The exchange preview's end: Cancel gives the focus back to "Choose a file", any other end to what reports it. */
   const endExchange = (done: ExchangeDone | null) => {
@@ -275,33 +282,7 @@ export function DataSection() {
       <PrototypePaste pending={importing} onRead={onPaste} />
       {problem !== null && (
         <p ref={problemLine} role="alert" tabIndex={-1} className="scroll-mt-result text-ink">
-          {problem.code === 'unknown'
-            ? tErrors('unknown', { product })
-            : problem.code === 'too-large'
-              ? t('import.tooLarge', { max: figure(IMPORT_MAX_BYTES / 1_000_000), product })
-              : problem.code === 'newer-rows' || problem.code === 'changed'
-                ? t(problem.code === 'changed' ? 'import.changed' : 'import.newerRows', { product })
-                : problem.code === 'currency-mismatch'
-                  ? t(problem.pasted ? 'import.currencyMismatchPasted' : 'import.currencyMismatch', {
-                      file: problem.file,
-                      plan: problem.plan,
-                    })
-                  : problem.code === 'too-many-entries'
-                    ? // Only a DCA plan page file holds more on its own: a backup holds at most the cap.
-                      t(problem.file > problem.max ? 'import.tooManyInFile' : 'import.tooManyEntries', {
-                        entries: figure(problem.entries),
-                        file: figure(problem.file),
-                        max: figure(problem.max),
-                      })
-                    : problem.code === 'invalid-entries'
-                      ? t(problem.pasted ? 'import.invalidEntriesPasted' : 'import.invalidEntries', {
-                          count: problem.ids.length,
-                          figure: figure(problem.ids.length),
-                          product,
-                        })
-                      : problem.code === 'exchange'
-                        ? exchangeText(problem.problem)
-                        : tErrors(`backup.${problem.code}`, { product })}
+          {problemText(problem)}
         </p>
       )}
       {chosen?.read.kind === 'prototype' && (
@@ -366,6 +347,14 @@ export function DataSection() {
             .join(' ')}
       </p>
       <PrototypeReport notes={report} />
+      <KeptImportDialog
+        question={asking?.shown.question ?? null}
+        file={asking?.shown.question?.next ?? 'EUR'}
+        pending={importing}
+        finalFocus={finalFocus}
+        onImport={() => asking !== null && void run(asking.mode, asking.country, asking.shown)}
+        onCancel={() => !busy.current && setAsking(null)}
+      />
       {/* Close, Escape and an outside press wait for the replace, which would otherwise run with the dialog gone. */}
       <Dialog
         open={confirming}
