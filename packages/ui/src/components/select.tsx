@@ -11,6 +11,7 @@ import {
   isValidElement,
   type ReactNode,
   use,
+  useCallback,
   useLayoutEffect,
   useRef,
   useState,
@@ -30,6 +31,13 @@ import { cn } from '#lib/utils';
 // measured as the popup opens; aligned, both positioner margins are the bar's height when the list would reach the bar,
 // as Base UI takes both from the viewport but adds back only the bottom one, and a margin the list does not need lifts
 // it off its trigger. The height cap applies only beside: aligned, it would cut the list to the room below the trigger.
+
+// The open listbox is named by the label (aria-labelledby): the Label's element reports its id through a ref, as Base
+// UI derives that id itself and names only the trigger by it. Without a Label the listbox takes no reference.
+const LabelId = createContext<{ id: string | undefined; set: (id: string | undefined) => void }>({
+  id: undefined,
+  set: () => {},
+});
 
 const BottomBar = createContext(0);
 const bottomBar = () => document.querySelector<HTMLElement>('[data-slot="tab-bar"]')?.offsetHeight ?? 0;
@@ -83,26 +91,39 @@ function Select<Value, Multiple extends boolean | undefined = false>({
   ...props
 }: SelectPrimitive.Root.Props<Value, Multiple>) {
   const [bottom, setBottom] = useState(0);
+  const [labelId, setLabelId] = useState<string | undefined>();
   return (
     <CSPProvider disableStyleElements>
-      <BottomBar value={bottom}>
-        <SelectPrimitive.Root<Value, Multiple>
-          {...props}
-          onOpenChange={(open, details) => {
-            if (open) setBottom(bottomBar());
-            onOpenChange?.(open, details);
-          }}
-        />
-      </BottomBar>
+      <LabelId value={{ id: labelId, set: setLabelId }}>
+        <BottomBar value={bottom}>
+          <SelectPrimitive.Root<Value, Multiple>
+            {...props}
+            onOpenChange={(open, details) => {
+              if (open) setBottom(bottomBar());
+              onOpenChange?.(open, details);
+            }}
+          />
+        </BottomBar>
+      </LabelId>
     </CSPProvider>
   );
 }
 
-function SelectLabel({ className, ...props }: WithClassName<SelectPrimitive.Label.Props>) {
+function SelectLabel({ className, ref, ...props }: WithClassName<SelectPrimitive.Label.Props>) {
+  const { set } = use(LabelId);
+  const report = useCallback(
+    (node: HTMLDivElement | null) => {
+      set(node?.id || undefined);
+      if (typeof ref === 'function') return ref(node);
+      if (ref) ref.current = node;
+    },
+    [set, ref],
+  );
   return (
     <SelectPrimitive.Label
       data-slot="select-label"
       className={cn('font-medium text-14 text-ink', className)}
+      ref={report}
       {...props}
     />
   );
@@ -153,6 +174,7 @@ function SelectContent({
 }: SelectContentProps) {
   // Base UI's default padding of 5 px on every side, the tab bar's height added at the bottom.
   const bar = use(BottomBar);
+  const label = use(LabelId).id;
   const bottom = bar + 5;
   const floor: CSSProperties & Record<'--select-floor', number> = { '--select-floor': Math.min(items(children), 7) };
   return (
@@ -179,7 +201,7 @@ function SelectContent({
           <SelectPrimitive.ScrollUpArrow className="flex w-full items-center justify-center bg-overlay py-1 text-ink-2">
             <ChevronUpIcon aria-hidden className="size-5" />
           </SelectPrimitive.ScrollUpArrow>
-          <SelectPrimitive.List>{children}</SelectPrimitive.List>
+          <SelectPrimitive.List aria-labelledby={label}>{children}</SelectPrimitive.List>
           <SelectPrimitive.ScrollDownArrow className="flex w-full items-center justify-center bg-overlay py-1 text-ink-2">
             <ChevronDownIcon aria-hidden className="size-5" />
           </SelectPrimitive.ScrollDownArrow>
