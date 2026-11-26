@@ -55,3 +55,8 @@ None.
   Reading of that day), so the paid plans do not carry the same clause, and this decision holds only on
   the Demo plan. The plan the app uses at launch, and with it whether the credit needs a link, is
   decided in #21.
+- 2026-11-26: the first consequence has shipped. #548 set every line that carries the credit at
+  `text-14`: Today's and Portfolio's prices line, the value chart's closes line with the
+  past-performance line under it, and each holdings row chart's credit line, with the value block's
+  label beside them; it deleted the Today, Portfolio and Plan baselines that made stale, and #549
+  added them re-rendered. The Context's `text-13` describes the app before that day.
