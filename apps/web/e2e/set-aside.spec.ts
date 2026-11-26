@@ -214,3 +214,46 @@ test('the United Kingdom over a plan row kept in EUR asks with two cards, Paid i
   await expect(screenArea(page)).toContainText('€');
   await expect(screenArea(page)).not.toContainText('£');
 });
+
+// An import with no plan asks before the file's plan shows the kept entries in its currency (ADR-0053 Readings,
+// 2026-11-26): Do not import writes nothing, gives the focus back to the button that asked, and the plan row stays
+// set aside with its entries in EUR.
+test('a GBP backup over a readable EUR row asks first, and Do not import keeps the EUR entries', async ({ page }) => {
+  const { plan } = fixture;
+  if (plan === null) throw new Error('the fixture holds a plan');
+  await seedRows(
+    page,
+    withPlanRowSetAside({ ...(planRow(plan, SEED_DEVICE_ID).payload as object), coins: 'unreadable' }),
+  );
+  const gbp = exportBackup(
+    { ...plan, payCurrency: 'GBP', displayCurrency: 'GBP' },
+    [],
+    `${FIXTURE_DATES.buy}T09:00:00.000Z` as Instant,
+  );
+  await page.goto('/settings');
+  await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+  await page.getByRole('tab', { name: 'Currency & data' }).click();
+  const chooser = page.waitForEvent('filechooser');
+  await page.getByRole('button', { name: 'Choose a file' }).click();
+  await (await chooser).setFiles({
+    name: 'gbp.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(gbp)),
+  });
+  const opener = page.getByRole('button', { name: 'Import this backup' });
+  await opener.click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toHaveAccessibleName(/^Show \d+ saved entries in GBP\?$/);
+  await expect(dialog).toContainText(
+    'They hold amounts or fees in EUR, the currency of your plan that could not be read.',
+  );
+  await expect(dialog.getByRole('button', { name: 'Do not import' })).toBeFocused();
+  await dialog.getByRole('button', { name: 'Do not import' }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(opener).toBeFocused();
+  await expect(page.getByText(/^Plan imported\./)).toHaveCount(0);
+
+  await page.goto('/today');
+  await expect(screenArea(page)).not.toHaveAttribute('aria-busy', 'true');
+  await expect(page.getByRole('heading', { name: 'Your plan could not be read' })).toBeVisible();
+});
