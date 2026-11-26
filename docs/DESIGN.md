@@ -626,8 +626,11 @@ no coin: four narrow images and one wide, in `apps/web/public/screenshots/`, nam
   read each image before it ships.
 - The coin count runs on every CI end-to-end run, not only at capture: the same spec opens each
   screen of the set and counts the catalogue's tickers and names (`packages/content/coins.json`) as
-  whole words in its text, and passes only at zero. Lowercase words such as "near" are English, not
-  coins, so the count is case-sensitive.
+  whole words, and passes only at zero. It matches each string the screen reads on its own (every
+  text node, each alt, `aria-label` and title, every field's value and placeholder, and the whole
+  text once more for a name split across inline elements), so two neighbouring elements never run
+  together; `apps/web/lib/pwa/coin-words.ts` holds the matcher. Lowercase words such as "near" are
+  English, not coins, so the count is case-sensitive.
 - The images stay inside the GB route with no exception (ADR-0029's Readings, 2026-11-26), with
   the request test in `apps/web/e2e/uk-block.spec.ts`; the worker's precache (`icons/*.png` among
   its patterns) and the mobile host leave them out.
