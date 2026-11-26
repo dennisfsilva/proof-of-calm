@@ -308,9 +308,10 @@ The decision stands; these are the choices its text left open, made while implem
   since the unreadable copies stay in it; once an import brings rows back, the line names how many are
   back in the data and the exports (`recovered` in
   `packages/app/src/features/settings/components/set-aside-count.tsx`: set-aside entry ids live in the
-  snapshot again, plus a set-aside plan row whose id is the plan shown), so it no longer says exports
-  leave them out. The newer-entries line moves from the shell into Today, under Today's title and
-  before the set-aside line, so the two read in that order (`docs/CONTENT-STYLE.md` §3, Newer
+  snapshot again, plus a set-aside plan row whose id is the plan shown) and, while some are not, how
+  many exports still leave out (the count minus those back), since an export handed on as complete
+  would be wrong; only once every item is back does it say that only the unreadable copies stay. The
+  newer-entries line moves from the shell into Today, under Today's title and before the set-aside line, so the two read in that order (`docs/CONTENT-STYLE.md` §3, Newer
   version). Neither touches the store: no row, schema or list change, so no read test is owed.
 
 ## Disagreement
