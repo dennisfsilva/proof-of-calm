@@ -324,7 +324,10 @@ dark mode uses the dark steps above, not an inversion; the validator runs whenev
   padding keeping it clear of the tab bar), and the focus stays in the box.
 - **Focus on a route change**: the first screen leaves the focus where the page starts, also after a
   redirect; each later change of pathname moves it to the new screen's `h1` (given `tabindex="-1"`
-  when it has none), once a lazy screen has rendered it, and scrolls to the top.
+  when it has none), once a lazy screen has rendered it, and scrolls to the top. Choosing a language
+  reloads the page, which starts at the document's start with the skip link first, as every page load
+  does; the focus does not return to the Language select, which would need a marker stored across
+  the reload (decided 2026-11-26, #537).
 - **Skip link and landmark**: the first tabbable element is "Skip to content", shown only while
   focused; it focuses the one `main` (the shell's, `tabindex="-1"`) without changing the URL.
 - **Names in `tokens.css`**: Tailwind owns the `--radius-*`, `--text-*`, `--ease-*` and `--shadow-*`
@@ -554,7 +557,11 @@ the form), so it waits for a screen that does. Notes, and the values this docume
   (`UNDO_WINDOW_MS` for an undo, none for the update prompt), which waits while the pointer is on the
   toast, focus is in it, the page is out of focus or out of sight (another tab or app), or a modal
   Sheet or Dialog is open over it (§7), and then runs its whole window again. It rises 16 px and fades in over `slow`, fades out with the exit
-  easing, and both take 1 ms under reduced motion.
+  easing, and both take 1 ms under reduced motion. After Bought as planned or a different amount,
+  the Recorded toast can cover part of Today's plan strip ("Out by") until it closes after
+  `UNDO_WINDOW_MS` or is dismissed: `--toast-inset` gives the screen's bottom padding the toast's
+  band (§7), so the strip scrolls clear, and the toast's promise is that it never hides the focus
+  (§6), not every line (decided 2026-11-26, #537).
 - **The module sheet's `Close`.** A "Why?" sheet has no foot, so its `Close` stays in view as the module
   scrolls, on the `overlay` fill, with the module keeping a 44 px column clear on its right, as a sheet's
   header does for its title, so the text scrolling past passes beside it, never under it (the caveat's
