@@ -75,19 +75,26 @@ export const Draws: Story = {
   },
 };
 
+/** While the closes load the frame stands unseen, its legend, table toggle and credit too. */
 export const Loading: Story = {
   args: { chart: { kind: 'loading' } },
   play: async ({ canvas }) => {
     await expect(canvas.queryByRole('img')).toBeNull();
+    for (const label of ['BTC price', 'Show the daily closes as a table', 'Price data by CoinGecko']) {
+      await expect(canvas.getByText(label)).not.toBeVisible();
+    }
   },
 };
 
-/** The closes could not be had: the frame keeps its place unseen, and the value chart's line says why. */
+const UNAVAILABLE = 'The price history could not be loaded, so there is no chart. Open Portfolio again to retry.';
+
+/** The closes could not be had: the frame keeps its place unseen, with the value chart's line at its top. */
 export const Unavailable: Story = {
-  args: { chart: { kind: 'unavailable' } },
-  play: async ({ canvas, canvasElement }) => {
+  args: { chart: { kind: 'unavailable', line: UNAVAILABLE } },
+  play: async ({ canvas }) => {
     await expect(canvas.queryByRole('img')).toBeNull();
-    await expect(canvasElement.querySelector('[data-slot="coin-row-chart"]')).not.toBeVisible();
+    await expect(canvas.getByText(UNAVAILABLE)).toBeVisible();
+    await expect(canvas.getByText('Price data by CoinGecko')).not.toBeVisible();
   },
 };
 

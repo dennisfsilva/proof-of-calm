@@ -175,6 +175,11 @@ describe('Holdings', () => {
     const detail = open('BTC');
     expect(detail.querySelector(`${ROW_CHART}[aria-busy="true"]`)).not.toBeNull();
     expect(within(detail).queryByRole('img')).toBeNull();
+    // The legend and the table toggle stand unseen with the frame: a tap would open an empty table.
+    const frame = detail.querySelector(`${ROW_CHART} > [inert]`);
+    expect(frame?.matches('[aria-hidden="true"].invisible')).toBe(true);
+    expect(frame?.contains(within(detail).getByText('BTC price'))).toBe(true);
+    expect(frame?.contains(within(detail).getByText('Show the daily closes as a table'))).toBe(true);
   });
 
   it('keeps an open row’s empty frame, unseen and unread, when the closes fail, so the row keeps its height', async () => {
@@ -183,8 +188,15 @@ describe('Holdings', () => {
       histories: { status: 'failed', failure: { kind: 'http', status: 502 } },
     });
     const detail = open('BTC');
-    expect(detail.querySelector(ROW_CHART)?.matches('.invisible:not([aria-busy])')).toBe(true);
+    const chart = detail.querySelector(ROW_CHART);
+    expect(chart?.matches('[aria-busy]')).toBe(false);
+    expect(chart?.querySelector(':scope > [inert]')?.matches('[aria-hidden="true"].invisible')).toBe(true);
     expect(within(detail).queryByRole('img')).toBeNull();
+    // The value chart's line at the frame's top, next to the chart it is about, as that line is far above.
+    const line = within(detail).getByText(
+      'The price history could not be loaded, so there is no chart. Open Portfolio again to retry.',
+    );
+    expect(line.parentElement).toBe(chart);
   });
 
   it('names the coin and the range’s dates in an open row whose closes inside the range are fewer than two', async () => {

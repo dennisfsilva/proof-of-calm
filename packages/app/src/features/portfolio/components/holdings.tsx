@@ -39,9 +39,11 @@ import { CoinRowChart, type CoinRowChartProps } from './coin-row-chart';
 // amount invested, then the coin's chart over the value chart's range. Two columns, and no figure broken
 // inside, keep it within a phone at 125 % text. A coin never bought or sold in full has no row (the screen
 // names the ones not bought yet). A closed row's detail is only hidden, so it gets no chart; an open row
-// draws one only while the value chart draws, which carries the past-performance line, or its empty frame
-// while the closes load, kept unseen when they fail (docs/LEGAL.md §4); a coin with fewer than two closes inside the range shows one line
-// saying so, with the range's dates, and a coin with no closes none, since the value chart's line then says why.
+// draws one only while the value chart draws, which carries the past-performance line, or its empty frame,
+// unseen, while the closes load; when they fail the frame keeps its place, unseen, with the value chart's line at
+// its top, since that line is far above (docs/LEGAL.md §4, docs/CONTENT-STYLE.md rule 8); a coin with fewer than
+// two closes inside the range shows one line saying so, with the range's dates, and a coin with no closes none,
+// since the value chart's line then says why.
 
 /** The fixed decimals of a coin's units: the plan's, or 8 for a coin the plan no longer holds. */
 const UNIT_DECIMALS = 8;
@@ -99,6 +101,7 @@ type HoldingsProps = { readonly plan: Plan; readonly portfolio: Portfolio; reado
 
 export function Holdings({ plan, portfolio, charts }: HoldingsProps) {
   const t = useTranslations('portfolio.holdings');
+  const chartT = useTranslations('portfolio.chart');
   const format = useFormatters();
   const currency = plan.payCurrency;
   const held = portfolio.positions.filter((position) => isPositive(position.units));
@@ -123,7 +126,8 @@ export function Holdings({ plan, portfolio, charts }: HoldingsProps) {
 
   /** The chart an open row draws, or null for none. */
   const rowChart = (position: Position): CoinRowChartProps['chart'] | null => {
-    if (state.kind === 'loading' || state.kind === 'unavailable') return { kind: state.kind };
+    if (state.kind === 'loading') return { kind: 'loading' };
+    if (state.kind === 'unavailable') return { kind: 'unavailable', line: chartT('unavailable') };
     const history = histories.status === 'ready' ? histories.histories.coins[position.coin] : undefined;
     if (covered === null || history === undefined) return null;
     const model = coinChart(entries, position.coin, history, covered, position.average, COIN_CHART_VIEW_BOX);

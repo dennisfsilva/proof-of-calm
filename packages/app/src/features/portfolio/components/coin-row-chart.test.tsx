@@ -104,18 +104,31 @@ describe('CoinRowChart', () => {
     expect(legend?.textContent).not.toContain('Buy');
   });
 
-  it('keeps the frame out of reach and unread while the closes load', async () => {
+  it('keeps the frame unseen, out of reach and unread while the closes load, its legend, toggle and credit too', async () => {
     await mount({ kind: 'loading' });
-    const frame = document.querySelector('[data-slot="coin-row-chart"] > [inert]');
-    expect(frame?.getAttribute('aria-hidden')).toBe('true');
+    const chart = document.querySelector('[data-slot="coin-row-chart"]');
+    expect(chart?.getAttribute('aria-busy')).toBe('true');
+    const frame = chart?.querySelector(':scope > [inert]');
+    expect(frame?.matches('[aria-hidden="true"].invisible')).toBe(true);
+    for (const label of ['BTC price', 'Show the daily closes as a table', 'Price data by CoinGecko']) {
+      expect(frame?.contains(screen.getByText(label))).toBe(true);
+    }
     expect(screen.queryByRole('img')).toBeNull();
   });
 
-  it('keeps the frame’s height, unseen, unread and not busy, when the closes fail', async () => {
-    await mount({ kind: 'unavailable' });
+  it('keeps the frame’s height, unseen, unread and not busy, with the value chart’s line at its top when the closes fail', async () => {
+    const line = 'The price history could not be loaded, so there is no chart. Open Portfolio again to retry.';
+    await mount({ kind: 'unavailable', line });
     const chart = document.querySelector('[data-slot="coin-row-chart"]');
-    expect(chart?.matches('.invisible:not([aria-busy])')).toBe(true);
-    expect(chart?.querySelector(':scope > [inert][aria-hidden="true"] figure')).not.toBeNull();
+    expect(chart?.matches('[aria-busy], [aria-hidden], .invisible')).toBe(false);
+    const frame = chart?.querySelector(':scope > [inert][aria-hidden="true"].invisible');
+    expect(frame?.querySelector('figure')).not.toBeNull();
+    // The line shares the frame's grid cell, at its top, seen and read, and never live: the value chart's says it.
+    const shown = screen.getByText(line);
+    expect(shown.parentElement).toBe(chart);
+    expect([...shown.classList]).toEqual(expect.arrayContaining(['col-start-1', 'row-start-1']));
+    expect(shown.matches('[role], [aria-live]')).toBe(false);
+    expect(screen.queryByRole('status')).toBeNull();
     expect(screen.queryByRole('img')).toBeNull();
   });
 });
