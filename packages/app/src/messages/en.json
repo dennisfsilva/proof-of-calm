@@ -507,7 +507,7 @@
         "cardLine": "{count, plural, one {The plan is set up in {currency}{instead, select, yes { instead of {next}} other {}}, and the entry shows in {currency}, as typed.} other {The plan is set up in {currency}{instead, select, yes { instead of {next}} other {}}, and they show in {currency}, as typed.}}",
         "oneCurrency": "A plan holds one currency, and its entries show in it. Nothing is converted.",
         "issue": "{count, plural, one {Choose the currency it was paid in.} other {Choose the currency they were paid in.}}",
-        "changed": "The entries saved on this device changed in another tab, so the plan was not set up. Answer the question again.",
+        "changed": "The entries saved on this device changed in another browser tab, so the plan was not set up. Answer the question again.",
         "stay": "{count, plural, one {{figure} entry saved on this device stays and shows in this plan.} other {{figure} entries saved on this device stay and show in this plan.}}"
       }
     },

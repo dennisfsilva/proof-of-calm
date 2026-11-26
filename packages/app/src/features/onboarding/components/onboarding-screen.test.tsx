@@ -626,7 +626,7 @@ describe('OnboardingScreen: the session draft', () => {
     await click(START);
     expect(
       screen.getByText(
-        'The entries saved on this device changed in another tab, so the plan was not set up. Answer the question again.',
+        'The entries saved on this device changed in another browser tab, so the plan was not set up. Answer the question again.',
       ),
     ).toBeDefined();
     expect(shared.current().plan).toBeNull();
