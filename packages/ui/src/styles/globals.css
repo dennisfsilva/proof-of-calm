@@ -89,9 +89,13 @@
   }
 
   /*
-   * Reduced motion, from the system or the in-app setting: nothing moves and nothing loops. The
-   * durations are tokens already; this also stops the animations of third-party markup, which is why
-   * it must win over every other rule.
+   * Reduced motion, from the system or the in-app setting: nothing moves and nothing loops. This
+   * stops the animations of third-party markup too, which is why it must win over every other rule.
+   * It sets no transition-duration: every declared transition takes a duration token, and the
+   * default one (theme.css) is a token too, so each is 1 ms already (tokens.css). Setting it here
+   * would give the elements that declare no transition one of `all`, so a change of an inherited
+   * property (a frame shown by dropping `invisible`) starts one on every element below it, and those
+   * inside a closed panel never end.
    */
   /* biome-ignore-start lint/complexity/noImportantStyles: the reduced-motion override must beat any animation */
   @media (prefers-reduced-motion: reduce) {
@@ -100,7 +104,6 @@
     ::after {
       animation-duration: 1ms !important;
       animation-iteration-count: 1 !important;
-      transition-duration: 1ms !important;
       scroll-behavior: auto !important;
     }
   }
@@ -110,7 +113,6 @@
   :root[data-motion="reduce"] ::after {
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
   /* biome-ignore-end lint/complexity/noImportantStyles: see above */
