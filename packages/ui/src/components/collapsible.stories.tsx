@@ -153,6 +153,58 @@ export const TriggerKeepsItsTargetOverTheOpenPanel: Story = {
   },
 };
 
+/** Waits until the browser has painted twice, so a 1 ms transition started now has ended. */
+const twoFrames = () => new Promise<void>((done) => requestAnimationFrame(() => requestAnimationFrame(() => done())));
+
+/** What is still running, by property or name, for a readable failure. */
+const running = (document: Document) =>
+  document
+    .getAnimations()
+    .map((animation) =>
+      animation instanceof CSSTransition
+        ? `transition of ${animation.transitionProperty}`
+        : animation instanceof CSSAnimation
+          ? `animation ${animation.animationName}`
+          : 'script animation',
+    );
+
+// A frame kept mounted and shown by dropping `invisible` (Portfolio's chart before its first draw)
+// changes the inherited `visibility` of everything inside it. Under reduced motion nothing may start
+// a transition for that: the durations are tokens already, so no rule gives the elements that declare
+// no transition one of `all`, whose runs inside a closed panel never end (docs/DESIGN.md §6 Motion).
+export const ShownAgainUnderReducedMotion: Story = {
+  name: 'Shown again under reduced motion',
+  render: () => (
+    <div data-testid="frame" className="invisible">
+      <Collapsible className="max-w-reading">
+        <CollapsibleTrigger>More</CollapsibleTrigger>
+        <CollapsibleContent hiddenUntilFound>
+          <p className="pt-stack-sm text-16 text-ink-2">The plan buys the same amount every month.</p>
+        </CollapsibleContent>
+      </Collapsible>
+    </div>
+  ),
+  play: async ({ canvas, canvasElement }) => {
+    const document = canvasElement.ownerDocument;
+    const root = document.documentElement;
+    const before = root.dataset.motion;
+    root.dataset.motion = 'reduce';
+    try {
+      const frame = canvas.getByTestId('frame');
+      // Closed but kept in the page, as a closed <details> is: its content's styles still change.
+      await expect(frame.querySelector('[data-slot="collapsible-content"]')).toHaveAttribute('hidden', 'until-found');
+      await twoFrames();
+      frame.classList.remove('invisible');
+      await twoFrames();
+      await expect(running(document)).toEqual([]);
+      await expect(getComputedStyle(frame).visibility).toBe('visible');
+    } finally {
+      if (before === undefined) root.removeAttribute('data-motion');
+      else root.dataset.motion = before;
+    }
+  },
+};
+
 const twoLineLabel = 'Show how the plan works, what it costs and what can go wrong along the way';
 
 // A label that wraps at phone width (the template step's "Show how it works and what can go wrong"
