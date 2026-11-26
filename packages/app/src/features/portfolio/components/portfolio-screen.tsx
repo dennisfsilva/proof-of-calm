@@ -165,7 +165,7 @@ function PlanPortfolio({ plan }: { plan: Plan }) {
       <h1 className="text-28">{t('title')}</h1>
       <div className="flex flex-col gap-stack-sm">
         <dl>
-          <dt className="text-13 text-ink-2">{t('summary.value')}</dt>
+          <dt className="text-14 text-ink-2">{t('summary.value')}</dt>
           {value.value === null ? (
             <dd className="text-16">{t('summary.unpriced', { coins: unpriced.join(', ') })}</dd>
           ) : (
