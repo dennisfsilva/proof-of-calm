@@ -167,8 +167,9 @@ platform without one.
   country library, 46,030 bytes in 12 chunks on 2026-11-05; at 9a543833, booting on the rules file
   (ADR-0049), 42,142 bytes in 12 chunks on 2026-11-05; at 3f7d7523, with the red-day port's stub,
   44,870 bytes in 13 chunks on 2026-11-09; at 5c03211d, 44,928 bytes in 14 chunks, and with Today's
-  code-splitting group 35,928 bytes in 3 chunks, the same static modules, on 2026-11-09. Rolldown
-  groups modules by the entries that reach them, so a lazy chunk that imports some of the entry's
+  code-splitting group 35,928 bytes in 3 chunks, the same static modules, on 2026-11-09; after #566,
+  46,032 of the 46,080 bytes, 48 to spare, on 2026-11-26 (measure on the base before adding to
+  Today). Rolldown groups modules by the entries that reach them, so a lazy chunk that imports some of the entry's
   modules would split them into new shared chunks; one group (`packages/config/vite/chunk-groups.ts`,
   both hosts) keeps every module the entry imports statically in its chunk instead, and enters
   another feature's modules only for the names Today imports through its barrel. A module Today runs

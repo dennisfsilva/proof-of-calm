@@ -1153,6 +1153,21 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   reduced-motion. #560 worked around it per frame; the root rule now sets only the animation and
   scroll lines, held by `packages/ui/test/reduced-motion.test.ts` and the Collapsible story "Shown
   again under reduced motion" (2026-11-26).
+- A `fullPage` screenshot draws fixed layers at the scroll offset, so the skip link that waits above
+  the viewport and the tab bar appear mid-page in the image. Read `document.activeElement`, `:focus`
+  and the element's rectangle and take a viewport capture before calling an overlay a bug: 27f's
+  "Skip to content" over Portfolio's ranges was the capture, not the page (#562's comment
+  7191922099; 2026-11-26).
+- A spec that holds requests to stage a retry holds only those that arrive after the press that
+  starts it (a flag set right before the press), never every request after the n-th: requests
+  answered before the screen's first read count too, and on the reduced-motion project they held the
+  first read's own requests (#563; CI run 45822358259; 2026-11-26).
+- Measure Today's application code (`node tools/size/today.ts`) on the branch's base before planning
+  a change that adds to Today: DC-Q's 1,668-byte headroom was stale; main measured 46,019 of 46,080
+  bytes and #566 left 48 (`docs/ENGINEERING.md` §4) (#562; 2026-11-26).
+- A link that carries a query (`/settings?tab=data`) needs the hash host checked too: wouter's hash
+  navigate kept the query on a later plain target until #565 (ADR-0045 Deviations of 2026-11-26)
+  (#565; 2026-11-26).
 
 ## Known gaps
 
