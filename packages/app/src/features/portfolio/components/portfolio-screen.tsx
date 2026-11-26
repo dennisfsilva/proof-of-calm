@@ -166,8 +166,16 @@ function PlanPortfolio({ plan }: { plan: Plan }) {
       <div className="flex flex-col gap-stack-sm">
         <dl>
           <dt className="text-14 text-ink-2">{t('summary.value')}</dt>
+          {/* Unpriced, the figure's line stands unseen under the words, so the prices' arrival moves nothing below. */}
           {value.value === null ? (
-            <dd className="text-16">{t('summary.unpriced', { coins: unpriced.join(', ') })}</dd>
+            <dd className="grid grid-cols-1">
+              <span aria-hidden className="invisible col-start-1 row-start-1 font-semibold text-40">
+                {' '}
+              </span>
+              <span className="col-start-1 row-start-1 text-16">
+                {t('summary.unpriced', { coins: unpriced.join(', ') })}
+              </span>
+            </dd>
           ) : (
             <dd className="nums font-semibold text-40">{format.money(value.value, currency)}</dd>
           )}
@@ -183,6 +191,13 @@ function PlanPortfolio({ plan }: { plan: Plan }) {
                 <span className={`nums ${pnlTone(value)}`}>{pnl}</span>
                 <WhyLink module="risk-honestly" name={t('summary.why')} standalone />
               </dd>
+            </div>
+          )}
+          {/* Unpriced, the P/L row keeps its 44 px place, unseen and unread. */}
+          {value.value === null && (
+            <div aria-hidden data-reserve="pnl" className="contents invisible">
+              <dt>{' '}</dt>
+              <dd className="min-h-target" />
             </div>
           )}
           {facts.map(([term, figure, tone]) => (
