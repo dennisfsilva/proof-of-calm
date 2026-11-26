@@ -484,4 +484,29 @@ describe('ValueChart', () => {
       false,
     );
   });
+
+  it('starts no transition when the frame and the disclosure are shown or hidden, loading, drawn or failed', async () => {
+    // Under reduced motion every element's duration is 1 ms, so a visibility change on an element whose
+    // transition list is the initial `all` runs one, which never ends inside a closed table (docs/DESIGN.md §6).
+    const still = ['transition-none', '**:transition-none'];
+    const expectStill = () => {
+      const frame = document.querySelector('figure')?.closest('section > div > div');
+      expect([...(frame?.classList ?? [])]).toEqual(expect.arrayContaining(still));
+      const disclosure = screen.getByText(/^Past performance is not a reliable indicator/);
+      expect([...disclosure.classList]).toContain('transition-none');
+    };
+    let release: () => void = () => undefined;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    await mount({ closes: async (coin, currency) => held.then(() => closes.closes(coin, currency)) });
+    expectStill();
+    await act(async () => release());
+    expect(screen.getByRole('img')).toBeTruthy();
+    expectStill();
+    cleanup();
+    await mount({ closes: async () => err({ kind: 'http', status: 502 }) });
+    expect(screen.getByRole('status').textContent).toMatch(/^The price history could not be loaded/);
+    expectStill();
+  });
 });
