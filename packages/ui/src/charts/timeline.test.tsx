@@ -24,7 +24,11 @@ const props: TimelineProps = {
     { id: 'today', date: '29 Oct 2026', label: 'Today', when: 'today' },
   ],
   label,
-  table: { summary: 'Show the milestones as a table', columns: ['Date', 'Milestone'], rows: [['1 Jan 2025', 'First buy']] },
+  table: {
+    summary: 'Show the milestones as a table',
+    columns: ['Date', 'Milestone'],
+    rows: [['1 Jan 2025', 'First buy']],
+  },
 };
 
 describe('Timeline', () => {
