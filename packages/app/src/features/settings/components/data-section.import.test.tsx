@@ -62,6 +62,10 @@ afterEach(() => {
   counts.value = null;
 });
 
+// The plan row set aside named EUR, the files' currency, so an import with no plan asks nothing first (ADR-0053
+// Readings, 2026-11-26; data-section.set-aside.test.tsx has the question).
+const EUR_ROW = { plans: [{ id: 'plan', at: NOW, currency: 'EUR' as const }], entries: [] };
+
 describe('DataSection, an import that changes nothing', () => {
   // DOMAIN §3.11: the backup banner shows only when nothing was exported after the last change.
   it('Add missing entries only that adds nothing writes nothing, so the backup stays current', async () => {
@@ -106,7 +110,7 @@ describe('DataSection, the result of an import', () => {
     const live = liveEntries(snapshot.entries);
     if (snapshot.plan === null || live.length < 2) throw new Error('the fixture has a plan and entries');
     // The backup was exported before the last entry was recorded.
-    const { services } = await mount({ ...snapshot, plan: null });
+    const { services } = await mount({ ...snapshot, plan: null, setAside: EUR_ROW });
     await choose(JSON.stringify(exportBackup(snapshot.plan, live.slice(0, -1), NOW)));
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Import this backup' })));
     const after = services.domain.store.getState().snapshot;
@@ -128,7 +132,7 @@ describe('DataSection, the result of an import', () => {
     };
     // The same month recorded on another device, under another id.
     const elsewhere = { ...buy, id: '00000000-0000-4000-8000-000000000302' as EntityId };
-    await mount({ ...snapshot, plan: null, entries: [buy, { ...extra, deletedAt: buy.updatedAt }] });
+    await mount({ ...snapshot, plan: null, setAside: EUR_ROW, entries: [buy, { ...extra, deletedAt: buy.updatedAt }] });
     await choose(JSON.stringify(exportBackup(snapshot.plan, [extra, elsewhere], NOW)));
     await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Import this backup' })));
     expect(screen.getByRole('status').textContent).toBe(
@@ -394,7 +398,7 @@ describe('DataSection, a file from the DCA plan page (docs/DOMAIN.md §7)', () =
     vi.spyOn(window.navigator, 'languages', 'get').mockReturnValue(['pt-PT']);
     const snapshot = fixtureSnapshot();
     const live = liveEntries(snapshot.entries).map((entry) => entry.id);
-    const { services } = await mount({ ...snapshot, plan: null }, undefined, { rules });
+    const { services } = await mount({ ...snapshot, plan: null, setAside: EUR_ROW }, undefined, { rules });
     await choose(JSON.stringify(twoCoins.state));
     await screen.findByRole('heading', { name: 'Where do you live?' });
     await choosePortugal();

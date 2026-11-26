@@ -1,9 +1,12 @@
 // @vitest-environment jsdom
-import { cleanup, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { exportBackup, liveEntries } from '@proofofcalm/core';
+import { act, cleanup, fireEvent, screen, waitFor, within } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EMPTY_SNAPSHOT } from '../../../lib/adapters/memory-store';
+import type { Snapshot } from '../../../lib/ports';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
-import { mount, NOW } from './data-section.testing';
+import { keptQuestion } from '../../../lib/store';
+import { choose, type Mounted, mount, NOW } from './data-section.testing';
 
 // Settings → Currency & data → Your data: how many saved items were set aside as unreadable, while any is
 // (ADR-0019 Readings, 2026-11-26); it ends only with Delete everything.
@@ -41,5 +44,108 @@ describe('DataSection: the set-aside count', () => {
     expect(none.nextElementSibling?.textContent).toBe(
       '1 saved item could not be read, so Proof of Calm set it aside. It stays on this device as it was saved, and exports leave it out.',
     );
+  });
+});
+
+// ADR-0053 Readings, 2026-11-26: an import with no plan over entries kept in another currency asks first. The plan
+// row set aside named EUR; the file's plan is in GBP. Nothing is converted either way.
+describe('DataSection: the kept entries before an import in another currency', () => {
+  const fixture = fixtureSnapshot();
+  if (fixture.plan === null) throw new Error('the fixture has a plan');
+  const plan = fixture.plan;
+  const kept: Snapshot = {
+    ...fixture,
+    plan: null,
+    quarantined: 1,
+    setAside: { plans: [{ id: 'plan', at: NOW, currency: 'EUR' }], entries: [] },
+  };
+  const question = keptQuestion(kept, 'GBP');
+  if (question === null) throw new Error('the fixture entries hold amounts in EUR');
+  const gbp = JSON.stringify(exportBackup({ ...plan, payCurrency: 'GBP', displayCurrency: 'GBP' }, [], NOW));
+  const live = (services: Mounted['services']) => services.domain.store.getState().snapshot;
+
+  async function ask() {
+    const mounted = await mount(kept);
+    await choose(gbp);
+    const opener = screen.getByRole('button', { name: 'Import this backup' });
+    opener.focus();
+    await act(async () => fireEvent.click(opener));
+    return { ...mounted, opener, dialog: await screen.findByRole('dialog') };
+  }
+
+  it('asks before a GBP backup is imported over entries kept in EUR, with Do not import focused', async () => {
+    const { dialog, services } = await ask();
+    expect(within(dialog).getByRole('heading').textContent).toBe(`Show ${question.count} saved entries in GBP?`);
+    expect(within(dialog).getByText(/^They hold amounts or fees in EUR/).textContent).toBe(
+      "They hold amounts or fees in EUR, the currency of your plan that could not be read. This file's plan is in GBP. " +
+        'A plan holds one currency, and nothing is converted. To keep them in EUR, import a backup in EUR or set up a plan.',
+    );
+    await waitFor(() => expect(document.activeElement?.textContent).toBe('Do not import'));
+    // The import relabels the kept entries: the destructive variant (docs/DESIGN.md §8).
+    expect(within(dialog).getByRole('button', { name: 'Import in GBP' }).className.split(' ')).toContain(
+      'text-negative',
+    );
+    expect(live(services).plan).toBeNull();
+  });
+
+  it('words the body for entries whose currency could not be read', async () => {
+    await mount({ ...kept, setAside: { plans: [{ id: 'plan', at: NOW, currency: null }], entries: [] } });
+    await choose(gbp);
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Import this backup' })));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByText(/^Their currency could not be read/).textContent).toBe(
+      "Their currency could not be read. This file's plan is in GBP. A plan holds one currency, and nothing is " +
+        'converted. To choose their currency, set up a plan.',
+    );
+  });
+
+  it('Do not import writes nothing, keeps the file chosen and gives the focus back to the button that asked', async () => {
+    const { dialog, opener, services } = await ask();
+    const before = live(services);
+    await act(async () => fireEvent.click(within(dialog).getByRole('button', { name: 'Do not import' })));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(live(services)).toBe(before);
+    expect(screen.getByRole('button', { name: 'Import this backup' })).toBe(opener);
+    await waitFor(() => expect(document.activeElement).toBe(opener));
+  });
+
+  it('Import in GBP holds the dialog until the plan is written, then moves the focus to the result', async () => {
+    const { dialog, services } = await ask();
+    let open = (): void => undefined;
+    const held = new Promise<void>((resolve) => (open = resolve));
+    const write = services.domain.write.bind(services.domain);
+    vi.spyOn(services.domain, 'write').mockImplementation(async (change) => {
+      await held;
+      return write(change);
+    });
+    await act(async () => fireEvent.click(within(dialog).getByRole('button', { name: 'Import in GBP' })));
+    expect(screen.getByRole('dialog')).toBe(dialog);
+    await act(async () => fireEvent.keyDown(dialog, { key: 'Escape' }));
+    expect(screen.getByRole('dialog')).toBe(dialog);
+    await act(async () => open());
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    const status = screen.getByRole('status');
+    expect(status.textContent).toBe(`Plan imported. Entries now: ${liveEntries(kept.entries).length}.`);
+    await waitFor(() => expect(document.activeElement).toBe(status));
+    expect(live(services).plan?.payCurrency).toBe('GBP');
+    vi.restoreAllMocks();
+  });
+
+  it('refuses with changed when another tab stored a plan after the screen showed none, focusing the alert', async () => {
+    const { dialog, services } = await ask();
+    const write = services.domain.write.bind(services.domain);
+    vi.spyOn(services.domain, 'write').mockImplementationOnce(async (change) => {
+      await write(() => ({ plan }));
+      return write(change);
+    });
+    await act(async () => fireEvent.click(within(dialog).getByRole('button', { name: 'Import in GBP' })));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    const alert = screen.getByRole('alert');
+    expect(alert.textContent).toBe(
+      'The plan or entries on this device changed in another tab, so nothing was imported. Choose the file again.',
+    );
+    await waitFor(() => expect(document.activeElement).toBe(alert));
+    expect(live(services).plan?.payCurrency).toBe('EUR');
+    vi.restoreAllMocks();
   });
 });
