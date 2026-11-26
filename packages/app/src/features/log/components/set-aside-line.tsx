@@ -34,7 +34,7 @@ export function SetAsideLine({ heading }: { readonly heading: RefObject<HTMLHead
     );
   };
   return (
-    <div className="flex flex-col gap-stack-sm">
+    <div className="flex flex-col gap-stack-md">
       <p className="text-16 text-ink-2">
         {t.rich('setAside.line', {
           count,
