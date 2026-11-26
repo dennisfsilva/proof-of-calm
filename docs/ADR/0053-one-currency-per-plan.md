@@ -125,7 +125,7 @@ write checks both again in its own turn: a plan stored since a screen that showe
 question other than the one shown, refuses the import with `changed` and writes nothing, so an
 import with no plan never replaces a plan another tab stored. The file's currency is read before
 the import as the import reads it (`prototypePayCurrency` for a DCA plan page file). The import's
-screen that asks the question is still to come (planned: M2).
+screen that asks the question is the next Reading's last paragraph.
 `packages/core/src/export/backup.test.ts` pins the reading;
 `packages/app/src/features/settings/import-guard.test.ts` pins the guard, with a forward read (an
 import in GBP read back through the row readers) and a rollback read (a refusal leaves every store
@@ -142,5 +142,13 @@ Start sends the question it showed, and the write is checked again in its own tu
 changed the entries so that the question is no longer the one shown, nothing is written and the
 summary says so in an alert, keeping the draft; a plan or newer row stored meanwhile is kept, as
 before. With entries that need no question, one line says they stay and show in the plan. The
-words are `docs/CONTENT-STYLE.md` §3's (Summary, onboarding). The import with no plan asks the same
-question before it writes (planned: M2).
+words are `docs/CONTENT-STYLE.md` §3's (Summary, onboarding).
+
+The import with no plan, of a backup or a DCA plan page file, asks before it writes when the file's
+plan would show the kept entries in another currency than the one they were kept in, or when that
+currency could not be read (`packages/app/src/features/settings/components/kept-import-dialog.tsx`).
+It offers two outcomes and no card: "Do not import" writes nothing, keeps the file chosen and gives
+the focus back to the button that asked; "Import in {file}" imports, and the kept entries show in
+the file's currency, nothing converted. The dialog stays open until the write lands, and the write's
+turn checks the question the dialog showed: a plan or entries changed in another tab refuse the
+import with `changed`. The words are `docs/CONTENT-STYLE.md` §3's (Import with no plan).
