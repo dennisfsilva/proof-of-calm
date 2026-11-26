@@ -73,7 +73,7 @@ describe('TodayScreen: the set-aside line', () => {
 
 describe('NoPlan: the plan row set aside', () => {
   it('says the plan could not be read and how to bring it back', async () => {
-    await mount(setAside(EMPTY_SNAPSHOT, [{ id: 'plan', at: AT }], []));
+    await mount(setAside(EMPTY_SNAPSHOT, [{ id: 'plan', at: AT, currency: null }], []));
     expect(screen.getByText('Your plan could not be read')).toBeTruthy();
     expect(screen.queryByText('No plan yet')).toBeNull();
     expect(screen.getByRole('link', { name: 'Import a JSON backup' }).getAttribute('href')).toBe('/settings');

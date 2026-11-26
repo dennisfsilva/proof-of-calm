@@ -120,7 +120,7 @@ describe('LogScreen: the set-aside line', () => {
   });
 
   it('shows no line while the plan row is set aside too', async () => {
-    await mount(memoryPlanStore({ ...withSetAside([{ id: 'gone', at: AT }], [{ id: 'plan', at: AT }]), plan: null }));
+    await mount(memoryPlanStore({ ...withSetAside([{ id: 'gone', at: AT }], [{ id: 'plan', at: AT, currency: null }]), plan: null }));
     expect(screen.queryByText(/saved entry could not be read/)).toBeNull();
     expect(screen.queryByRole('button', { name: HIDE })).toBeNull();
     expect(screen.getByText(/^Your plan could not be read, so no entries are listed\./)).toBeTruthy();
@@ -157,7 +157,7 @@ describe('LogScreen: the set-aside line', () => {
 
 describe('LogScreen: the plan row set aside', () => {
   it('says the plan could not be read while live entries are stored, and links to Settings', async () => {
-    await mount(memoryPlanStore({ ...withSetAside([], [{ id: 'plan', at: AT }]), plan: null }));
+    await mount(memoryPlanStore({ ...withSetAside([], [{ id: 'plan', at: AT, currency: null }]), plan: null }));
     const text = screen.getByText(
       /^Your plan could not be read, so no entries are listed\. They stay on this device\./,
     );
@@ -174,7 +174,7 @@ describe('LogScreen: the plan row set aside', () => {
         { id: 'gone', at: AT },
         { id: 'lost', at: AT },
       ],
-      [{ id: 'plan', at: AT }],
+      [{ id: 'plan', at: AT, currency: null }],
     );
     await mount(memoryPlanStore({ ...snapshot, plan: null, entries: [] }));
     expect(screen.getByText(/^Your plan could not be read, so no entries are listed\./)).toBeTruthy();
@@ -184,7 +184,7 @@ describe('LogScreen: the plan row set aside', () => {
   });
 
   it('keeps the no-plan text while the plan row is set aside and no entry exists', async () => {
-    await mount(memoryPlanStore({ ...withSetAside([], [{ id: 'plan', at: AT }]), plan: null, entries: [] }));
+    await mount(memoryPlanStore({ ...withSetAside([], [{ id: 'plan', at: AT, currency: null }]), plan: null, entries: [] }));
     expect(screen.getByText('No entries yet. Set up a plan or import a file.')).toBeTruthy();
     expect(screen.queryByText(/Your plan could not be read/)).toBeNull();
   });

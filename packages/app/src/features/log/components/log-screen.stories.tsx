@@ -148,7 +148,7 @@ export const PlanSetAside: Story = {
       ...fixtureSnapshot(),
       plan: null,
       quarantined: 1,
-      setAside: { plans: [{ id: 'plan', at: SET_ASIDE_AT }], entries: [] },
+      setAside: { plans: [{ id: 'plan', at: SET_ASIDE_AT, currency: null }], entries: [] },
     }),
   },
   play: async ({ canvas }) => {
