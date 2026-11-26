@@ -3,10 +3,10 @@
   "empty": {
     "title": "Noch kein Plan",
     "noPlan": "<setup>Richten Sie einen Plan ein</setup> oder <import>importieren Sie eine Datei</import>.",
-    "setAsideTitle": "Your plan could not be read",
-    "setAside": "It stays on this device as it was saved. <import>Import a JSON backup</import> to bring it back, or <setup>set up a plan</setup>."
+    "setAsideTitle": "Der Plan konnte nicht gelesen werden",
+    "setAside": "Er bleibt auf diesem Gerät, so wie er gespeichert wurde. <import>Importieren Sie ein JSON-Backup</import>, um ihn zurückzuholen, oder <setup>richten Sie einen Plan ein</setup>."
   },
-  "setAside": "{count, plural, one {{figure} saved entry could not be read, so Today and Portfolio leave it out. The <log>Log</log> says how to bring it back.} other {{figure} saved entries could not be read, so Today and Portfolio leave them out. The <log>Log</log> says how to bring them back.}}",
+  "setAside": "{count, plural, one {{figure} gespeicherter Eintrag konnte nicht gelesen werden, daher fehlt er in „Heute“ und im Portfolio. Im <log>Protokoll</log> steht, wie Sie ihn zurückholen.} other {{figure} gespeicherte Einträge konnten nicht gelesen werden, daher fehlen sie in „Heute“ und im Portfolio. Im <log>Protokoll</log> steht, wie Sie sie zurückholen.}}",
   "action": {
     "late": "{month} ist noch offen",
     "lateBody": "Der Kauftag war am {date}, vor {days, plural, one {{figure} Tag} other {{figure} Tagen}}. Tragen Sie den Kauf ein oder überspringen Sie den Monat.",

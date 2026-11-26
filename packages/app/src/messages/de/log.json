@@ -68,12 +68,12 @@
     "noPlan": "Noch keine Einträge. Richten Sie einen Plan ein oder importieren Sie eine Datei.",
     "firstBuy": "Noch keine Einträge. Der erste Kauftag ist am {date}.",
     "firstBuyPast": "Noch keine Einträge. Der erste Kauftag war am {date}.",
-    "planSetAside": "Your plan could not be read, so no entries are listed. They stay on this device."
+    "planSetAside": "Der Plan konnte nicht gelesen werden, daher wird kein Eintrag angezeigt. Die Einträge bleiben auf diesem Gerät."
   },
   "setAside": {
-    "line": "{count, plural, one {{figure} saved entry could not be read, so it is not in this list. To bring it back, import a JSON backup exported before {date} in <settings>Settings</settings> with Add missing entries only, or record it again.} other {{figure} saved entries could not be read, so they are not in this list. To bring them back, import a JSON backup exported before {date} in <settings>Settings</settings> with Add missing entries only, or record them again.}}",
-    "hide": "Hide this line",
-    "failed": "The line could not be hidden. Try again."
+    "line": "{count, plural, one {{figure} gespeicherter Eintrag konnte nicht gelesen werden, daher steht er nicht in dieser Liste. Um ihn zurückzuholen, importieren Sie in den <settings>Einstellungen</settings> ein JSON-Backup, das vor dem {date} exportiert wurde, mit „Nur fehlende Einträge hinzufügen“, oder tragen Sie ihn erneut ein.} other {{figure} gespeicherte Einträge konnten nicht gelesen werden, daher stehen sie nicht in dieser Liste. Um sie zurückzuholen, importieren Sie in den <settings>Einstellungen</settings> ein JSON-Backup, das vor dem {date} exportiert wurde, mit „Nur fehlende Einträge hinzufügen“, oder tragen Sie sie erneut ein.}}",
+    "hide": "Diese Zeile ausblenden",
+    "failed": "Die Zeile konnte nicht ausgeblendet werden. Versuchen Sie es erneut."
   },
   "form": {
     "movesShort": "Mit dieser Änderung sendet die Übertragung nach {to} am {date} {short} mehr, als das Protokoll an diesem Tag außerhalb von {to} zeigt. Prüfen Sie nach dem Speichern Datum und Orte dieser Übertragung im Protokoll.",
