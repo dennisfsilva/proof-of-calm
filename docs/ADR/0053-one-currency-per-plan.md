@@ -106,3 +106,18 @@ The same design adds, around the question (planned: M2), in feat/currency-questi
   currency refuses (`currency-changed`) when an entry it would restore holds an amount or a fee, so
   euros deleted before a move to GBP never come back reading as pounds. Nothing is restored or
   converted, and the Log's toast says so (`docs/DOMAIN.md` §6, Delete entry).
+
+## Readings
+
+### Reading of 2026-11-26: an import with no plan keeps the entries stored, in the file's currency
+
+With the plan row set aside by the quarantine (ADR-0019) and live entries stored, the import with no
+plan takes the file's plan and keeps every stored entry, adding the file's missing ones
+(`applyImport`, `docs/DOMAIN.md` §3.13). No plan is left to compare the file's currency with, and an
+entry carries no currency of its own (`packages/core/src/schema/entry.ts`), so the kept entries read
+in the file's plan's pay currency, whatever the set-aside plan paid in. Nothing is converted. Decided
+by the session on 2026-11-26: keeping them was chosen over tombstoning them, a silent loss no later
+import can undo, since a deletion on this device wins, and over refusing the import, which would
+block the recovery the quarantine notice points a person to. A guard that asks before a plan is
+written beside stored entries, for this import and for onboarding, is the next session's work
+(planned: M2). `packages/core/src/export/backup.test.ts` pins the reading.
