@@ -4,8 +4,6 @@ import {
   type Entry,
   type FillField,
   holdingContext,
-  isPositive,
-  MAX_UNIT_DECIMALS,
   MINOR_UNITS,
   type MonthKey,
   type Plan,
@@ -30,7 +28,7 @@ import {
   useSnapshot,
   useToday,
 } from '../../../lib/services';
-import { emptiedFills, withDate } from '../lib/dated';
+import { withDate } from '../lib/dated';
 import { draftBase, draftEntity, EntryFormDraftSchema, restoredState, sameForm } from '../lib/draft';
 import {
   actionMessage,
@@ -40,13 +38,11 @@ import {
   type FieldIssue,
   type FormState,
   initialState,
-  proseDigits,
   saveOn,
   toDraft,
 } from '../lib/form';
 import { reveal } from '../lib/reveal-box';
 import { freshIds } from '../lib/source';
-import { saleWarningKey } from '../lib/warning';
 import { EntryDetails } from './entry-details';
 import { FormHints } from './form-hints';
 import { useFormLines } from './use-form-lines';
@@ -204,9 +200,7 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
   // Where the venue decides the warning (per-venue lots), a sale shows it beside the units; coins added always do.
   const venueShown = added || (sale && holding.lotScope === 'per-venue');
   const lines = { plan, entries, editing, ids, state, initial, numberInput, holding, now: clock.now() };
-  const { warnings, saleDate, moveShort } = useFormLines(lines);
-  const decimalsOf = (coin: Entry['coin']) =>
-    state.rows.find((row) => row.coin === coin)?.decimals ?? MAX_UNIT_DECIMALS;
+  const { earlier, warnings, note, moveShort } = useFormLines(lines);
   // A cleared or partly typed date input gives '': toDraft refuses it before the save.
   const dateIssue = issueOf('date') !== undefined;
   const failureAt = (field: DetailField | null) => (outcome.field === field ? outcome.failure : null);
@@ -300,28 +294,13 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
           </fieldset>
         );
       })}
-      {emptiedFills(state, initial) && <output className="text-13 text-ink-2">{t('log.form.earlierDate')}</output>}
-      {warnings.map((warning, index) => {
-        const decimals = state.rows.find((row) => row.coin === warning.coin)?.decimals ?? 0;
-        // Prose figures (DESIGN §5 rule 7): both at the decimals the more precise one needs, the coin named once.
-        const digits = proseDigits(decimals, warning.eligible, warning.sold);
-        return (
-          <p key={`${warning.coin}-${index}`} role="status" className="text-14">
-            {t(saleWarningKey(plan.holdingRule), {
-              // None past the rule says so, rather than "Only 0.000 of" (CONTENT-STYLE §3).
-              share: isPositive(warning.eligible) ? 'some' : 'none',
-              // A coin warned at two venues names each one, so each warning reads apart from the other.
-              at: warning.at,
-              venue: warning.venue ?? '',
-              eligible: numberInput.format(warning.eligible, digits),
-              sold: format.units(warning.sold, warning.coin, digits),
-              date: format.date(saleDate ?? today),
-            })}
-          </p>
-        );
-      })}
-      {/* LEGAL §4: the data line once, beside the holding status. */}
-      {warnings.length > 0 && <p className="text-13 text-ink-2">{t('log.holding.note')}</p>}
+      {earlier !== null && <output className="text-13 text-ink-2">{earlier}</output>}
+      {warnings.map((warning) => (
+        <p key={warning.key} role="status" className="text-14">
+          {warning.text}
+        </p>
+      ))}
+      {note !== null && <p className="text-13 text-ink-2">{note}</p>}
       {!added &&
         numberField(
           'fee',
@@ -340,17 +319,9 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
         onOpenChange={setDetailsOpen}
         onChange={set}
       />
-      {moveShort !== undefined && (
+      {moveShort !== null && (
         <p role="status" className="text-14">
-          {t('log.form.movesShort', {
-            to: moveShort.to,
-            date: format.date(moveShort.date),
-            short: format.units(
-              moveShort.short,
-              moveShort.coin,
-              proseDigits(decimalsOf(moveShort.coin), moveShort.short),
-            ),
-          })}
+          {moveShort}
         </p>
       )}
       {/* The alert line and Save, each grown by the focus ring's extent: a refused save scrolls one of them in. */}
