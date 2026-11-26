@@ -334,12 +334,11 @@ for (const colorScheme of ['light', 'dark'] as const) {
         await sheet.getByLabel('Date').fill('2026-03-15');
         // The price the form filled as it opened does not apply to an earlier date: the field empties and a line says so.
         await expect(sheet.getByLabel('BTC price (EUR)')).toHaveValue('');
-        await expect(
-          sheet.getByRole('status').filter({
-            hasText:
-              /^The price the form filled in does not apply to an earlier date\. Type the cost before fees and the units received, as your exchange's confirmation shows them\.$/u,
-          }),
-        ).toBeVisible();
+        // The line shows at once with no live role; the form's one hidden status repeats it once the form is still.
+        const earlier =
+          /^The price the form filled in does not apply to an earlier date\. Type the cost before fees and the units received, as your exchange's confirmation shows them\.$/u;
+        await expect(sheet.locator('[data-form-line]', { hasText: earlier })).toBeVisible();
+        await expect(sheet.getByRole('status')).toHaveText(earlier);
         await sheet.getByLabel('BTC cost before fees (EUR)').fill('100');
         await sheet.getByLabel('BTC received (units)').fill('0.002');
         await sheet.getByRole('button', { name: 'Save' }).click();

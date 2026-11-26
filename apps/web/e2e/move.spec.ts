@@ -90,7 +90,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await sheet.getByRole('button', { name: log.move.all }).click();
       await expect(sheet.getByLabel(log.move.sent)).toHaveValue(/^0[.,]08$/u);
       await fillMove(sheet, '2026-10-14', '0,05', '0,0498');
-      await expect(sheet.getByText(/^Network fee 0[.,]0002\sBTC$/u)).toBeVisible();
+      await expect(sheet.locator('[data-form-line]', { hasText: /^Network fee 0[.,]0002\sBTC$/u })).toBeVisible();
       await sheet.getByRole('button', { name: log.move.save }).click();
       await expect(sheet).toBeHidden();
       await expect(toast).toContainText(/Recorded: 0[.,]05\sBTC moved from Kraken to Ledger on 14\sOct\s2026\./u);
@@ -114,7 +114,10 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await ready(page);
       await button.click();
       await fillMove(sheet, '2026-10-14', '0,05', '0,0498');
-      await expect(sheet.getByText(/^The Log already has this move on 14\sOct\s2026\./u)).toBeVisible();
+      const same = /^The Log already has this move on 14\sOct\s2026\./u;
+      await expect(sheet.locator('[data-form-line]', { hasText: same })).toBeVisible();
+      // The form's one hidden status repeats the shown lines, the fee line first, once the form is still.
+      await expect(sheet.getByRole('status')).toContainText(/The Log already has this move on 14\sOct\s2026\./u);
       await sheet.getByLabel(log.move.sent).fill('1');
       await sheet.getByRole('button', { name: log.move.save }).click();
       await expect(sheet.getByText(/^This move sends 1[.,]?0*\sBTC, more than you hold/u)).toBeVisible();
@@ -185,7 +188,9 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await button.click();
       await fillMove(sheet, '2026-09-01', '0,08', '0,08');
       await expect(
-        sheet.getByText(/^After this move, your move to Ledger on 14\sOct\s2026 sends 0[.,]02785\sBTC more/u),
+        sheet.locator('[data-form-line]', {
+          hasText: /^After this move, your move to Ledger on 14\sOct\s2026 sends 0[.,]02785\sBTC more/u,
+        }),
       ).toBeVisible();
       await sheet.getByRole('button', { name: log.move.save }).click();
       await expect(sheet).toBeHidden();

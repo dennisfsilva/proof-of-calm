@@ -255,7 +255,7 @@ test("de: the Log keeps its table, a row's details, the add sheet and the sale w
   await expect(sheet.getByRole('heading', { name: words.saleSheet, exact: true })).toBeVisible();
   await sheet.getByLabel(words.sold).fill('0.001');
   await sheet.getByLabel(words.received).fill('60');
-  const warning = sheet.getByRole('status').filter({ hasText: words.warning });
+  const warning = sheet.locator('[data-form-line]', { hasText: words.warning });
   await ownBoxes(page, {
     sold: sheet.locator('label', { hasText: words.sold }),
     received: sheet.locator('label', { hasText: words.received }),
