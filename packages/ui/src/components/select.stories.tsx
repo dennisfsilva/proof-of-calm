@@ -64,7 +64,7 @@ async function opensInView(trigger: HTMLElement, shown: number) {
   }
   await userEvent.keyboard('{Escape}');
   await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
-  // Axe runs after the play: the closing list's focus guards would still be there (#509).
+  // Axe runs after the play: the closing list's focus guards would still be there.
   await waitFor(() => expect(document.querySelector('[data-base-ui-focus-guard], [data-ending-style]')).toBeNull());
 }
 
@@ -276,7 +276,7 @@ export const BuyDayOverTrigger: Story = {
 const countries = ['Portugal', 'Germany', 'Spain', 'France', 'Italy', 'Ireland', 'Austria', 'Belgium'];
 
 // A long list whose trigger sits mid-screen with the phone tab bar at 125 % text (onboarding's country): the list
-// shows seven of its options, and when it covers its trigger, the chosen one sits on it (review of #527, 2026-11-26).
+// shows seven of its options, and when it covers its trigger, the chosen one sits on it (2026-11-26).
 export const MidScreenLongList: Story = {
   globals: { textZoom: '125' },
   render: () => (
