@@ -70,7 +70,13 @@
     "legal": "Rechtliche Informationen"
   },
   "manifest": {
-    "description": "Ein Planer und ein Protokoll für Käufe von Kryptowerten nach einem festen monatlichen Zeitplan."
+    "description": "Ein Planer und ein Protokoll für Käufe von Kryptowerten nach einem festen monatlichen Zeitplan.",
+    "screenshots": {
+      "holdingDate": "Haltefristen nach Land, mit einem Beispielkauf in Portugal",
+      "countryPt": "Die Länderseite Portugals mit Haltefrist und Quellen",
+      "today": "Heute, mit einem Beispielplan und dem erfassten Kauf dieses Monats",
+      "learn": "Die Übersicht von Lernen mit kurzen Modulen"
+    }
   },
   "offline": {
     "title": "Keine Verbindung",
