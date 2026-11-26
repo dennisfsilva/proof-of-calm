@@ -1,7 +1,9 @@
 import { readFileSync } from 'node:fs';
+import { UI_LANGUAGES } from '@proofofcalm/app/lib/i18n';
 import { findBanned } from '@proofofcalm/content';
 import { describe, expect, it } from 'vitest';
 import * as z from 'zod/mini';
+import { type SiteLanguage, siteTranslator } from '../site-messages';
 import { manifest } from './manifest';
 
 // What Chrome's install criteria and ADR-0033 ask of the manifest, as a schema; and every icon and
@@ -80,12 +82,25 @@ describe('the web app manifest (ADR-0033)', () => {
     for (const shot of screenshots) expect(pngSize(shot.src), shot.src).toBe(shot.sizes);
   });
 
-  it('labels each in ten words or fewer, without "your", in sentence case, past the banned-words lint', () => {
-    for (const { label } of screenshots) {
-      expect(label.split(/\s+/).length, label).toBeLessThanOrEqual(10);
-      expect(label, label).not.toMatch(/\byour\b/i);
-      expect(label.charAt(0), label).toBe(label.charAt(0).toUpperCase());
-      expect(findBanned(label), label).toEqual([]);
-    }
-  });
+  // The manifest is built in English (`lang: 'en'`), but the pt-PT and German labels ship in the site's message
+  // files, so every language keeps the same limits; "your" is the reader's possessive in each.
+  const possessive: Record<SiteLanguage, RegExp> = {
+    en: /\byour\b/i,
+    'pt-PT': /(^|\s)(seus?|suas?|teus?|tuas?)(\s|$)/i,
+    de: /(^|\s)(deine?[mnrs]?|ihre?[mnrs]?)(\s|$)/i,
+  };
+
+  it.each(UI_LANGUAGES)(
+    'labels each in %s in ten words or fewer, without "your", in sentence case, past the banned-words lint',
+    (language) => {
+      const t = siteTranslator('manifest', language);
+      for (const key of ['holdingDate', 'countryPt', 'today', 'learn'] as const) {
+        const label = t(`screenshots.${key}`);
+        expect(label.split(/\s+/).length, label).toBeLessThanOrEqual(10);
+        expect(label, label).not.toMatch(possessive[language]);
+        expect(label.charAt(0), label).toBe(label.charAt(0).toUpperCase());
+        expect(findBanned(label), label).toEqual([]);
+      }
+    },
+  );
 });
