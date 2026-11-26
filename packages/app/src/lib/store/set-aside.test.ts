@@ -1,7 +1,7 @@
 import type { CurrencyCode, Instant } from '@proofofcalm/core';
-import { anEntry, instant } from '@proofofcalm/core/testing';
+import { anEntry, aPlan, instant } from '@proofofcalm/core/testing';
 import { describe, expect, it } from 'vitest';
-import { keptCurrency, missingEntries, setAsideKey, withSetAsideKey } from './set-aside';
+import { keptCurrency, keptQuestion, missingEntries, setAsideKey, withSetAsideKey } from './set-aside';
 
 const EARLY = instant('2026-10-01T08:00:00.000Z');
 const LATE = instant('2026-10-17T09:00:00.000Z');
@@ -42,9 +42,9 @@ describe('withSetAsideKey', () => {
   });
 });
 
-describe('keptCurrency (ADR-0053)', () => {
-  const aside = (...plans: { id: string; at: Instant; currency: CurrencyCode | null }[]) => ({ plans, entries: [] });
+const aside = (...plans: { id: string; at: Instant; currency: CurrencyCode | null }[]) => ({ plans, entries: [] });
 
+describe('keptCurrency (ADR-0053)', () => {
   it('is null with no set-aside plan row, as for a list kept whole', () => {
     expect(keptCurrency(aside())).toBeNull();
   });
@@ -65,5 +65,21 @@ describe('keptCurrency (ADR-0053)', () => {
     expect(keptCurrency(aside(late('a', 'EUR'), late('b', 'EUR')))).toBe('EUR');
     expect(keptCurrency(aside(late('a', 'EUR'), late('b', 'GBP')))).toBeNull();
     expect(keptCurrency(aside({ id: 'a', at: EARLY, currency: 'EUR' }, late('b', null)))).toBeNull();
+  });
+});
+
+describe('keptQuestion (ADR-0053)', () => {
+  const kept = { plan: null, newer: { plans: 0, entries: 0 }, entries: [anEntry()] };
+  const inEur = aside({ id: 'p', at: LATE, currency: 'EUR' });
+
+  it('asks while no plan and no newer plan row is stored, about the currency set aside last', () => {
+    expect(keptQuestion({ ...kept, setAside: inEur }, 'GBP')).toMatchObject({ kept: 'EUR', next: 'GBP', count: 1 });
+    expect(keptQuestion({ ...kept, setAside: aside() }, 'EUR')).toMatchObject({ kept: null, next: 'EUR' });
+    expect(keptQuestion({ ...kept, setAside: inEur }, 'EUR')).toBeNull();
+  });
+
+  it('is null while a plan or a newer plan row is stored', () => {
+    expect(keptQuestion({ ...kept, plan: aPlan(), setAside: inEur }, 'GBP')).toBeNull();
+    expect(keptQuestion({ ...kept, newer: { plans: 1, entries: 0 }, setAside: inEur }, 'GBP')).toBeNull();
   });
 });

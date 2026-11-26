@@ -212,7 +212,7 @@ export function OnboardingScreen({ device }: OnboardingScreenProps) {
   };
   const write = (plan: Plan) => {
     setIssues(NO_ISSUES);
-    createPlan(plan).then(
+    createPlan(plan, { next: plan.payCurrency, shown: null }).then(
       (outcome) => {
         drafts.clear(form, entity);
         setFound(outcome === 'stored');
