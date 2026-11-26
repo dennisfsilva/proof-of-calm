@@ -12,7 +12,8 @@ import type { ChartState } from '../lib/value-chart';
 // daily closes (ADR-0036), one neutral line since the total is no coin's, named by its range, its dates and
 // its first and last values (by its own dates alone when the closes start after the range), with the table
 // view; under it the closes' dates, time and credit, then the past-performance line of the first historic
-// view on the path in the same type (docs/LEGAL.md §4, ADR-0047). The range is the device preference
+// view on the path in the same type, text-14 since the line ends in the credit (docs/LEGAL.md §4, ADR-0047,
+// ADR-0050). The range is the device preference
 // `chartRange`, written as the Log writes `logShowAll`: a failed write keeps the range and says so. What it
 // shows is chartState's one choice (lib/value-chart), made once by the screen, whose holdings rows draw only
 // when this chart does or loads: while the closes load, the drawn tree stands busy with
@@ -162,12 +163,12 @@ export function ValueChart({ currency, range, state }: ValueChartProps) {
       {/* One cell: the widest lines stand invisible under the drawn one, so its height is theirs in both states. */}
       <div className="grid">
         {widest.map((line) => (
-          <p key={line} aria-hidden className="nums invisible col-start-1 row-start-1 text-13 text-ink-2">
+          <p key={line} aria-hidden className="nums invisible col-start-1 row-start-1 text-14 text-ink-2">
             {line}
           </p>
         ))}
         {drawn === null ? null : (
-          <p className="nums col-start-1 row-start-1 text-13 text-ink-2">
+          <p className="nums col-start-1 row-start-1 text-14 text-ink-2">
             {t('source', {
               start,
               end,
@@ -178,7 +179,7 @@ export function ValueChart({ currency, range, state }: ValueChartProps) {
         )}
       </div>
       {/* With nothing drawn there is no past performance to disclose: the line keeps its place, unseen and unread. */}
-      <p aria-hidden={undisclosed || undefined} className={cn('text-13 text-ink-2', undisclosed && 'invisible')}>
+      <p aria-hidden={undisclosed || undefined} className={cn('text-14 text-ink-2', undisclosed && 'invisible')}>
         {t('pastPerformance')}{' '}
         <a href="/risk" className="text-ink underline underline-offset-4 hover:text-ink-2">
           {t('riskLink')}
