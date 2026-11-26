@@ -357,6 +357,19 @@ describe('applyImport (docs/DOMAIN.md §3.13, ADR-0019)', () => {
     ]);
     expect([result.added, result.skipped, result.deleted, result.taken]).toEqual([2, 0, 0, 0]);
   });
+
+  it('with no plan but live entries stored, the file’s plan keeps no skip for a month an entry stored here records', () => {
+    // The skip is from when the file was exported; the entry recorded on this device since wins (§3.13).
+    const march = { id: id(), slot: month('2026-03'), note: '', createdAt: exportedAt };
+    const april = { id: id(), slot: month('2026-04'), note: '', createdAt: exportedAt };
+    const backup = exportBackup(aPlan({ skips: [march, april] }), [anEntry({ slot: month('2026-01') })], exportedAt);
+    const recorded = anEntry({ slot: month('2026-03') });
+    for (const mode of ['replace', 'add-missing'] as const) {
+      const result = applyImport({ plan: null, entries: [recorded] }, backup, mode, now);
+      expect(result.plan?.skips).toEqual([april]);
+      expect(result.entries[0]).toEqual(recorded);
+    }
+  });
 });
 
 // A plan holds at most MAX_ENTRIES live entries (docs/DOMAIN.md §9), so that its next export reads back.
