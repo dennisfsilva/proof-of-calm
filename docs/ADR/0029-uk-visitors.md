@@ -81,6 +81,13 @@ The decision stands; these are the choices its text left open, made while implem
   app opened in the UK" joins the Decision's re-evaluation triggers beside the 500 blocked visits in
   a month; it is recorded here because the text above this heading does not change.
   `docs/RELEASE.md` measures the leakage once from a UK vantage point before launch.
+- **2026-11-26, the manifest screenshots stay inside the route.** The images under
+  `apps/web/public/screenshots/` that the manifest names (`docs/DESIGN.md` §9) show the product in
+  use, so they are blocked like the manifest itself, with no exception in the route's pattern: the
+  route of `apps/web/vercel.json` already leaves out only the legal pages, `security.txt`, the API,
+  `assets/`, `icons/`, the worker, the favicons, the touch icon and the OG image, and a GB request
+  for a screenshot answers 451 (`apps/web/e2e/uk-block.spec.ts`). The images are never placed under
+  `icons/` or `assets/` (ADR-0009's Reading of 2026-11-23).
 
 ## Disagreement
 
