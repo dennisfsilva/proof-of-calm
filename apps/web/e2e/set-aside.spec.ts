@@ -195,7 +195,10 @@ test('onboarding over an unreadable plan row asks with four cards and starts in 
 test('the United Kingdom over a plan row kept in EUR asks with two cards, Paid in EUR first', async ({ page }) => {
   const { plan } = fixture;
   if (plan === null) throw new Error('the fixture holds a plan');
-  await seedRows(page, withPlanRowSetAside({ ...planRow(plan, SEED_DEVICE_ID).payload, coins: 'unreadable' }));
+  await seedRows(
+    page,
+    withPlanRowSetAside({ ...(planRow(plan, SEED_DEVICE_ID).payload as object), coins: 'unreadable' }),
+  );
   await toSummary(page, 'United Kingdom');
   const cards = page.getByRole('radio');
   await expect(cards).toHaveCount(2);
