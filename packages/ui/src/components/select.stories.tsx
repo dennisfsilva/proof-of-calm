@@ -16,6 +16,58 @@ import {
 
 const days = Array.from({ length: 28 }, (_, index) => String(index + 1));
 
+const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+
+/** Resolves once the open list's box has held still over three animation frames, not only its transition. */
+async function settled(popup: Element) {
+  await waitFor(() => {
+    expect(popup).not.toHaveAttribute('data-starting-style');
+    expect(popup.getAnimations()).toHaveLength(0);
+  });
+  let last = '';
+  for (let still = 0, frames = 0; still < 3 && frames < 300; frames += 1) {
+    await frame();
+    const { top, bottom, left, right } = popup.getBoundingClientRect();
+    const box = `${top} ${bottom} ${left} ${right}`;
+    still = box === last ? still + 1 : 0;
+    last = box;
+  }
+}
+
+/**
+ * Opens the Select by mouse and checks the rule of docs/DESIGN.md §7: at least `shown` options in view inside the list
+ * and above the tab bar (an option cut by the list's padding counts by the part in view), and, while the list covers
+ * its trigger, the chosen option's centre on the trigger's centre.
+ */
+async function opensInView(trigger: HTMLElement, shown: number) {
+  await userEvent.click(trigger);
+  const document = trigger.ownerDocument;
+  await waitFor(() => expect(document.querySelector('[data-slot="select-item"]')).not.toBeNull());
+  const popup = document.querySelector('[data-slot="select-content"]');
+  if (popup === null) throw new Error('No open list');
+  await settled(popup);
+  const list = popup.getBoundingClientRect();
+  const bar = document.querySelector('[data-slot="tab-bar"] nav')?.getBoundingClientRect();
+  const end = Math.min(list.bottom, bar !== undefined && bar.height > 0 ? bar.top : window.innerHeight);
+  let inView = 0;
+  for (const option of document.querySelectorAll('[data-slot="select-item"]')) {
+    const rect = option.getBoundingClientRect();
+    inView += Math.max(0, Math.min(rect.bottom, end) - Math.max(rect.top, list.top)) / rect.height;
+  }
+  // Up to a quarter of an option may sit under the list's padding (Base UI falls back below that).
+  await expect(inView).toBeGreaterThanOrEqual(shown - 0.25);
+  const box = trigger.getBoundingClientRect();
+  if (list.top < box.bottom && list.bottom > box.top) {
+    const chosen = document.querySelector('[data-slot="select-item"][data-selected]')?.getBoundingClientRect();
+    const centre = (chosen?.top ?? Number.NaN) + (chosen?.height ?? 0) / 2;
+    await expect(Math.abs(centre - (box.top + box.height / 2))).toBeLessThanOrEqual(2);
+  }
+  await userEvent.keyboard('{Escape}');
+  await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
+  // Axe runs after the play: the closing list's focus guards would still be there (#509).
+  await waitFor(() => expect(document.querySelector('[data-base-ui-focus-guard], [data-ending-style]')).toBeNull());
+}
+
 const meta = {
   title: 'Components/Select',
   component: Select,
@@ -162,6 +214,35 @@ export const FarFromTabBar: Story = {
     // Axe runs after the play: the closing list's focus guards would still be there.
     await waitFor(() => expect(document.querySelector('[data-base-ui-focus-guard], [data-ending-style]')).toBeNull());
   },
+};
+
+const countries = ['Portugal', 'Germany', 'Spain', 'France', 'Italy', 'Ireland', 'Austria', 'Belgium'];
+
+// A long list whose trigger sits mid-screen with the phone tab bar at 125 % text (onboarding's country): the list
+// shows seven of its options, and when it covers its trigger, the chosen one sits on it (review of #527, 2026-11-26).
+export const MidScreenLongList: Story = {
+  globals: { textZoom: '125' },
+  render: () => (
+    <div className="flex min-h-dvh flex-col justify-start">
+      <div className="flex flex-col gap-stack-xs" style={{ paddingTop: 300 }}>
+        <Select defaultValue="Portugal">
+          <SelectLabel>Country</SelectLabel>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {countries.map((country) => (
+              <SelectItem key={country} value={country}>
+                {country}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <TabBar label="Main" items={[{ href: '#settings', label: 'Settings', icon: ListIcon, current: true }]} />
+    </div>
+  ),
+  play: async ({ canvas }) => opensInView(canvas.getByRole('combobox', { name: 'Country' }), 7),
 };
 
 export const Open: Story = {
