@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { countryRules, loadProfile, loadRules } from '@proofofcalm/content';
-import type { CountryCode, CountryRules, Plan } from '@proofofcalm/core';
+import type { CountryCode, CountryRules, Entry, Plan } from '@proofofcalm/core';
 import { FIXTURE_RULES } from '@proofofcalm/core/testing/country-change';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import type { ComponentProps } from 'react';
@@ -352,6 +352,19 @@ describe('CountrySection', () => {
         'A plan holds one currency. To pay in GBP from now on, keep EUR, export a copy, and start a new plan in GBP.',
       ),
     ).toBeTruthy();
+  });
+
+  // A fill of two coins on one day is two entries with one date: the legend says "on", never "from" a day "to" itself.
+  it('names one day once when every logged entry is on it', async () => {
+    const snapshot = fixtureSnapshot();
+    const day = snapshot.entries.slice(0, 2).map((entry) => ({ ...entry, date: '2026-11-26' as Entry['date'] }));
+    await mount({ ...snapshot, entries: day });
+    await choose('United Kingdom');
+    const group = screen.getByRole('radiogroup');
+    // The date's spaces are the formatter's no-break ones (docs/CONTENT-STYLE.md §4).
+    expect(document.getElementById(group.getAttribute('aria-labelledby') ?? '')?.textContent).toMatch(
+      /^2 logged entries, on 26\sNov\s2026, hold amounts or fees in EUR\. Which currency were they paid in\?$/,
+    );
   });
 
   it('refuses a confirm with no answer next to the question, focusing its first card', async () => {
