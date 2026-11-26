@@ -62,7 +62,8 @@ describe('CoinRowChart', () => {
       `^BTC price, last 30 days \\(${day('1 Jan 2026')} to ${day('6 Jan 2026')}\\), from €100\\.00 to €150\\.00$`,
     );
     expect(screen.getByRole('img', { name })).toBeTruthy();
-    expect(screen.getByText('Price data by CoinGecko')).toBeTruthy();
+    // The credit is set at 14 px (ADR-0050).
+    expect(screen.getByText('Price data by CoinGecko').classList).toContain('text-14');
   });
 
   it('names it by its own dates alone when the closes start after the range', async () => {

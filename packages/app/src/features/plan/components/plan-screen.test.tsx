@@ -125,6 +125,13 @@ describe('PlanScreen', () => {
     expect(within(line).getByRole('button', { name: 'Why? The 3 parts' }).textContent).toBe('Why?');
   });
 
+  it("the timeline's table toggle names what the table holds", async () => {
+    await mount('buy');
+    const timeline = screen.getByRole('region', { name: 'Timeline' });
+    expect(within(timeline).getByText('Show the milestones as a table')).toBeTruthy();
+    expect(within(timeline).queryByText('Show as a table')).toBeNull();
+  });
+
   it('the parts line follows the holding block', async () => {
     // Before the sell phase's clock, where the fixture's Portugal is past its review and links no Sources.
     await mount('buy');
