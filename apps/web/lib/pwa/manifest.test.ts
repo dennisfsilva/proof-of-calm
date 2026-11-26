@@ -76,7 +76,8 @@ describe('the web app manifest (ADR-0033)', () => {
       '/screenshots/holding-date-narrow.png': '1080x2340',
       '/screenshots/country-pt-narrow.png': '1080x2469',
       '/screenshots/today-narrow.png': '1080x2340',
-      '/screenshots/learn-narrow.png': '1080x2448',
+      // The Learn index ends at 723 CSS pixels, in the gap before the Countries row (the capture spec).
+      '/screenshots/learn-narrow.png': '1080x2169',
       '/screenshots/holding-date-wide.png': '1280x720',
     });
     for (const shot of screenshots) expect(shot.src, shot.src).toContain(`-${shot.form_factor}.png`);
