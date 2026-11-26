@@ -299,7 +299,7 @@ platform without one.
   precedes the input, not that the window holds only what the input made: the wait for the shown
   state after the input polls a selector in the page inside the window, in short tasks, and a
   harness task under 50 ms before the input is not counted. It asserts only the inputs measured under
-  half the rule here (none with the window of 100) and takes about half a minute, so it runs only on request (`LOG_CAP=1` on the desktop project, the command in
+  half the rule here (five since 2026-11-26, below) and takes about half a minute, so it runs only on request (`LOG_CAP=1` on the desktop project, the command in
   `CLAUDE.md`). The figures are local: Windows, Playwright's Chromium, five runs, 2026-11-25. Fixed
   here, with nothing the Log shows changed: each row built its own formatters and every toggle
   rendered every row (unthrottled, Show all took 15.2 s, 5.1 s of it in the rows' formatters); rows
@@ -366,8 +366,21 @@ platform without one.
   on the oldest entry's date
   (`apps/web/e2e/log-cap.spec.ts`), so the measured keystroke takes the gate's skipped path, and a
   keystroke on an entry dated on or before a later live move still runs the move line, unmeasured
-  at the cap. Over the rule still, which the stage audit decides (#22), since no cut under 300 lines
-  brings any of them under it: Edit entry, opening Go to year, Delete entry, the Undo and Save.
+  at the cap. The session gate of 2026-11-26 after #547 (10:09 to 10:12 UTC, a quiet machine, a
+  forced web build, main b3e526191, two runs of three repeats), input / longest task at 6×: Show
+  older entries 0 to 16 / 0 ms and Show newer entries 0 / 0 ms, which the click by handle freed of
+  the harness's task; opening a row 40 to 48 / 0 ms, one keystroke in the amount 16 to 40 / 0 ms and
+  Show all 16 to 24 / 0 ms. Those five stayed under half the rule in every repeat, so the spec
+  asserts them (`ASSERTED`). Under the rule, though not under half in every repeat: closing the sheet
+  24 to 56 / 0 ms, choosing the oldest year 24 to 56 / 0 to 74 ms, opening Go to year 16 to 24 / 0
+  to 79 ms (the 79 ms a harness task before the input) and one keystroke with a live move stored
+  16 to 40 / 0 ms (recorded by its own test). Edit entry measured 72 / 50 to 54 ms in five repeats
+  and 168 / 136 ms in one; Delete entry 0 / 112 to 314 ms, the Undo 24 to 32 / 100 to 203 ms and
+  Save 24 to 32 / 132 to 235 ms; the heading after 1.45 to 1.98 s (longest task before it 267 to
+  486 ms), and after a reload with Show all stored a longest task to the heading of 267 to 358 ms.
+  Over the rule still, which the stage audit decides (#22), since no cut under 300 lines brings any
+  of them under it: Delete entry, the Undo and Save by their longest task, and Edit entry in one
+  repeat of six.
 - An upstream outage may fail the production check. It measures what production serves: a 502 that
   reaches the browser is a fault people see, and `errors-in-console` names it. Since Portfolio's
   layout holds on that path (`lighthouse-vercel` run 40917845879 on a20d28d9, 2026-10-29, measured
