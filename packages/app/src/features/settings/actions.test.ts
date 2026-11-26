@@ -1,5 +1,7 @@
 import 'fake-indexeddb/auto';
+import type { ProfileCode } from '@proofofcalm/content';
 import {
+  type BackupFile,
   backupNeeded,
   type CalendarDate,
   type CoinId,
@@ -7,6 +9,7 @@ import {
   type Entry,
   endBuying,
   exportBackup,
+  type ImportMode,
   type Instant,
   type Money,
   type Plan,
@@ -27,6 +30,20 @@ import { fixtureSnapshot } from '../../lib/services/fixtures';
 import { createTestServices, recordingPlatform } from '../../lib/services/testing';
 import { crossTabChannel } from '../../lib/store/channel';
 import { changeCountryOf, changePayCurrencyOf, dataActions, savePlan } from './actions';
+import { importShown } from './import-guard';
+
+/** The data actions with each import sent what the screen shows of the stored rows (./import-guard.test.ts). */
+function asShown(services: Services) {
+  const actions = dataActions(services);
+  const stored = () => services.domain.store.getState().snapshot;
+  return {
+    ...actions,
+    importBackup: (file: BackupFile, mode: ImportMode) =>
+      actions.importBackup(file, mode, importShown(stored(), { kind: 'backup', file })),
+    importPrototype: (json: unknown, mode: ImportMode, country: ProfileCode | null) =>
+      actions.importPrototype(json, mode, country, importShown(stored(), { kind: 'prototype', json, count: 0 })),
+  };
+}
 
 describe('dataActions', () => {
   // DOMAIN §3.13: the backup's moment is taken in its turn in the queue, so a write queued behind the
@@ -86,7 +103,7 @@ describe('dataActions', () => {
     if (first === undefined) throw new Error('the fixture has entries');
     const theirs: Entry = { ...first, id: '00000000-0000-4000-8000-000000009998' as Entry['id'] };
     const usd = exportBackup({ ...snapshot.plan, payCurrency: 'USD' }, [theirs], snapshot.plan.updatedAt);
-    const outcome = await dataActions(services).importBackup(usd, 'add-missing');
+    const outcome = await asShown(services).importBackup(usd, 'add-missing');
     expect(outcome).toEqual({ kind: 'refused', refusal: { code: 'currency-mismatch', file: 'USD', plan: 'EUR' } });
     expect(services.domain.store.getState().snapshot).toStrictEqual(before);
     services.dispose();
@@ -106,7 +123,7 @@ describe('dataActions.importPrototype (docs/DOMAIN.md §7)', () => {
 
   it('with no plan, takes the plan in the confirmed country, with import-prototype entries, the prefs and the report', async () => {
     const services = await started({ ...EMPTY_SNAPSHOT, prefs: { ...EMPTY_SNAPSHOT.prefs, theme: 'dark' } });
-    const outcome = await dataActions(services).importPrototype(prototype, 'replace', 'PT');
+    const outcome = await asShown(services).importPrototype(prototype, 'replace', 'PT');
     expect(outcome).toMatchObject({ kind: 'imported', report: [], result: { added: 18 } });
     const { plan, entries, prefs } = stored(services);
     expect(plan).toMatchObject({ country: 'PT', countryRuleVersion: FIXTURE_RULES.PT.status.version });
@@ -121,7 +138,7 @@ describe('dataActions.importPrototype (docs/DOMAIN.md §7)', () => {
     const snapshot = fixtureSnapshot();
     if (snapshot.plan === null) throw new Error('the fixture has a plan');
     const services = await started(snapshot);
-    const outcome = await dataActions(services).importPrototype(prototype, 'replace', 'DE');
+    const outcome = await asShown(services).importPrototype(prototype, 'replace', 'DE');
     expect(outcome.kind).toBe('replaced');
     const { plan, entries } = stored(services);
     expect(plan).toMatchObject({ id: snapshot.plan.id, country: 'PT' });
@@ -134,7 +151,7 @@ describe('dataActions.importPrototype (docs/DOMAIN.md §7)', () => {
 
   it('over a plan, Add missing counts by id and keeps the plan and the preferences', async () => {
     const services = await started({ ...EMPTY_SNAPSHOT, prefs: { ...EMPTY_SNAPSHOT.prefs, theme: 'dark' } });
-    const actions = dataActions(services);
+    const actions = asShown(services);
     await actions.importPrototype(prototype, 'replace', 'PT');
     const before = stored(services);
     const lighter = { ...prototype, meta: { ...prototype.meta, theme: 'light' } };
@@ -150,7 +167,7 @@ describe('dataActions.importPrototype (docs/DOMAIN.md §7)', () => {
 
   it('on Add missing, reports only what was stored: no note of the file’s plan, the purchases of a coin it lacks', async () => {
     const services = await started(EMPTY_SNAPSHOT);
-    const actions = dataActions(services);
+    const actions = asShown(services);
     await actions.importPrototype(prototype, 'replace', 'PT');
     const xrp = {
       id: 'p9001',
@@ -179,7 +196,7 @@ describe('dataActions.importPrototype (docs/DOMAIN.md §7)', () => {
 
   it('on Add missing, a file with settings.base USD onto an EUR plan writes nothing and gives the refusal', async () => {
     const services = await started(EMPTY_SNAPSHOT);
-    const actions = dataActions(services);
+    const actions = asShown(services);
     await actions.importPrototype({ ...prototype, purchases: prototype.purchases.slice(0, 2) }, 'replace', 'PT');
     const before = stored(services);
     const usd = { ...prototype, settings: { ...prototype.settings, base: 'USD' } };
@@ -196,7 +213,7 @@ describe('dataActions.importPrototype (docs/DOMAIN.md §7)', () => {
   it('words the defaulted last buy and the clamped buy day with the values of the plan taken', async () => {
     const services = await started(EMPTY_SNAPSHOT);
     const settings = { ...prototype.settings, dcaDay: 31, lastBuy: '' };
-    const outcome = await dataActions(services).importPrototype({ ...prototype, settings }, 'replace', 'PT');
+    const outcome = await asShown(services).importPrototype({ ...prototype, settings }, 'replace', 'PT');
     if (outcome.kind === 'invalid') throw new Error('the file is valid');
     const { plan } = stored(services);
     expect(outcome.report).toEqual(
@@ -211,7 +228,7 @@ describe('dataActions.importPrototype (docs/DOMAIN.md §7)', () => {
   it('writes nothing for a file whose plan is not valid, and gives its issues', async () => {
     const services = await started(EMPTY_SNAPSHOT);
     const invalid = { ...prototype, settings: { ...prototype.settings, monthly: 0, initial: 0 } };
-    const outcome = await dataActions(services).importPrototype(invalid, 'replace', 'PT');
+    const outcome = await asShown(services).importPrototype(invalid, 'replace', 'PT');
     expect(outcome).toEqual({ kind: 'invalid', issues: expect.arrayContaining([expect.stringMatching(/no-amount/)]) });
     expect(stored(services)).toStrictEqual(EMPTY_SNAPSHOT);
     services.dispose();
@@ -573,7 +590,7 @@ describe('dataActions, the entry cap (docs/DOMAIN.md §3.13)', () => {
   it('Add missing up to exactly 10,000 live entries imports, and the next export reads back', async () => {
     const { services, platform } = await started(mine);
     const file = exportBackup(plan, extras(4_000, 100_000), exportedAt);
-    const outcome = await dataActions(services).importBackup(file, 'add-missing');
+    const outcome = await asShown(services).importBackup(file, 'add-missing');
     expect(outcome).toMatchObject({ kind: 'added', result: { added: 4_000, refused: null } });
     const read = await nextExport(services, platform);
     expect(read.ok && read.value.entries.length).toBe(10_000);
@@ -584,7 +601,7 @@ describe('dataActions, the entry cap (docs/DOMAIN.md §3.13)', () => {
     const { services, platform } = await started(mine);
     const before = services.domain.store.getState().snapshot;
     const file = exportBackup(plan, extras(6_000, 100_000), exportedAt);
-    const outcome = await dataActions(services).importBackup(file, 'add-missing');
+    const outcome = await asShown(services).importBackup(file, 'add-missing');
     const refusal = { code: 'too-many-entries', entries: 12_000, file: 6_000, max: 10_000 };
     expect(outcome).toEqual({ kind: 'refused', refusal });
     expect(services.domain.store.getState().snapshot).toStrictEqual(before);
@@ -601,14 +618,14 @@ describe('dataActions, the entry cap (docs/DOMAIN.md §3.13)', () => {
     };
     const { services } = await started(snapshot.entries);
     const before = services.domain.store.getState().snapshot;
-    expect(await dataActions(services).importPrototype(many, 'replace', null)).toEqual({ ...refused, report: [] });
+    expect(await asShown(services).importPrototype(many, 'replace', null)).toEqual({ ...refused, report: [] });
     expect(services.domain.store.getState().snapshot).toStrictEqual(before);
     services.dispose();
 
     const empty = createTestServices({ snapshot: EMPTY_SNAPSHOT, rules });
     await empty.start();
     const nothing = empty.domain.store.getState().snapshot;
-    expect(await dataActions(empty).importPrototype(many, 'replace', 'PT')).toEqual({ ...refused, report: [] });
+    expect(await asShown(empty).importPrototype(many, 'replace', 'PT')).toEqual({ ...refused, report: [] });
     expect(empty.domain.store.getState().snapshot).toStrictEqual(nothing);
     empty.dispose();
   });
@@ -680,28 +697,28 @@ describe('dataActions beside rows from a newer version (docs/DOMAIN.md §3.13)',
   it('add-missing over a newer entry of the same id is refused and writes nothing', async () => {
     const { services, plan, newer, before } = await started();
     const file = exportBackup(plan, [newer], NOW);
-    expect(await dataActions(services).importBackup(file, 'add-missing')).toEqual(refused);
+    expect(await asShown(services).importBackup(file, 'add-missing')).toEqual(refused);
     expect(await synced()).toStrictEqual(before);
   });
 
   it('replace over a newer entry of the same id is refused', async () => {
     const { services, plan, newer, before } = await started();
     const file = exportBackup({ ...plan, id: OTHER_PLAN }, [newer], NOW);
-    expect(await dataActions(services).importBackup(file, 'replace')).toEqual(refused);
+    expect(await asShown(services).importBackup(file, 'replace')).toEqual(refused);
     expect(await synced()).toStrictEqual(before);
   });
 
   it('replace beside a newer entry of the replaced plan is refused', async () => {
     const { services, plan, kept, before } = await started();
     const file = exportBackup({ ...plan, id: OTHER_PLAN }, [kept], NOW);
-    expect(await dataActions(services).importBackup(file, 'replace')).toEqual(refused);
+    expect(await asShown(services).importBackup(file, 'replace')).toEqual(refused);
     expect(await synced()).toStrictEqual(before);
   });
 
   it('a DCA plan page import beside a newer entry is refused', async () => {
     const { services, before } = await started();
     for (const mode of ['replace', 'add-missing'] as const) {
-      const outcome = await dataActions(services).importPrototype(twoCoins.state, mode, null);
+      const outcome = await asShown(services).importPrototype(twoCoins.state, mode, null);
       expect(outcome).toEqual({ ...refused, report: [] });
     }
     expect(await synced()).toStrictEqual(before);
@@ -711,7 +728,7 @@ describe('dataActions beside rows from a newer version (docs/DOMAIN.md §3.13)',
     const { services, plan, kept, before } = await started(newerPlanTombstone);
     const file = exportBackup({ ...plan, id: OTHER_PLAN }, [kept], NOW);
     const shown = services.domain.store.getState().snapshot;
-    expect(await dataActions(services).importBackup(file, 'replace')).toEqual(refused);
+    expect(await asShown(services).importBackup(file, 'replace')).toEqual(refused);
     expect(await synced()).toStrictEqual(before);
     expect(services.domain.store.getState().snapshot.plan).toStrictEqual(shown.plan);
     expect(services.domain.store.getState().snapshot.entries).toStrictEqual(shown.entries);
@@ -724,7 +741,7 @@ describe('dataActions beside rows from a newer version (docs/DOMAIN.md §3.13)',
       await db.clear('entries');
     });
     const file = exportBackup({ ...plan, id: OTHER_PLAN }, [kept], NOW);
-    expect(await dataActions(services).importBackup(file, 'replace')).toEqual(refused);
+    expect(await asShown(services).importBackup(file, 'replace')).toEqual(refused);
     expect(await synced()).toStrictEqual(before);
     expect(services.domain.store.getState().snapshot.plan).toBeNull();
   });
@@ -734,7 +751,7 @@ describe('dataActions beside rows from a newer version (docs/DOMAIN.md §3.13)',
       await db.put('entries', { ...entry, ...unknown, ...deleted, schemaVersion: 5 });
     });
     const file = exportBackup(plan, [newer], NOW);
-    expect(await dataActions(services).importBackup(file, 'add-missing')).toEqual(refused);
+    expect(await asShown(services).importBackup(file, 'add-missing')).toEqual(refused);
     expect(await synced()).toStrictEqual(before);
     expect(services.domain.store.getState().snapshot.entries.map(({ id }) => id)).not.toContain(newer.id);
   });
@@ -745,7 +762,7 @@ describe('dataActions beside rows from a newer version (docs/DOMAIN.md §3.13)',
     const services = createTestServices({ snapshot: { ...snapshot, newer: { plans: 1, entries: 0 } } });
     await services.start();
     const file = exportBackup(snapshot.plan, snapshot.entries, NOW);
-    expect(await dataActions(services).importBackup(file, 'replace')).toEqual(refused);
+    expect(await asShown(services).importBackup(file, 'replace')).toEqual(refused);
     services.dispose();
   });
 

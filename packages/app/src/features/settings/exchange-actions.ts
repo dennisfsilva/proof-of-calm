@@ -11,7 +11,7 @@ import {
   sameImport,
 } from '@proofofcalm/core';
 import type { Services } from '../../lib/services';
-import { holdsNewerRows } from './actions';
+import { holdsNewerRows } from './import-guard';
 import { exchangeContext } from './model/import';
 
 /** What an exchange import wrote, or why it wrote nothing. */
