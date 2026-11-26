@@ -73,7 +73,7 @@
     "description": "Ein Planer und ein Protokoll für Käufe von Kryptowerten nach einem festen monatlichen Zeitplan.",
     "screenshots": {
       "holdingDate": "Der erste Tag nach der Haltefrist eines Beispielkaufs in Portugal",
-      "countryPt": "Portugal: Meldepflichten, Fragen für die Steuerberatung und Datum der Prüfung",
+      "countryPt": "Portugal: Meldepflichten, Fragen für die Steuerberatung und Datum der Überprüfung",
       "today": "„Heute“: Beispielplan mit dem eingetragenen Kauf des laufenden Monats",
       "learn": "Die Übersicht von „Lernen“ mit kurzen Modulen"
     }
