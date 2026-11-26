@@ -279,7 +279,9 @@ platform without one.
   before the screen settles, passes 100 ms there is fixed: Event Timing ends at the next paint and
   misses a render that blocks the main thread after it, which a person waits through all the same.
   `apps/web/e2e/log-cap.spec.ts` fills the fixture plan to `MAX_ENTRIES` live entries and records
-  each input's duration and longest task as annotations; it asserts only the inputs measured under
+  each input's duration and longest task as annotations, with the longest task that starts before
+  the input, which is the harness's own work, since the app is idle once settled (0 ms: the window
+  holds only what the input made); it asserts only the inputs measured under
   half the rule here (none with the window of 100) and takes about half a minute, so it runs only on request (`LOG_CAP=1` on the desktop project, the command in
   `CLAUDE.md`). The figures are local: Windows, Playwright's Chromium, five runs, 2026-11-25. Fixed
   here, with nothing the Log shows changed: each row built its own formatters and every toggle
@@ -337,8 +339,13 @@ platform without one.
   entry; that Edit entry is React mounting the sheet and the form (Base UI's Dialog and Field, 65 %),
   with Base UI's focus code 7 to 12 ms of its own; and that opening Go to year is Base UI's Select
   popup and floating-ui's measuring. Inside the measured window, Playwright's own locator resolution
-  makes a 75 to 101 ms task before the Delete and Undo clicks. The gate took one keystroke with a
-  live move stored under the rule, with one caveat: the spec's move sits on the oldest entry's date
+  made a 75 to 101 ms task before the Delete and Undo clicks, and the spec's first run with the
+  task before the input recorded (2026-11-26, a loaded machine) found one before Show older and Show
+  newer entries too (123 and 210 ms, the longest task of both windows); the spec now waits on those
+  four buttons with a trial click and clicks them by handle, so no selector runs inside the window,
+  and the figures above for them were measured with the harness's task inside the window. The gate
+  took one keystroke with a live move stored under the rule, with one caveat: the spec's move sits
+  on the oldest entry's date
   (`apps/web/e2e/log-cap.spec.ts`), so the measured keystroke takes the gate's skipped path, and a
   keystroke on an entry dated on or before a later live move still runs the move line, unmeasured
   at the cap. Over the rule still, which the stage audit decides (#22), since no cut under 300 lines
