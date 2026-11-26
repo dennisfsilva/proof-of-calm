@@ -249,6 +249,33 @@ export const NearTabBar: Story = {
   },
 };
 
+// The buy day centred on a page with the phone tab bar at 125 % text (the plan's schedule): seven of the 28 days show
+// above the bar, and when the list covers its trigger, the chosen day sits on it (2026-11-26).
+export const BuyDayOverTrigger: Story = {
+  globals: { textZoom: '125' },
+  render: () => (
+    <div className="flex min-h-dvh flex-col justify-center">
+      <div className="flex flex-col gap-stack-xs">
+        <Select defaultValue="14">
+          <SelectLabel>Buy day</SelectLabel>
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {days.map((day) => (
+              <SelectItem key={day} value={day}>
+                {day}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <TabBar label="Main" items={[{ href: '#plan', label: 'Plan', icon: ListIcon, current: true }]} />
+    </div>
+  ),
+  play: async ({ canvas }) => opensInView(canvas.getByRole('combobox', { name: 'Buy day' }), 7),
+};
+
 const countries = ['Portugal', 'Germany', 'Spain', 'France', 'Italy', 'Ireland', 'Austria', 'Belgium'];
 
 // A long list whose trigger sits mid-screen with the phone tab bar at 125 % text (onboarding's country): the list
