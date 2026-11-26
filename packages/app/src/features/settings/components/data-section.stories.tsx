@@ -75,7 +75,9 @@ export const SetAsideBack: Story = {
   },
   play: async ({ canvas }) => {
     await waitFor(() => expect(canvas.getByText(/^3 saved items could not be read/)).toBeVisible());
-    await expect(canvas.getByText(/1 of them is back in your data and exports again/)).toBeVisible();
+    await expect(
+      canvas.getByText(/1 of them is back in your data and exports\. The other 2 stay .+ exports leave them out\.$/),
+    ).toBeVisible();
   },
 };
 

@@ -131,7 +131,7 @@ test('after the recovery the Settings line no longer says exports leave it out',
   await expect(page.getByText(SETTINGS_LINE)).toContainText('exports leave it out.');
   await addMissing(page);
   await expect(page.getByText(SETTINGS_LINE)).toHaveText(
-    '1 saved item could not be read, so Proof of Calm set it aside. It is back in your data and exports again, ' +
+    '1 saved item could not be read, so Proof of Calm set it aside. It is back in your data and exports, ' +
       'and only its unreadable copy stays set aside on this device.',
   );
   await expect(page.getByText(SETTINGS_LINE)).not.toContainText('exports leave it out');
