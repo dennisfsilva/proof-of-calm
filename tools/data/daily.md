@@ -11,8 +11,10 @@ node --import ./tools/data/hooks.ts tools/data/daily.ts --store <dir> [--dry] [-
 
 `--store` is a folder outside this repository: `guard.ts` refuses one inside it however the path
 is written (as it is, through a junction or symlink, or through a loopback share such as
-`\\localhost\P$\`), by comparing the device and inode of the store's nearest existing folder and its
-ancestors with the repository root's. `--today` names the UTC day the windows count from; without
+`\\localhost\P$\`) and whichever checkout the job runs from, by comparing the device and inode of the
+store's nearest existing folder and its ancestors with those of every working tree of the repository:
+the checkout, the main working tree and each linked worktree, read from git's records under `.git`
+(a listed worktree whose folder is gone is skipped; a checkout without readable records refuses). `--today` names the UTC day the windows count from; without
 it the job reads the clock once, at its start, for the windows. The readers read the real clock only
 to bound a window: Kraken's drops the running candle, and Bitstamp's refuses a window whose day is not
 yesterday, or the day before yesterday in the first 8 minutes after 00:00 UTC (Windows). So a

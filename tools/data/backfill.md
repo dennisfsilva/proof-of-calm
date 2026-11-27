@@ -8,8 +8,9 @@ daily closes in a private store; it forbids any Kraken figure in this repository
 It runs by hand on the session's machine, never in CI, and never writes into this repository: the
 store directory is a clone of the private repository dennisfsilva/proof-of-calm-closes kept in a
 folder outside this one, and `backfill.ts` refuses a `--store` inside this repository through
-`guard.ts`, the daily job's guard, which compares identities rather than path strings, so a path
-through a link or a loopback share is refused too (the opening of `daily.md` says how). The archive and
+`guard.ts`, the daily job's guard, which compares identities rather than path strings against every
+working tree of the repository, so a path through a link or a loopback share, or into the main
+checkout or a linked worktree, is refused too (the opening of `daily.md` says how). The archive and
 its extracted files stay outside this repository too, and are deleted when the run is done: the store
 keeps the daily closes only, and the archive is downloaded again when it is needed.
 
