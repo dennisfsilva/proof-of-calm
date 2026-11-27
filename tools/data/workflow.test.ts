@@ -122,7 +122,9 @@ describe('closes-store.yml', () => {
     // Nothing else continues a rebase, so no file with a conflict marker is ever committed.
     expect(commit).not.toMatch(/git (rebase --continue|add .*-u|commit .*-a\b)/);
     expect(store).toMatch(/^# .*is retried up to 3 times, each 10 s later on$/m);
-    expect(store).toMatch(/^# top of a pull with rebase\. A rebase that conflicts only on Kraken files skips Kraken's commit/m);
+    expect(store).toMatch(
+      /^# top of a pull with rebase\. A rebase that conflicts only on Kraken files skips Kraken's commit/m,
+    );
   });
 });
 
