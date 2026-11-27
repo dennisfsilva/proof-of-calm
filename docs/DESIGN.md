@@ -609,7 +609,11 @@ the form), so it waits for a screen that does. Notes, and the values this docume
   scrolls, and no effect runs there, so a scroll container on a site page is always a focusable
   region named by its caption (`tabIndex` 0, `role="region"`, `aria-labelledby`), as the Risk page's
   falls table is (2026-11-15). A site table puts its main figure right after the row header, as the
-  falls table puts the fall after the coin, so 360 px at 125 % text reads it before any scroll; a
+  falls table puts the fall after the coin, so 360 px at 100 % and 125 % text reads it before any
+  scroll. A caption takes its table's width, so a table that a column added for mixed rows makes
+  wider than its box (the falls table's Source column) makes its region an inline-size container
+  and caps the caption at `100cqi`: the main figure and the whole caption stay inside the box at
+  360 px with 100 % and 125 % text, and rows of one basis keep their markup (2026-11-27); a
   link target that may wrap takes padding of half what one line leaves of the target above and below
   instead of a minimum height, so every label sits the same distance above the line under it, as the
   Risk page's warnings do (`apps/web/e2e/risk.spec.ts`, 2026-11-15). A unit test renders every component on the server and finds no style
