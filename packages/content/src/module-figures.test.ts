@@ -112,7 +112,7 @@ describe('a chart section passes', () => {
     [
       '13: a bound on Solana',
       body(
-        `${S1} In the chart, Solana had 1 fall of more than 95 % between 2021 and 2022. Ether fell 93 % and 81 %, and Chainlink 89 % and 91 %.`,
+        `${S1} In the chart, Solana had 1 fall of more than 96 % between 2021 and 2022. Ether fell 93 % and 81 %, and Chainlink 89 % and 91 %.`,
       ),
       ROWS,
     ],
@@ -218,7 +218,7 @@ describe("#343's cases, their fixes and one step past", () => {
       body(),
       body(`In the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2023. ${S2}`),
     ],
-    ['Solana 96 % against 98', E('and Solana 96 %.'), [1, 0], body(), E('and Solana 99 %.')],
+    ['Solana 97 % against 98', E('and Solana 97 %.'), [1, 0], body(), E('and Solana 99 %.')],
     [
       '5 falls',
       body(`In the chart, bitcoin had 5 falls of more than 75 % between 2011 and 2022. ${S2}`),
@@ -479,9 +479,9 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
     ],
     [
       '12: a wrong value',
-      E('and Solana 96 %.'),
+      E('and Solana 97 %.'),
       [
-        `figure-chart: body: "96 %" in "${s2.replace('98', '96')}" is not Solana's fall at that place in the chart's order${R(5)}`,
+        `figure-chart: body: "97 %" in "${s2.replace('98', '97')}" is not Solana's fall at that place in the chart's order${R(5)}`,
       ],
     ],
     [
