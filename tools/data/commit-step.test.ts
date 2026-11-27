@@ -106,7 +106,8 @@ const markers = (bare: string) =>
     .split('\n')
     .filter((path) => /^(<{7}|={7}|>{7})/m.test(git(bare, 'show', `main:${path}`)));
 
-describe('the commit step', { timeout: 30_000 }, () => {
+// Load (2026-11-27): worst 7,903 ms in six forced pnpm check runs; seen past 30 s on busier ones, so 3 × 30 s.
+describe('the commit step', { timeout: 90_000 }, () => {
   it('pulls a push that came after the checkout and pushes each exchange’s day on top of it', () => {
     const { bare, other, job } = repositories();
     put(job, 'closes/bitstamp/BTC-EUR.csv', 'date,close\n2026-11-26,1.5\n');

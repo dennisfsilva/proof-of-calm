@@ -202,7 +202,8 @@ const PR1 = 'https://github.com/o/r/pull/1';
 const LEAVE = 'to start another review, run git switch --detach origin/main';
 const REFUSED = 'finish: refused; nothing committed or pushed';
 
-describe('propose', () => {
+// Load (2026-11-27): worst 10,277 ms in six forced pnpm check runs; seen past 30 s on busier ones, so 3 × 30 s.
+describe('propose', { timeout: 90_000 }, () => {
   it('parseRaw lists modes, deletions and binaries', () => {
     const raw = [
       `:100644 100644 1111111 2222222 M\0${FACTS}\0`,
@@ -302,7 +303,7 @@ describe('propose', () => {
     } finally {
       rmSync(repo, { recursive: true, force: true });
     }
-  }, 30_000);
+  });
 
   it("finish --dry refuses a staged module's changed lastReviewed line, with a one-row draft", () => {
     const front = (by: string, reviewed: string) =>
@@ -343,7 +344,7 @@ describe('propose', () => {
       rmSync(repo, { recursive: true, force: true });
       rmSync(outside, { recursive: true, force: true });
     }
-  }, 30_000);
+  });
 
   it("finish --dry accepts a translation's repeated figure with a changes row and only its English file's reviewed row", () => {
     const [english, overlay] = ['jurisdictions/pt.json', 'i18n/pt-PT/jurisdictions/pt.json'];
@@ -381,7 +382,7 @@ describe('propose', () => {
       rmSync(repo, { recursive: true, force: true });
       rmSync(outside, { recursive: true, force: true });
     }
-  }, 30_000);
+  });
 
   it('start and finish refuse, changing nothing, when gh is missing, logged out, its token expired or offline, and when the fetch fails', () => {
     const { root, repo, git, write, clean } = originRepo();
@@ -419,7 +420,7 @@ describe('propose', () => {
     } finally {
       clean();
     }
-  }, 30_000);
+  });
 
   it("finish proposes today's branch; start prints its record without forks and refuses on it", () => {
     const { root, repo, git, write, clean } = originRepo();
@@ -449,7 +450,7 @@ describe('propose', () => {
     } finally {
       clean();
     }
-  }, 30_000);
+  });
 
   it('(a) a second review of the day takes -2 while the first PR is open, and origin/R stays as it was', () => {
     const { root, repo, git, write, clean } = originRepo();
@@ -471,7 +472,7 @@ describe('propose', () => {
     } finally {
       clean();
     }
-  }, 30_000);
+  });
 
   it("(b) finish on R at origin/R with the owner's two commits prints the URL, exits 0 and pushes nothing", () => {
     const { root, repo, git, write, clean } = originRepo();
@@ -497,7 +498,7 @@ describe('propose', () => {
     } finally {
       clean();
     }
-  }, 30_000);
+  });
 
   it('(c) a PR created without its labels gets needs-owner on the next finish', () => {
     const { root, repo, write, clean } = originRepo();
@@ -519,7 +520,7 @@ describe('propose', () => {
     } finally {
       clean();
     }
-  }, 30_000);
+  });
 
   it('(d) a failed push says run finish again, and the next finish pushes and opens the PR', () => {
     const { root, repo, git, write, clean } = originRepo();
@@ -541,7 +542,7 @@ describe('propose', () => {
     } finally {
       clean();
     }
-  }, 30_000);
+  });
 
   it('(e) finish on R refuses a merged PR and pushes nothing', () => {
     const { root, repo, git, write, clean } = originRepo();
@@ -563,7 +564,7 @@ describe('propose', () => {
     } finally {
       clean();
     }
-  }, 30_000);
+  });
 
   it("(f) start on a dirty tree beside a draft says a review's edits wait", () => {
     const { root, repo, write, clean } = originRepo();
@@ -577,7 +578,7 @@ describe('propose', () => {
     } finally {
       clean();
     }
-  }, 30_000);
+  });
 
   it("allowed-tools holds no git, gh, WebFetch, WebSearch, rules/ Edit or pdf.ts rule, and Edit covers the draft's write", () => {
     const skill = readFileSync(new URL('../../.claude/skills/review-content/SKILL.md', import.meta.url), 'utf8');
