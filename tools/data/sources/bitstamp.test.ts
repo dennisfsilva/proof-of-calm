@@ -23,6 +23,7 @@ function io(answer: () => Response | Promise<Response>) {
   const value: SourceIo = {
     now: () => NOW,
     sleep: async () => undefined,
+    timeout: () => new AbortController().signal,
     fetch: async (input, init) => {
       calls.push({ url: String(input), init });
       return answer();
