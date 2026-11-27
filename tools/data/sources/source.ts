@@ -7,6 +7,8 @@ export type SourceIo = {
   readonly fetch: typeof fetch;
   readonly sleep: (ms: number) => Promise<void>;
   readonly now: () => Date;
+  /** A signal that aborts `ms` after it is made: `AbortSignal.timeout` in the real io. */
+  readonly timeout: (ms: number) => AbortSignal;
 };
 
 /** One exchange's closes of a pair (its symbol in `pairs.json`) for the UTC days `from` to `to`. */

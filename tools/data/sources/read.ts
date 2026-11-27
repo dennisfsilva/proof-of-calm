@@ -8,7 +8,6 @@ import { RateLimited } from '../pace.ts';
 import type { SourceIo } from './source.ts';
 
 const DAY_SECONDS = 86_400;
-const TIMEOUT_MS = 30_000;
 
 export const refused = (exchange: Exchange, pair: string, status: string): Error =>
   new Error(`refused: ${exchange} ${pair} ${status}`);
@@ -55,7 +54,8 @@ export function candleRow(seconds: unknown, close: unknown): StoreRow | null {
 export async function getJson(exchange: Exchange, pair: string, url: string, io: SourceIo): Promise<unknown> {
   let response: Response;
   try {
-    response = await io.fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+    // The pacer gives each try its own timeout (`../pace.ts`), so its waits never count against one.
+    response = await io.fetch(url);
   } catch (error) {
     throw refused(exchange, pair, error instanceof RateLimited ? 'rate limited' : 'unreachable');
   }
