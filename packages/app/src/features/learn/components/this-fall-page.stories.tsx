@@ -38,7 +38,7 @@ const EPISODE = {
 const FALLS = [
   { coin: 'BTC', high: '2017-12-17', low: '2018-12-15', fall: '84', publisher: 'Bitstamp' },
   { coin: 'BTC', high: '2021-11-10', low: '2022-11-21', fall: '78', publisher: 'Bitstamp' },
-  { coin: 'ETH', high: '2021-12-01', low: '2022-06-30', fall: '83', publisher: 'CoinGecko' },
+  { coin: 'ETH', high: '2021-11-10', low: '2022-06-18', fall: '82', publisher: 'Coinbase' },
 ] as unknown as readonly PastFall[];
 
 const meta = {
