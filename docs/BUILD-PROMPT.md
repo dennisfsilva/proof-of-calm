@@ -1185,6 +1185,25 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - An agent can work out figures from a private store while the wave before them is in review,
   writing only dates, percentages and ratios outside the repository: the builder then re-ran the
   agent's script, and the reviewer wrote its own, which matched every figure (#577; 2026-11-27).
+- A change to a `packages/ui` component is a change to Today when Today imports it, as it does
+  `ChartTable`: the planner measures Today's headroom on the base first (the #562 lesson above), and
+  the builder runs `node tools/size/today.ts` after `pnpm --filter @proofofcalm/web build` before
+  handing back, since `pnpm check` does not. A 13-line prop on `ChartTable` for Learn's falls table
+  added 90 bytes to a main at 46,065 of 46,080, which only CI's e2e-build showed (#595; 2026-11-27).
+- A caption takes its table's width, so a column that only some rows add can cut a scrolling
+  table's caption at its box's edge while the main figure still fits: a check of such a table
+  measures the caption's line boxes (a Range's client rects) as well as the figure's column (#595;
+  2026-11-27).
+- The session reads a screenshot's text as well as the evaluator: a zoom-125 run passed a Risk page
+  caption whose coin list its own image showed cut, and the next brief, which asked for the caption
+  read word by word and measured, got it right (#595; 2026-11-27).
+- A check that guards another component's parsing is written from that parser's outputs, with a
+  case one step from each branch of the check: the falls publisher guard followed the app's split on
+  ` and ` shape by shape, and each of two review rounds found a shape it let through (brackets and
+  quotes, then a name that is only "and") or a branch no case reached (#594; 2026-11-27).
+- A builder checks each commit subject's length before the commit's first push, since the brief
+  pushes after each step and the check's commit-subject step runs only at the end: a 101-character
+  subject reached the remote, and only a re-cut pushed with the lease fixed it (#595; 2026-11-27).
 
 ## Known gaps
 
