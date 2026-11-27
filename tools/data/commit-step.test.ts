@@ -79,29 +79,58 @@ function repositories() {
 const step = (job: string) =>
   spawnSync(bash, ['--noprofile', '--norc', '-eo', 'pipefail', '-c', script], { cwd: job, env, encoding: 'utf8' });
 const subjects = (bare: string) => git(bare, 'log', '--format=%s', 'main').split('\n');
+const day = (exchange: string) => expect.stringMatching(new RegExp(`^data: ${exchange} closes of \\d{4}-\\d{2}-\\d{2}$`));
+const rebasing = (job: string) =>
+  existsSync(join(job, '.git', 'rebase-merge')) || existsSync(join(job, '.git', 'rebase-apply'));
+// Every file the store's main holds, none of them carrying a conflict marker.
+const markers = (bare: string) =>
+  git(bare, 'ls-tree', '-r', '--name-only', 'main')
+    .split('\n')
+    .filter((path) => /^(<{7}|={7}|>{7})/m.test(git(bare, 'show', `main:${path}`)));
 
 describe('the commit step', { timeout: 30_000 }, () => {
-  it('pulls a push that came after the checkout and pushes the day on top of it', () => {
+  it('pulls a push that came after the checkout and pushes each exchange’s day on top of it', () => {
     const { bare, other, job } = repositories();
     put(job, 'closes/bitstamp/BTC-EUR.csv', 'date,close\n2026-11-26,1.5\n');
+    put(job, 'closes/kraken/BTC-EUR.csv', 'date,close\n2026-11-25,1.5\n2026-11-26,1.5\n');
     git(other, 'push', '--quiet');
     const result = step(job);
     expect(result.status).toBe(0);
-    expect(subjects(bare)).toEqual([expect.stringMatching(/^data: closes of \d{4}-\d{2}-\d{2}$/), 'backfill', 'seed']);
+    expect(subjects(bare)).toEqual([day('kraken'), day('bitstamp'), 'backfill', 'seed']);
     expect(git(bare, 'show', 'main:closes/bitstamp/BTC-EUR.csv')).toBe('date,close\n2026-11-26,1.5');
+    expect(git(bare, 'show', 'main:closes/kraken/BTC-EUR.csv')).toBe('date,close\n2026-11-25,1.5\n2026-11-26,1.5');
     expect(git(bare, 'show', 'main:closes/kraken/ETH-EUR.csv')).toBe('date,close\n2026-11-25,2.5');
   });
 
-  it('aborts a rebase that conflicts and fails, leaving the store as the other push left it', () => {
+  it('drops a Kraken day that conflicts, pushes Bitstamp’s and fails so the run is red', () => {
     const { bare, other, job } = repositories();
+    put(job, 'closes/bitstamp/BTC-EUR.csv', 'date,close\n2026-11-26,1.5\n');
     put(job, 'closes/kraken/BTC-EUR.csv', 'date,close\n2026-11-25,1.5\n2026-11-26,1.5\n');
     put(other, 'closes/kraken/BTC-EUR.csv', 'date,close\n2026-11-25,1.5\n2026-11-26,9.5\n');
     commit(other, 'backfill again');
     git(other, 'push', '--quiet');
     const result = step(job);
+    expect(result.status).toBe(1);
+    expect(subjects(bare)).toEqual([day('bitstamp'), 'backfill again', 'backfill', 'seed']);
+    expect(git(bare, 'show', 'main:closes/bitstamp/BTC-EUR.csv')).toBe('date,close\n2026-11-26,1.5');
+    expect(git(bare, 'show', 'main:closes/kraken/BTC-EUR.csv')).toBe('date,close\n2026-11-25,1.5\n2026-11-26,9.5');
+    expect(markers(bare)).toEqual([]);
+    expect(rebasing(job)).toBe(false);
+  });
+
+  it('aborts a rebase that conflicts on a Bitstamp file and fails, leaving the store as the other push left it', () => {
+    const { bare, other, job } = repositories();
+    put(job, 'closes/bitstamp/BTC-EUR.csv', 'date,close\n2026-11-26,1.5\n');
+    put(job, 'closes/kraken/BTC-EUR.csv', 'date,close\n2026-11-25,1.5\n2026-11-26,1.5\n');
+    put(other, 'closes/bitstamp/BTC-EUR.csv', 'date,close\n2026-11-26,9.5\n');
+    commit(other, 'backfill again');
+    git(other, 'push', '--quiet');
+    const result = step(job);
     expect(result.status).not.toBe(0);
     expect(subjects(bare)).toEqual(['backfill again', 'backfill', 'seed']);
-    expect(existsSync(join(job, '.git', 'rebase-merge')) || existsSync(join(job, '.git', 'rebase-apply'))).toBe(false);
+    expect(git(bare, 'show', 'main:closes/bitstamp/BTC-EUR.csv')).toBe('date,close\n2026-11-26,9.5');
+    expect(markers(bare)).toEqual([]);
+    expect(rebasing(job)).toBe(false);
   });
 
   it('fails after its last try while every push is refused', () => {
