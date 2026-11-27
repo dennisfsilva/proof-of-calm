@@ -51,7 +51,7 @@ describe('templateFigureProblems: the closed shapes pass (the judge’s must-pas
   it.each([
     `Solana fell 98 % ${D('SOL')}.`,
     'From its high on {date:drawdowns.SOL.high} to its low on {date:drawdowns.SOL.low}, Solana fell 98 %.',
-    `Solana fell more than 96 % ${D('SOL')}.`,
+    `Solana fell more than 97 % ${D('SOL')}.`,
     `Solana fell −98 % ${D('SOL')}.`,
     'It splits each monthly amount 40 % Bitcoin, 30 % Ethereum, 15 % Solana, and 15 % Chainlink.',
     'What can go wrong: 15 % of every amount goes into Solana.',
@@ -105,7 +105,7 @@ describe('sentencesOf', () => {
 
 describe('templateFigureProblems: figure-mismatch', () => {
   it('refuses a fall other than its row’s, and a bound its row does not meet (R2)', () => {
-    for (const figure of ['96 %', '99 %', 'more than 98 %', 'more than 99 %']) {
+    for (const figure of ['97 %', '99 %', 'more than 98 %', 'more than 99 %']) {
       expect(ruled(`Solana fell ${figure} ${D('SOL')}.`)).toEqual(['figure-mismatch R2']);
     }
   });
@@ -120,7 +120,7 @@ describe('templateFigureProblems: figure-mismatch', () => {
 });
 
 describe('templateFigureProblems: figure-form', () => {
-  it.each(['less than 99 %', 'over 98 %', 'about 98 %', 'at least 96 %', 'up to 99 %', '96–98 %'])(
+  it.each(['less than 99 %', 'over 98 %', 'about 98 %', 'at least 97 %', 'up to 99 %', '97–98 %'])(
     'refuses a dated fall written %s (R1, D14 of #318)',
     (figure) => {
       expect(ruled(`Solana fell ${figure} ${D('SOL')}.`)).toEqual(['figure-form R1']);
@@ -394,7 +394,7 @@ describe('the details (D17 of #318: a datum written in passes, one step past it 
   const datum = (detail: string) => Number(/ of (\d+) %/.exec(detail)?.[1]);
 
   it.each([
-    [(n: number) => `Solana fell ${n} % ${D('SOL')}.`, 96, 98],
+    [(n: number) => `Solana fell ${n} % ${D('SOL')}.`, 97, 98],
     [(n: number) => `Solana fell ${n} % ${D('SOL')}.`, 99, 98],
     [(n: number) => `Bitcoin takes ${n} % of each amount.`, 45, 40],
   ])('names the datum of a mismatch (%#)', (write, start, expected) => {
@@ -417,7 +417,7 @@ describe('the details (D17 of #318: a datum written in passes, one step past it 
 
   it('quote the sentence, name the figure, its coin and datum, end with the rule and print no text to write', () => {
     const cases: [string, string[]][] = [
-      [`Solana fell 96 % ${D('SOL')}.`, ['"96 %"', "SOL's fall of 98 %", '"more than N %"']],
+      [`Solana fell 97 % ${D('SOL')}.`, ['"97 %"', "SOL's fall of 98 %", '"more than N %"']],
       ['Bitcoin takes 45 % of each amount.', [`"45 %" is not BTC's share of 40 %`]],
       [`Solana fell about 98 % ${D('SOL')}.`, ['"98 %"', "SOL's fall of 98 %", 'neither F1 nor F2']],
       [`Ethereum’s high and low came ${D('ETH')}.`, ["ETH's fall of 83 %"]],
@@ -443,8 +443,8 @@ describe('the details (D17 of #318: a datum written in passes, one step past it 
     const end = (sentence: string, rule: number) => ` in "${sentence}"; R${rule} (docs/CONTENT-STYLE.md §4)`;
     const exact: [string, string][] = [
       [
-        `Solana fell 96 % ${D('SOL')}.`,
-        `explanation: "96 %" is neither SOL's fall of 98 % nor a bound below it written "more than N %"`,
+        `Solana fell 97 % ${D('SOL')}.`,
+        `explanation: "97 %" is neither SOL's fall of 98 % nor a bound below it written "more than N %"`,
       ],
       [
         `Solana fell about 98 % ${D('SOL')}.`,
