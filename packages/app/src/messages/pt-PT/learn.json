@@ -82,6 +82,7 @@
         "other-currency": "Por agora, o simulador funciona em euros; introduza o montante em euros.",
         "no-monthly": "O seu plano não tem montante mensal; introduza um."
       },
+      "loading": "A carregar os fechos de referência de {coin}.",
       "start": "Início",
       "end": "Fim",
       "fee": "Comissão (%)",
