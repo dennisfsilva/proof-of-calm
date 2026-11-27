@@ -1225,11 +1225,19 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   it; brand found it, and a story step that reads the computed gap proves the fix (#607; 2026-11-27).
 - The pre-PR hook's check fails on load-sensitive tests while builders run suites on this machine,
   so a session opens pull requests between builder runs and retries once after the load drops: #605
-  sized the daily job's cases, and the app's and two more tools files are a carry-over (#605;
-  2026-11-27).
+  sized the daily job's cases, and the app's and two more tools files, a carry-over, were sized from
+  their worst under load in #611 (#605, #611; 2026-11-27).
 - The pre-PR hook reads its command literally, so a body file named through a shell variable, or a
   branch switch that fails in the same command, fails it: one `gh pr create` per call with the
   literal body path, after the switch in its own call (#604; 2026-11-27).
+- A workflow builder that ends without its schema report, as two did at about 140 tool uses, may
+  have pushed commits that never passed the check: run `pnpm check` on its head before cutting a
+  branch from it, since one cut so carried two Biome errors and a German wording the content
+  validator refuses (#612; 2026-11-27).
+- A design note that adds a second-level lazy screen reusing components the first-level screens
+  share measures Today before building: Rolldown splits those modules into new shared chunks, and
+  each adds a path to Today's entry preload list, 60 bytes for four (`docs/ENGINEERING.md` §4;
+  2026-11-27).
 
 ## Known gaps
 

@@ -171,7 +171,8 @@ platform without one.
   code-splitting group 35,928 bytes in 3 chunks, the same static modules, on 2026-11-09; after #566,
   46,032 of the 46,080 bytes, 48 to spare, on 2026-11-26; after #595, 46,063 of the 46,080 bytes,
   17 to spare, on 2026-11-27; after #607, 46,065 of the 46,080 bytes, 15 to spare, on 2026-11-27
-  (its pull-request run) (measure on the base before adding to
+  (its pull-request run); after #613, 46,064 of the 46,080 bytes, 16 to spare, on 2026-11-27 (its
+  pull-request run) (measure on the base before adding to
   Today). Rolldown groups modules by the entries that reach them, so a lazy chunk that imports some of the entry's
   modules would split them into new shared chunks; one group (`packages/config/vite/chunk-groups.ts`,
   both hosts) keeps every module the entry imports statically in its chunk instead, and enters
