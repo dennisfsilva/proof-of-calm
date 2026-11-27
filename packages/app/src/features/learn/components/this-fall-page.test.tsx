@@ -243,6 +243,31 @@ describe('ThisFallPage, a fall under way', () => {
     expect(text()).toContain('−93% from 20 Jan 2018 to 8 Dec 2018 · Kraken');
   });
 
+  it('names each publisher under its basis for a coin whose falls mix the two', async () => {
+    // Synthetic ETH rows, one on daily closes and one intraday, on dates no row of the cycles file holds.
+    const eth = [
+      { coin: 'ETH', high: '2018-01-20', low: '2018-12-08', fall: '93', publisher: 'Kraken', basis: 'close' },
+      { coin: 'ETH', high: '2021-12-01', low: '2022-06-30', fall: '80', publisher: 'Bitstamp' },
+    ] as unknown as readonly PastFall[];
+    await mount({
+      model: Promise.resolve(
+        episode({ coins: ['BTC', 'ETH'] } as unknown as Partial<Figure>, { held: [BITCOIN, ETHEREUM] }),
+      ),
+      falls: async (coins) => [
+        ...(await pastFalls(coins as PastFall['coin'][])).filter(({ coin }) => coin === 'BTC'),
+        ...eth,
+      ],
+    });
+    const heading = await screen.findByText(/^Earlier falls of Ethereum/);
+    expect(heading.textContent).toBe(
+      'Earlier falls of Ethereum, computed by Proof of Calm from Bitstamp intraday highs and lows, ' +
+        'and Kraken daily closes, in US dollars:',
+    );
+    expect(screen.getByText(/^Earlier falls of Bitcoin/).textContent).toBe(
+      "Earlier falls of Bitcoin, computed by Proof of Calm from each source's intraday highs and lows in US dollars:",
+    );
+  });
+
   it('says a held coin has no dated earlier fall, by the name the falls use', async () => {
     await mount({
       model: Promise.resolve(

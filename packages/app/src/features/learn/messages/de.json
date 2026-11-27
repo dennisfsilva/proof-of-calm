@@ -50,7 +50,7 @@
     "missing": "{coin} fehlt in diesen Zahlen: {product} hat keinen Kursverlauf dafür.",
     "data": "Tagesschlusskurse in {currency}, {first} bis {last} · Kursdaten von CoinGecko",
     "failed": "Der Kursverlauf konnte nicht geladen werden, daher werden die heutigen Zahlen nicht gezeigt. Öffnen Sie diese Seite erneut, um es noch einmal zu versuchen.",
-    "fallsOf": "Frühere Rückgänge von {coin}, von {product} aus den {basis, select, intraday {Tageshochs und Tagestiefs} close {Tagesschlusskursen} other {Tageshochs und Tagestiefs oder Tagesschlusskursen}} jeder Quelle in US-Dollar berechnet:",
+    "fallsOf": "Frühere Rückgänge von {coin}, von {product} aus den {basis, select, intraday {Tageshochs und Tagestiefs jeder Quelle} close {Tagesschlusskursen jeder Quelle} other {Tageshochs und Tagestiefs von {intraday} sowie den Tagesschlusskursen von {closes}}} in US-Dollar berechnet:",
     "fall": "{fall} vom {high} bis zum {low} · {publisher}",
     "noFalls": "{product} hat keinen datierten früheren Rückgang für {coin}.",
     "fallsFailed": "Die früheren Rückgänge konnten nicht geladen werden. Öffnen Sie diese Seite erneut, um es noch einmal zu versuchen.",
