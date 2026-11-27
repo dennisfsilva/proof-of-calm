@@ -5,8 +5,8 @@
 import { compareDates } from '@proofofcalm/core';
 import { type StoreRow, StoreRowsSchema } from '@proofofcalm/data';
 import * as z from 'zod/mini';
-import type { Source } from './index.ts';
 import { candleRow, dayStart, getJson, refused, utcToday } from './read.ts';
+import type { Source } from './source.ts';
 
 // An altname of the AssetPairs listing (`XBTEUR`), so nothing else reaches the URL.
 const SYMBOL = /^[A-Z0-9]{2,16}$/;
