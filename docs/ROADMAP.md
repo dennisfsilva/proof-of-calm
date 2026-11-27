@@ -193,7 +193,8 @@ external links and the Risk link in the mobile export (M3).
   The screen at `/learn/simulator`, unlinked while the reference closes are unpublished, with its
   data states built on 2026-11-27 (#603, `docs/EDUCATION.md` §7), with the chart (#601), the default
   dates and the chart's geometry (#606), the result view (#607) and the coin editor moved to Learn
-  for its inputs (#604); the inputs come next.
+  for its inputs (#604); the form's reader and the fill from the plan (#610), the fee in the result's
+  caveat (#612) and the form (#613) built on 2026-11-27; the form on the screen comes next.
 - Attribution text under every price and chart per ADR-0036, shipped with the simulator. The CoinGecko
   credit beside the price the Log form filled in (#602) and the reference closes' credit line on the
   simulator screen (#603) built on 2026-11-27 (`docs/CONTENT-STYLE.md` §3).
