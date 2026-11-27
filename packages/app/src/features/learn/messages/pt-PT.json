@@ -77,10 +77,10 @@
         "history-ends-earlier": "Os fechos de referência de {coin} terminam em {date}. Escolha um fim até esse dia.",
         "date-required": "Escolha uma data completa: dia, mês e ano."
       },
-      "fill": "Preencher a partir do seu plano",
+      "fill": "Preencher a partir do plano",
       "fillLine": {
         "other-currency": "Por agora, o simulador funciona em euros; introduza o montante em euros.",
-        "no-monthly": "O seu plano não tem montante mensal; introduza um."
+        "no-monthly": "O plano não tem montante mensal; introduza um."
       },
       "loading": "A carregar os fechos de referência de {coin}.",
       "start": "Início",
