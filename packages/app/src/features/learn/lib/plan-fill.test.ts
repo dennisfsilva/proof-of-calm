@@ -54,7 +54,10 @@ describe('fillFromPlan', () => {
   it('writes the amount and the shares in the person’s locale, and they read back as the plan’s', () => {
     const german = createNumberInput('de-DE');
     const fill = fillFromPlan(
-      with_({ monthlyAmount: '1234.5' as Plan['monthlyAmount'], split: { BTC: '66.667', ETH: '33.333' } as Plan['split'] }),
+      with_({
+        monthlyAmount: '1234.5' as Plan['monthlyAmount'],
+        split: { BTC: '66.667', ETH: '33.333' } as Plan['split'],
+      }),
       german,
     );
     expect(fill.amount).toBe('1.234,50');
