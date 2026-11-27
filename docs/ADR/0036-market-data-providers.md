@@ -275,6 +275,87 @@ Decided:
 - The owner keeps the whole thread, with its headers, outside the repository, although its footer
   asks for it to be deleted: it is the record of the approval.
 
+### Reading of 2026-11-27: Coinbase's market-data terms forbid the reference close without its written consent
+
+Coinbase's Exchange API documentation (https://docs.cdp.coinbase.com/exchange/introduction/welcome,
+read on 2026-11-27) says "Market Data APIs provide market data and are public" and "By accessing the
+Exchange Market Data API, you agree to be bound by the Market Data Terms of Use", linking
+https://www.coinbase.com/legal/market_data. The fetch tool got 403 there, as the Context's reading
+of 2026-10-16 did, so the terms were read on 2026-11-27 through a desktop browser's request: "Market
+Data Terms of Use", "Last updated: August 7, 2026". They define "Market Data" as "all data made
+available to you by Coinbase", so they also govern the Advanced Trade API's public candles, whose
+overview links no other terms. The governing sentences:
+
+- The licence: "a nonexclusive, nontransferable, non-sublicensable, revocable, limited license,
+  solely for you and/or the officers and employees of your entity". "Your use of Market Data is
+  exclusively for you or your entity's personal or research purposes and may not be used to build an
+  application intended for use by end users other than for you or your officers/employees."
+- "Absent prior express written consent from Coinbase, you may not":
+  - "Redistribute, display, or disseminate the Market Data—or any data, charts, analytics, research,
+    or other works based on, referring to, or derived from the Market Data ("Derived Works") — to
+    any third party outside of your organization by electronic means or otherwise";
+  - "Use Market Data or authorized Derived Works, directly or indirectly, to create any of the
+    following Derived Works, whether for internal use or otherwise: (i) indexes, fixings, or other
+    benchmarks; (ii) generic or fair value prices; or (iii) valuations of any investment product,
+    digital currency, digital tokens or blockchain-based asset";
+  - use it "as a benchmark", for a financial product or contract;
+  - use it to "develop, train, fine-tune, teach, validate, benchmark, or otherwise improve any
+    artificial intelligence or machine learning model, algorithm, chatbot, agent, or other automated
+    system", "or for any other purpose related to the research, development, or operation of
+    artificial intelligence technologies".
+- "Coinbase reserves all rights in the Market Data not expressly granted in these Terms." "You agree
+  that you have no right to any Coinbase trademark or service mark and may not use any such mark in
+  any way unless expressly authorized by Coinbase." "Coinbase may modify these Terms from time to
+  time at its discretion."
+- The only address the terms give: "If you have a question, complaint, or otherwise wish to contact
+  us regarding the Market Data or these Terms, please contact us at: marketdata@coinbase.com."
+- The rate limits (https://docs.cdp.coinbase.com/exchange/introduction/rate-limits-overview.md):
+  "Requests per second per IP: 10" for the public endpoints.
+
+The answers to the questions the pipeline asks:
+
+- Collecting daily candles from the public endpoint and keeping them in the private store: allowed
+  only for "personal or research purposes", and the pipeline's purpose is an app for end users, which
+  the licence excludes. Not covered.
+- Computing derived closes: the reference close is a fixing, a benchmark or a generic price, and a
+  holding valued at it is a valuation of a digital currency; the terms forbid creating these
+  "whether for internal use or otherwise". Not covered without written consent.
+- Display and redistribution: the closes, and any chart, analysis or figure derived from them, may
+  not be shown to anyone outside the project. Not covered without written consent.
+- Attribution: the terms ask for none, and they give no right to Coinbase's marks.
+- Commercial use: no licence beyond personal or research use; a product with fees is priced by
+  "any applicable Coinbase fee schedule".
+
+Decided:
+
+- Coinbase stays off until it consents in writing: the pipeline reads no Coinbase candle, the
+  private store holds none, and no agent session reads Coinbase market data, since the terms also
+  forbid its use for the operation of automated systems. The reference closes take Kraken's and
+  Bitstamp's closes only, and a day with both takes their mean (Kraken's Reading of 2026-11-27
+  above). ADR-0037's cross-check uses Bitstamp alone.
+- The Decision's Coinbase Exchange ticker fallback is not built, like Kraken's: the last good copy
+  stays the fallback.
+- A letter is needed: `docs/research/letters/coinbase.md` asks marketdata@coinbase.com for written
+  consent to each use, item by item. It waits for the owner to send it from the owner's address and
+  joins the owner's list; the answer is recorded here.
+- With Coinbase off and Bitstamp's history waiting (the Reading of 2026-11-23), every day before the
+  pipeline's first run has Kraken's close alone. Until Kraken's fourth yes, Bitstamp's history or
+  Coinbase's consent, each coin's published series starts on the pipeline's first day with both
+  Kraken's and Bitstamp's closes, not on the start dates of Kraken's Reading; a coin that Bitstamp
+  does not list in the currency has no published series.
+- The credit line and `DATA-LICENSE.md` name Coinbase only for closes that use Coinbase's; while it is
+  off, the line reads "Reference closes derived from Kraken and Bitstamp public data; FX: ECB
+  reference rates".
+- The dated figures computed from Coinbase Exchange candles and shown to anyone are Derived Works
+  displayed outside the project: the drawdowns and monthly-purchase results in
+  `packages/content/facts/education.json`, `packages/content/cycles/drawdowns.json`,
+  `packages/content/templates/accumulate.json` and `packages/content/templates/cycle-plan.json`. A
+  content branch re-sources each from Bitstamp's public candles, with Bitstamp named, where Bitstamp
+  has the days, and removes it with the copy that depends on it where none does; counsel and brand
+  read the change. The letter asks whether the figures may stay; a yes brings them back.
+- If Coinbase consents, the pipeline reads its public candles at most once a second per address,
+  well inside the stated 10, and the conditions of the consent are recorded here.
+
 ## Disagreement
 
 None beyond the source change recorded in ADR-0006.
