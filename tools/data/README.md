@@ -3,7 +3,7 @@
 The private reference-close pipeline (ADR-0036, Reading of 2026-11-27): it reads each exchange's
 daily closes, keeps them in a private store and computes the reference closes from them. The store
 lives in the private repository dennisfsilva/proof-of-calm-closes, never in this one; ADR-0058
-(planned: M2) owns how the pipeline reaches it. Nothing here writes into `packages/data` while its
+owns how the pipeline reaches it. Nothing here writes into `packages/data` while its
 publish switch is off (`packages/data/README.md`), and no exchange's close enters this repository:
 the tests use synthetic values.
 

@@ -1,8 +1,8 @@
 # @proofofcalm/data
 
 The "Proof of Calm reference close": a daily price history per coin derived from exchange public data
-(Kraken, Bitstamp, Coinbase), with ECB reference rates for currency conversion. Decisions: ADR-0006,
-ADR-0036 (the Reading of 2026-11-27 governs what may be published), ADR-0037.
+(Kraken and Bitstamp; Coinbase only with its written consent, ADR-0036), with ECB reference rates
+for currency conversion. Decisions: ADR-0006, ADR-0036 (the Reading of 2026-11-27 governs what may be published), ADR-0037.
 
 ## What it holds today
 
