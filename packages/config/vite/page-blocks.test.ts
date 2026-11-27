@@ -81,12 +81,12 @@ describe('pageOf', () => {
 
   // A check that reads plain text refuses a paragraph whose text the page formats apart or hides (ADR-0048).
   it.each([
-    ['emphasis', 'Solana *97* %.', 'Solana 97 %.', ['emphasis']],
-    ['strong', 'Ether **94** %.', 'Ether 94 %.', ['strong']],
-    ['a code span', 'Solana `97` %.', 'Solana 97 %.', ['inlineCode']],
-    ['a hard break', 'Solana 97\\\n%.', 'Solana 97 %.', ['break']],
-    ['a text element', 'Solana <PastPerformance /> 97 %.', 'Solana  97 %.', ['mdxJsxTextElement']],
-    ['a hidden character', 'Solana 9­7​ %.', 'Solana 97 %.', ['ignorable']],
+    ['emphasis', 'Solana *98* %.', 'Solana 98 %.', ['emphasis']],
+    ['strong', 'Ether **93** %.', 'Ether 93 %.', ['strong']],
+    ['a code span', 'Solana `98` %.', 'Solana 98 %.', ['inlineCode']],
+    ['a hard break', 'Solana 98\\\n%.', 'Solana 98 %.', ['break']],
+    ['a text element', 'Solana <PastPerformance /> 98 %.', 'Solana  98 %.', ['mdxJsxTextElement']],
+    ['a hidden character', 'Solana 9­8​ %.', 'Solana 98 %.', ['ignorable']],
     ['each mark once, in tree order', '*a **b*** `c` *d* e​.', 'a b c d e.', ['emphasis', 'strong', 'inlineCode']],
   ])('marks a paragraph holding %s', async (_, body, text, marks) => {
     const all = body.includes('e​') ? [...marks, 'ignorable'] : marks;
@@ -110,11 +110,11 @@ describe('pageOf', () => {
   });
 
   it('marks no plain paragraph, heading or code block', async () => {
-    const page = await pageOfBody('## Falls *4*\n\nSolana 97 %.\n\n```\n`97` %\n```\n');
+    const page = await pageOfBody('## Falls *4*\n\nSolana 98 %.\n\n```\n`98` %\n```\n');
     expect(page).toEqual([
       { kind: 'heading', depth: 2, text: 'Falls 4' },
-      { kind: 'paragraph', text: 'Solana 97 %.' },
-      { kind: 'code', text: '`97` %' },
+      { kind: 'paragraph', text: 'Solana 98 %.' },
+      { kind: 'code', text: '`98` %' },
     ]);
     expect(page.map((block) => 'marks' in block || 'written' in block)).toEqual([false, false, false]);
   });
