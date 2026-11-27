@@ -25,6 +25,9 @@ release candidate since Node 24.13.1), so no dependency is added. `hooks.test.ts
 ascending and each once, closes plain decimal strings above zero. A file is checked by
 `StoreRowsSchema` (`packages/data/src/schema.ts`) when it is read and before it is written; a pair
 with no file starts empty, and a write goes through a temporary file renamed over the old one.
+Lines end in LF: a line ending in CR LF is refused as malformed, so the private repository holds a
+`.gitattributes` with `*.csv text eol=lf` (2026-11-27, after Git for Windows' default
+`core.autocrlf=true` had written CR LF into a local clone).
 
 The merge rule (`mergeAppend`): a new date is added; a new row for a stored date with another close
 is a revision, so the stored close stays and the revision is only counted; the same close written
