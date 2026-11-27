@@ -1,0 +1,31 @@
+{
+  "AAVE": { "kraken": { "EUR": "AAVEEUR", "USD": "AAVEUSD" }, "bitstamp": { "EUR": "aaveeur", "USD": "aaveusd" } },
+  "ADA": { "kraken": { "EUR": "ADAEUR", "USD": "ADAUSD" }, "bitstamp": { "EUR": "adaeur", "USD": "adausd" } },
+  "ARB": { "kraken": { "EUR": "ARBEUR", "USD": "ARBUSD" }, "bitstamp": { "EUR": "arbeur", "USD": "arbusd" } },
+  "ATOM": { "kraken": { "EUR": "ATOMEUR", "USD": "ATOMUSD" }, "bitstamp": { "EUR": "atomeur", "USD": "atomusd" } },
+  "AVAX": { "kraken": { "EUR": "AVAXEUR", "USD": "AVAXUSD" }, "bitstamp": { "EUR": "avaxeur", "USD": "avaxusd" } },
+  "BNB": { "kraken": { "EUR": "BNBEUR", "USD": "BNBUSD" }, "bitstamp": { "EUR": "bnbeur", "USD": "bnbusd" } },
+  "BTC": { "kraken": { "EUR": "XBTEUR", "USD": "XBTUSD" }, "bitstamp": { "EUR": "btceur", "USD": "btcusd" } },
+  "DOGE": { "kraken": { "EUR": "XDGEUR", "USD": "XDGUSD" }, "bitstamp": { "EUR": "dogeeur", "USD": "dogeusd" } },
+  "DOT": { "kraken": { "EUR": "DOTEUR", "USD": "DOTUSD" }, "bitstamp": { "EUR": "doteur", "USD": "dotusd" } },
+  "ETH": { "kraken": { "EUR": "ETHEUR", "USD": "ETHUSD" }, "bitstamp": { "EUR": "etheur", "USD": "ethusd" } },
+  "HYPE": { "kraken": { "EUR": "HYPEEUR", "USD": "HYPEUSD" }, "bitstamp": { "EUR": "hypeeur", "USD": "hypeusd" } },
+  "LINK": { "kraken": { "EUR": "LINKEUR", "USD": "LINKUSD" }, "bitstamp": { "EUR": "linkeur", "USD": "linkusd" } },
+  "LTC": { "kraken": { "EUR": "LTCEUR", "USD": "LTCUSD" }, "bitstamp": { "EUR": "ltceur", "USD": "ltcusd" } },
+  "NEAR": { "kraken": { "EUR": "NEAREUR", "USD": "NEARUSD" }, "bitstamp": { "EUR": "neareur", "USD": "nearusd" } },
+  "OP": { "kraken": { "EUR": "OPEUR", "USD": "OPUSD" }, "bitstamp": { "EUR": "opeur", "USD": "opusd" } },
+  "PEPE": { "kraken": { "EUR": "PEPEEUR", "USD": "PEPEUSD" }, "bitstamp": { "EUR": "pepeeur", "USD": "pepeusd" } },
+  "POL": { "kraken": { "EUR": "POLEUR", "USD": "POLUSD" }, "bitstamp": { "EUR": "poleur", "USD": "polusd" } },
+  "RENDER": {
+    "kraken": { "EUR": "RENDEREUR", "USD": "RENDERUSD" },
+    "bitstamp": { "EUR": "rendereur", "USD": "renderusd" }
+  },
+  "SOL": { "kraken": { "EUR": "SOLEUR", "USD": "SOLUSD" }, "bitstamp": { "EUR": "soleur", "USD": "solusd" } },
+  "SUI": { "kraken": { "EUR": "SUIEUR", "USD": "SUIUSD" }, "bitstamp": { "EUR": "suieur", "USD": "suiusd" } },
+  "TAO": { "kraken": { "EUR": "TAOEUR", "USD": "TAOUSD" }, "bitstamp": { "EUR": "taoeur", "USD": "taousd" } },
+  "TON": { "kraken": { "EUR": "TONEUR", "USD": "TONUSD" } },
+  "TRX": { "kraken": { "EUR": "TRXEUR", "USD": "TRXUSD" }, "bitstamp": { "EUR": "trxeur", "USD": "trxusd" } },
+  "UNI": { "kraken": { "EUR": "UNIEUR", "USD": "UNIUSD" }, "bitstamp": { "EUR": "unieur", "USD": "uniusd" } },
+  "XLM": { "kraken": { "EUR": "XLMEUR", "USD": "XLMUSD" }, "bitstamp": { "EUR": "xlmeur", "USD": "xlmusd" } },
+  "XRP": { "kraken": { "EUR": "XRPEUR", "USD": "XRPUSD" }, "bitstamp": { "EUR": "xrpeur", "USD": "xrpusd" } }
+}
