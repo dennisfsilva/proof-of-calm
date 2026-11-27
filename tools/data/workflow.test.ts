@@ -93,6 +93,16 @@ describe('closes-store.yml', () => {
     expect(commit).not.toMatch(/git (commit|stage) .*(-a\b|--all)/);
     expect(commit).toContain(`if ! ls closes/*/*.csv > /dev/null 2>&1; then exit 0; fi`);
   });
+
+  it('retries a rejected push 3 times on top of a pull with rebase, aborting one that conflicts', () => {
+    const commit = /- name: Commit the closes\n((?: {8}.*\n)+)/.exec(store)?.[1] ?? '';
+    // commit-step.test.ts runs these lines against a racing push on a depth-1 checkout.
+    expect(commit).toMatch(
+      /git commit .*\n {10}for try in 1 2 3 4; do\n {12}if git push --quiet; then exit 0; fi\n {12}if \[ "\$try" = 4 \]; then exit 1; fi\n {12}sleep 10\n {12}if ! git pull --rebase --quiet; then git rebase --abort \|\| true; exit 1; fi\n {10}done\n$/,
+    );
+    expect(commit.match(/git push/g)).toHaveLength(1);
+    expect(store).toMatch(/^# .*is retried up to 3 times, each 10 s later on$/m);
+  });
 });
 
 describe('data-dry.yml', () => {
