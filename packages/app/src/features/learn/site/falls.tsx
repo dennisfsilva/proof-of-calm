@@ -6,7 +6,8 @@ import { fallPercent, fallsSpan } from '../components/module-chart';
 import { useSiteFormatters } from './static';
 
 // The Risk page's dated falls (docs/LEGAL.md §5, its volatility and drawdowns with dated ranges): the cycles file's
-// rows as a visible table, then §4's line for falls computed from intraday prices with the past-performance sentence.
+// rows as a visible table, then §4's line for computed falls, intraday or on daily closes as the rows say, with the
+// past-performance sentence.
 // The page is the Risk disclosure, so the line carries no link to it. The fall, the main figure, comes right after the
 // coin (docs/DESIGN.md §8), so the narrowest screen at 125 % text reads it before the table scrolls.
 
@@ -21,7 +22,8 @@ export function SiteFalls({ falls }: SiteFallsProps) {
   const f = useSiteFormatters();
   const caption = useId();
   if (falls.length === 0) return null;
-  const { publishers, first, last } = fallsSpan(falls, f);
+  const span = fallsSpan(falls, f);
+  const { first, last } = span;
   const coins = f.list([...new Set(falls.map(({ coin }) => coin))]);
   // The page runs no React on the client, so unlike the UI kit's Table the wrapper cannot wait to measure that it
   // scrolls: it is always a region named by the caption that takes a tab stop (WCAG 2.1.1, axe's
@@ -68,7 +70,7 @@ export function SiteFalls({ falls }: SiteFallsProps) {
         </table>
       </div>
       <p className="text-16">
-        {t('chart.source', { publishers, first, last, product: BRAND.name })} {t('module.pastPerformance')}
+        {t('chart.source', { ...span, product: BRAND.name })} {t('module.pastPerformance')}
       </p>
     </>
   );

@@ -178,6 +178,7 @@ export async function pastFalls(coins: readonly CoinId[]): Promise<readonly Past
       high: row.high as CalendarDate,
       low: row.low as CalendarDate,
       fall: row.fall as PastFall['fall'],
+      ...(row.basis === undefined ? {} : { basis: row.basis }),
       publisher: row.publisher,
     }));
   }

@@ -50,7 +50,7 @@
     "missing": "{coin} fehlt in diesen Zahlen: {product} hat keinen Kursverlauf dafür.",
     "data": "Tagesschlusskurse in {currency}, {first} bis {last} · Kursdaten von CoinGecko",
     "failed": "Der Kursverlauf konnte nicht geladen werden, daher werden die heutigen Zahlen nicht gezeigt. Öffnen Sie diese Seite erneut, um es noch einmal zu versuchen.",
-    "fallsOf": "Frühere Rückgänge von {coin}, von {product} aus den Tageshochs und Tagestiefs jeder Quelle in US-Dollar berechnet:",
+    "fallsOf": "Frühere Rückgänge von {coin}, von {product} aus den {basis, select, intraday {Tageshochs und Tagestiefs} close {Tagesschlusskursen} other {Tageshochs und Tagestiefs oder Tagesschlusskursen}} jeder Quelle in US-Dollar berechnet:",
     "fall": "{fall} vom {high} bis zum {low} · {publisher}",
     "noFalls": "{product} hat keinen datierten früheren Rückgang für {coin}.",
     "fallsFailed": "Die früheren Rückgänge konnten nicht geladen werden. Öffnen Sie diese Seite erneut, um es noch einmal zu versuchen.",
@@ -99,7 +99,7 @@
   },
   "chart": {
     "label": "Rückgänge von jedem Hoch zum tiefsten Tief danach für {coins}, {first} bis {last}",
-    "description": "Ein Balken je Coin und Zyklus; seine Länge zeigt den Rückgang vom Tageshoch zum Tagestief in US-Dollar.",
+    "description": "Ein Balken je Coin und Zyklus; seine Länge zeigt den Rückgang vom Hoch zum Tief in US-Dollar.",
     "bar": "{coin} {year}",
     "summary": "Die Rückgänge als Tabelle zeigen",
     "columns": {
@@ -108,7 +108,7 @@
       "low": "Datum des Tiefs",
       "fall": "Rückgang"
     },
-    "source": "Tageshochs und Tagestiefs von {publishers} in US-Dollar, {first} bis {last}; die Rückgänge sind eine eigene Berechnung von {product}.",
+    "source": "{basis, select, intraday {Tageshochs und Tagestiefs von {intraday}} close {Tagesschlusskurse von {closes}} other {Tageshochs und Tagestiefs von {intraday} und Tagesschlusskurse von {closes}}} in US-Dollar, {first} bis {last}; die Rückgänge sind eine eigene Berechnung von {product}.",
     "failed": "Die früheren Rückgänge konnten nicht geladen werden. Öffnen Sie diese Seite erneut, um es noch einmal zu versuchen."
   }
 }

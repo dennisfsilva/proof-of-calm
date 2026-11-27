@@ -7,6 +7,7 @@ import { Link, Redirect } from '../../../lib/navigation';
 import { useClock, useFormatters, useServices, useSnapshot, useToday } from '../../../lib/services';
 import type { PastFall, RedDayModel } from '../../../lib/services/red-day-types';
 import { MODULE_ELEMENTS } from '../lib/body-elements';
+import { fallsBasis } from '../lib/falls-basis';
 import { BACK_LINK } from './country-library';
 import { WhyLink } from './why-link';
 
@@ -131,7 +132,7 @@ function EarlierFalls({ held, falls }: { held: Held; falls: Falls }) {
     }
     return (
       <section key={coin.coin} className="flex flex-col gap-stack-xs">
-        <p className="text-16">{t('fallsOf', { coin: coin.name, product: BRAND.name })}</p>
+        <p className="text-16">{t('fallsOf', { coin: coin.name, basis: fallsBasis(rows), product: BRAND.name })}</p>
         <ul className="flex list-disc flex-col gap-stack-xs ps-inset-lg">
           {rows.map((row) => (
             <li key={row.high} className="nums text-16">

@@ -9,6 +9,7 @@ import { uiLang } from '../../../lib/i18n/text-lang';
 import { useFormatters, useServices } from '../../../lib/services';
 import type { PastFall } from '../../../lib/services/red-day-types';
 import { MODULE_ELEMENTS } from '../lib/body-elements';
+import { fallsBasis } from '../lib/falls-basis';
 
 // A module's `<Chart />` (docs/EDUCATION.md §2 and §10): the chart its front matter names, then, inside the
 // element, its source as text and the past-performance line (docs/LEGAL.md §3.4 and §4). The rows come through
@@ -54,10 +55,17 @@ const publisherNames = (publishers: readonly string[]) =>
 /** A fall as a page writes it: with its sign, no decimals. */
 export const fallPercent = (f: Formatters, fall: PastFall['fall']) => f.percent(`-${fall}` as Decimal, { decimals: 0 });
 
-/** The source sentence's values for the rows given: each publisher once, the first high and the last low. */
+/**
+ * The source sentence's values for the rows given: the rows' basis, each publisher once under the basis of its rows
+ * (`intraday` the publishers of intraday rows, `closes` those of rows on daily closes, '' for none), the first high
+ * and the last low.
+ */
 export function fallsSpan(falls: readonly PastFall[], f: Formatters) {
+  const publishers = (rows: readonly PastFall[]) => f.list(publisherNames(rows.map(({ publisher }) => publisher)));
   return {
-    publishers: f.list(publisherNames(falls.map(({ publisher }) => publisher))),
+    basis: fallsBasis(falls),
+    intraday: publishers(falls.filter(({ basis }) => basis === undefined)),
+    closes: publishers(falls.filter(({ basis }) => basis === 'close')),
     first: f.date(earliest(falls.map(({ high }) => high))),
     last: f.date(latest(falls.map(({ low }) => low))),
   };
@@ -76,7 +84,8 @@ export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
         {t('failed')}
       </p>
     );
-  const { publishers, first, last } = fallsSpan(falls, f);
+  const span = fallsSpan(falls, f);
+  const { first, last } = span;
   const percent = (fall: PastFall['fall']) => fallPercent(f, fall);
   const coins = [...new Set(falls.map(({ coin }) => coin))];
   return (
@@ -98,7 +107,7 @@ export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
         }}
       />
       <p className="text-16">
-        {t('source', { publishers, first, last, product: BRAND.name })} <MODULE_ELEMENTS.PastPerformance />
+        {t('source', { ...span, product: BRAND.name })} <MODULE_ELEMENTS.PastPerformance />
       </p>
     </div>
   );
