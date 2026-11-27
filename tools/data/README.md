@@ -47,8 +47,8 @@ prices:
 Coinbase stays off until it consents in writing (ADR-0036, the Reading of Coinbase's terms): no
 agent reads its endpoints, `pairs.json` has no Coinbase entry, and its reader stays `null`.
 
-`sources/index.ts` holds the `Source` type, one reader per exchange that takes `fetch`, `sleep` and
-`now` from its caller, and `SOURCES`. Each reader sends a plain GET with no header of its own:
+`sources/source.ts` holds the `Source` type of a reader that takes `fetch`, `sleep` and `now` from
+its caller, and `sources/index.ts` holds `SOURCES`, one reader per exchange. Each reader sends a plain GET with no header of its own:
 
 | Reader | Endpoint | What it returns |
 |---|---|---|

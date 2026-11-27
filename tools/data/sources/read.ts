@@ -5,7 +5,7 @@
 import { type CalendarDate, epochDay, fromEpochDay, type Price, parseDecimal } from '@proofofcalm/core';
 import { type Exchange, type StoreRow, StoreRowSchema } from '@proofofcalm/data';
 import { RateLimited } from '../pace.ts';
-import type { SourceIo } from './index.ts';
+import type { SourceIo } from './source.ts';
 
 const DAY_SECONDS = 86_400;
 const TIMEOUT_MS = 30_000;

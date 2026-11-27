@@ -5,8 +5,8 @@
 import { addDays, compareDates } from '@proofofcalm/core';
 import type { StoreRow } from '@proofofcalm/data';
 import * as z from 'zod/mini';
-import type { Source } from './index.ts';
 import { candleRow, dayStart, getJson, refused, utcToday } from './read.ts';
+import type { Source } from './source.ts';
 
 // A url_symbol of the trading-pairs listing (`btceur`), so nothing else reaches the URL.
 const SYMBOL = /^[a-z0-9]{2,16}$/;

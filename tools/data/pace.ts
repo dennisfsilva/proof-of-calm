@@ -3,7 +3,7 @@
 // io once, so the spacing holds across every pair of a run. A limited answer (HTTP 429, or Kraken's
 // rate-limit error in the body's `error` array) is retried after an exponential wait; the fourth gives
 // up with `RateLimited`, whose message is the closed-set status the reader names.
-import type { SourceIo } from './sources/index.ts';
+import type { SourceIo } from './sources/source.ts';
 
 /** Requests per call before a limited answer gives up. */
 export const PACE_TRIES = 4;
