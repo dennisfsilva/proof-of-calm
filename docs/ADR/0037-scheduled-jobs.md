@@ -36,3 +36,7 @@ None.
   an API key, and the owner declined an API account for about USD 25 a year. A reminder issue on each
   due date and a line at Claude Code's start replace the schedule (`docs/CONTENT-OPS.md` §2). The
   Anthropic API key leaves this ADR's list of secrets.
+- 2026-11-27, the price-history append: until Kraken answers the owner's four questions (ADR-0036's
+  Reading of 2026-11-27), the job writes to the private store behind a publish switch that is off,
+  not to `packages/data` on `main`, and its logs hold no value. It reads Kraken's public OHLC endpoint
+  at most once a second per address.

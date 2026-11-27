@@ -176,5 +176,10 @@ a null MX (`MX 0 .`), so the domain has no MX record and mail sent to it is not 
   Bitstamp's to partners@bitstamp.net and Kraken's through Kraken Institutional's contact form; the
   answers are recorded in ADR-0036 when they arrive. Bitstamp answered by 2026-11-23 (ADR-0036's
   Reading of 2026-11-23): non-commercial use, an attestation letter to follow, its history later.
-  Kraken's answer and Bitstamp's attestation keep this item open.
+  Kraken's letter, resent on 2026-11-26 to its market data address
+  (`docs/research/letters/kraken-market-data.md`), was answered the same day (ADR-0036's Reading of
+  2026-11-27). Kraken allows collecting its data, keeping it in a private store and using figures
+  computed from the reference closes, such as per cent changes and drawdowns. Showing or publishing
+  the reference closes waits for Kraken's yes to the four questions of the owner's reply in the same
+  thread (ADR-0036 lists them). Those answers and Bitstamp's attestation keep this item open.
 - The email provider's final pick at M3 (ADR-0026); the `Mailer` port makes it a one-file change.
