@@ -188,7 +188,9 @@ describe("Kraken's reader", () => {
   it('reads every pair of a run whose queue outlasts the request timeout', async () => {
     const fake = clockIo([], 0);
     const paced = pace(1000, fake.io);
-    const reads = Array.from({ length: 40 }, () => kraken?.closes('XBTEUR', day('2026-11-20'), day('2026-11-26'), paced));
+    const reads = Array.from({ length: 40 }, () =>
+      kraken?.closes('XBTEUR', day('2026-11-20'), day('2026-11-26'), paced),
+    );
     const results = await Promise.allSettled(reads);
     expect(results.filter((result) => result.status === 'rejected')).toEqual([]);
     expect((fake.requests.at(-1)?.at ?? 0) - (fake.requests[0]?.at ?? 0)).toBeGreaterThan(REQUEST_TIMEOUT_MS);
@@ -201,15 +203,16 @@ describe("Kraken's reader", () => {
     const rows = await kraken?.closes('XBTEUR', day('2026-11-20'), day('2026-11-26'), pace(1000, fake.io));
     expect(rows).toEqual([{ date: '2026-11-25', close: '2' }]);
     expect(fake.requests).toHaveLength(4);
-    expect((fake.requests.at(-1)?.at ?? 0) - (fake.requests[0]?.at ?? 0)).toBeGreaterThan(REQUEST_TIMEOUT_MS);
+    // The read as a whole outlasts one request's timeout: 4 answers of 5 s and 14 s of back-off.
+    expect(fake.io.now().getTime() - NOW.getTime()).toBe(34_000);
     expectFreshTimeouts(fake);
   });
 
   it('refuses as unreachable a request that outlasts the timeout', async () => {
     const fake = clockIo([], REQUEST_TIMEOUT_MS + 1000);
-    await expect(
-      kraken?.closes('XBTEUR', day('2026-11-20'), day('2026-11-26'), pace(1000, fake.io)),
-    ).rejects.toThrow(/^refused: kraken XBTEUR unreachable$/);
+    await expect(kraken?.closes('XBTEUR', day('2026-11-20'), day('2026-11-26'), pace(1000, fake.io))).rejects.toThrow(
+      /^refused: kraken XBTEUR unreachable$/,
+    );
     expect(fake.requests).toHaveLength(1);
     expectFreshTimeouts(fake);
   });

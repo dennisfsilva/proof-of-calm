@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PACE_TRIES, pace, REQUEST_TIMEOUT_MS, RateLimited } from './pace.ts';
+import { PACE_TRIES, pace, RateLimited, REQUEST_TIMEOUT_MS } from './pace.ts';
 import type { SourceIo } from './sources/index.ts';
 
 // A clock that moves only when a sleep ends, and a fetch that answers from a script and records the
@@ -30,7 +30,14 @@ function fakeIo(answers: (() => Response)[]) {
       return answer();
     },
   };
-  return { io, requests, sleeps, timeouts, signals, gaps:() => requests.slice(1).map((at, i) => at - (requests[i] ?? at)) };
+  return {
+    io,
+    requests,
+    sleeps,
+    timeouts,
+    signals,
+    gaps: () => requests.slice(1).map((at, i) => at - (requests[i] ?? at)),
+  };
 }
 
 const ok = () => Response.json({ error: [], result: {} });
