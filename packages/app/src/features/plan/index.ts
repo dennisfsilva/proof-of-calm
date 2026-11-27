@@ -1,5 +1,11 @@
-export { CountryDateLine } from '../learn';
-export { CoinEditor, type CoinEditorProps } from './components/coin-editor';
+export {
+  CoinEditor,
+  type CoinEditorProps,
+  type CoinSplitValue,
+  CountryDateLine,
+  coinSplit,
+  type SplitIssue,
+} from '../learn';
 export { EarlyWindowNotice, type EarlyWindowNoticeProps } from './components/early-window-notice';
 export { HoldingRuleEditor, type HoldingRuleEditorProps } from './components/holding-rule-editor';
 export { ScheduleEditor, type ScheduleEditorProps } from './components/schedule-editor';
@@ -27,7 +33,6 @@ export {
   sellWindowOf,
   sellWindowValueOf,
 } from './lib/sell-window';
-export { type CoinSplitValue, coinSplit, type SplitIssue } from './lib/split';
 
 /**
  * The screens, by their loaders alone (as Learn's): Onboarding and Settings import this file for the editors, and
