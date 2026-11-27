@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import catalogue from '../coins.json' with { type: 'json' };
 import { type FigureContext, moduleContext, moduleFigureProblems } from './module-figures.ts';
 
-// docs/CONTENT-STYLE.md §4 and §10: German's two shapes of a chart's section (design check D5, #493), its spellings,
+// docs/CONTENT-STYLE.md §4 and §10: German's two shapes of a chart's section (design check D5, #494), its spellings,
 // its single percent joiner and its closed list, against the literal coins and rows module-figures-pt.test.ts
 // freezes. Each case states its codes in order; acceptances first, then refusals, closest first.
 const at = 'packages/content/i18n/de/learn/risk-honestly.mdx';
