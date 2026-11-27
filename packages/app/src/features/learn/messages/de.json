@@ -104,7 +104,7 @@
       "gaps": "Kauftage ohne Schlusskurs",
       "multiple": "Wert im Verhältnis zum investierten Betrag",
       "multipleLine": "Simulierter Wert von {value} am {end} für {invested} investiert.",
-      "caveat": "Vergangene Kurse sind Tatsachen; eine Simulation damit ist keine Prognose. {fee, select, flat {Steuern, Slippage und Ihr eigenes Verhalten sind in diesem Diagramm nicht enthalten; Gebühren nur als fester Satz von {percent}, den Sie gewählt haben.} other {Steuern, Gebühren, Slippage und Ihr eigenes Verhalten sind in diesem Diagramm nicht enthalten.}}",
+      "caveat": "Vergangene Kurse sind Tatsachen; eine Simulation damit ist keine Prognose. {fee, select, flat {Steuern, Slippage und Ihr eigenes Verhalten sind in diesem Diagramm nicht enthalten; Gebühren sind nur als der feste Satz von {percent} enthalten, den Sie festgelegt haben.} other {Steuern, Gebühren, Slippage und Ihr eigenes Verhalten sind in diesem Diagramm nicht enthalten.}}",
       "starts": {
         "summary": "Den Plan ab 12 Startdaten als Tabelle anzeigen",
         "start": "Start",

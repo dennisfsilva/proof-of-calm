@@ -55,7 +55,7 @@ const WAVE = closes('2024-01-01', 1096, (index) =>
 const WEEKS = closes('2026-11-26', 36, (index) => String(100 + (index % 5)));
 
 const CAVEAT =
-  'Past prices are facts; a simulation of them is not a forecast. Taxes, fees, slippage and your own behaviour are not in this chart.';
+  'Past prices are facts; a simulation of them is not a forecast. Taxes, fees, slippage, and your own behaviour are not in this chart.';
 
 const meta = {
   title: 'Features/Learn/SimulationView',
