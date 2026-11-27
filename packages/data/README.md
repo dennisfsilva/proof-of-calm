@@ -70,5 +70,7 @@ tradable prices. Never raw exchange files.
 The app's side of that file is built: the simulator asks the site for `/data/prices/<COIN>-EUR.json`, a
 path relative to the site's origin, and parses it with `DatasetSchema`
 (`packages/app/src/features/learn/lib/reference-closes.ts`). A 404 reads as not published yet, a network
-failure or an error status as offline, and a body that is not JSON, fails the schema, names another coin or
-holds no day as invalid. Whatever publishes the files serves them at that path.
+failure, a request with no answer after 10 s or an error status as offline, and a body that is not JSON,
+fails the schema, names another coin or holds no day as invalid. Whatever publishes the files serves them at
+that path. Both hosts serve the files from their own origin, the web host and the mobile wrapper alike, so the
+mobile static export must carry them when the dataset is published.

@@ -106,7 +106,7 @@ Nothing runs in front of the pages: `apps/web/vercel.json`, written by `apps/web
 Rules that keep the wrapper a packaging step (ADR-0002, ADR-0032):
 
 1. No server-only APIs in `packages/app`: the packages' client code never imports `server-only` or anything under `apps/web/server` and `apps/web/lib/server` (`packages/config/vite`'s guard fails the build; dependency-cruiser the lint).
-2. All API calls through `packages/app/src/lib/adapters/api-client.ts` with an injectable base URL; no cookies.
+2. All API calls through `packages/app/src/lib/adapters/api-client.ts` with an injectable base URL; no cookies. The simulator's reference closes are static data, not an API call: `packages/app/src/features/learn/lib/reference-closes.ts` fetches them from the host's own origin with the api client's timeout and no credentials (`packages/data/README.md`, The dataset).
 3. Navigation through `lib/navigation`, over wouter (ADR-0045 §9): the browser location in
    `apps/web`, the hash location in `apps/mobile`; nothing imports `next/*`. The prerendered site
    pages link with plain anchors. `packages/ui`'s tab bar, top navigation and header take the app's
