@@ -34,7 +34,8 @@ function missingTexts(english: unknown, overlay: unknown, at: readonly Segment[]
   );
 }
 
-describe('the German profile overlays', () => {
+// Load (2026-11-27): worst 4,565 ms in three forced pnpm check runs; 15 s keeps it under a third.
+describe('the German profile overlays', { timeout: 15_000 }, () => {
   it('start with Germany’s', () => {
     expect(CODES).toContain('DE');
   });
