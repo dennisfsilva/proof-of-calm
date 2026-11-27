@@ -85,7 +85,7 @@ it('finish --dry accepts a pending change with a null effectiveFrom and prints n
 it('finish --dry refuses a cycles file that lost a chart row and names the coin', () => {
   const CYCLES = 'packages/content/cycles/drawdowns.json';
   const btc = { coin: 'BTC', high: '2021-11-10', low: '2022-11-21', fall: '78' };
-  const sol = { coin: 'SOL', high: '2021-11-06', low: '2022-12-29', fall: '96' };
+  const sol = { coin: 'SOL', high: '2021-11-20', low: '2022-12-20', fall: '96' };
   const chart = (reviewedBy: string, ...drawdowns: object[]) =>
     `${JSON.stringify({ lastReviewed: '2026-11-09', reviewedBy, drawdowns }, null, 2)}\n`;
   const { lines, status } = dryFinish(
