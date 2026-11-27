@@ -51,16 +51,20 @@ describe('closes-store.yml', () => {
       '        with:\n          repository: dennisfsilva/proof-of-calm\n          ref: main\n          path: app\n          persist-credentials: false\n',
     );
     expect(store.match(/ref:/g)).toHaveLength(1);
-    expect(store).toMatch(/^ {8}run: cmp store\/\.github\/workflows\/closes-store\.yml app\/tools\/data\/closes-store\.yml$/m);
+    expect(store).toMatch(
+      /^ {8}run: cmp store\/\.github\/workflows\/closes-store\.yml app\/tools\/data\/closes-store\.yml$/m,
+    );
     // The comparison comes before anything from the app's checkout runs.
     expect(store.indexOf('run: cmp')).toBeLessThan(store.indexOf('pnpm/action-setup'));
   });
 
   it('runs the daily job into the store and commits what changed unless the run was cancelled', () => {
-    expect(store).toMatch(/^ {8}run: node --import \.\/tools\/data\/hooks\.ts tools\/data\/daily\.ts --store \.\.\/store$/m);
+    expect(store).toMatch(
+      /^ {8}run: node --import \.\/tools\/data\/hooks\.ts tools\/data\/daily\.ts --store \.\.\/store$/m,
+    );
     expect(store).not.toContain('--dry');
     const commit = /- name: Commit the closes\n((?: {8}.*\n)+)/.exec(store)?.[1] ?? '';
-    expect(commit).toContain("        if: ${{ !cancelled() }}\n");
+    expect(commit).toContain(`        if: $\{{ !cancelled() }}\n`);
     expect(commit).toContain('git config user.email "41898282+github-actions[bot]@users.noreply.github.com"');
     expect(commit).toContain('git commit --quiet --message "data: closes of $(date -u +%F)"');
     expect(commit).toContain('git diff --cached --quiet');
