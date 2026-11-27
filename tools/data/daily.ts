@@ -11,7 +11,7 @@ import { refuseInsideRepository } from './guard.ts';
 import type { Source, SourceIo } from './sources/source.ts';
 
 /** How many days before today each exchange's window starts; it ends yesterday. Coinbase stays off. */
-export const WINDOW_DAYS: Record<Exchange, number | null> = {
+const WINDOW_DAYS: Record<Exchange, number | null> = {
   // Every complete day of the endpoint's latest 720 candles: the first run fills two years, a missed day heals.
   kraken: 720,
   // Yesterday only, with no catch-up (ADR-0036, Reading of 2026-11-23).
@@ -20,7 +20,7 @@ export const WINDOW_DAYS: Record<Exchange, number | null> = {
 };
 
 /** The least time between two requests to one exchange (Kraken: one a second per address). */
-export const PACE_MS = 1000;
+const PACE_MS = 1000;
 
 const QUOTES = ['EUR', 'USD'] as const;
 
