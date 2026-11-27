@@ -1,7 +1,9 @@
 // Bitstamp's reader of its public daily closes (ADR-0036, Reading of 2026-11-23): yesterday's candle
 // only, once a day per pair, and no candle dated before the pipeline's first run, so a missed day is
 // not caught up. API v2's OHLC endpoint (www.bitstamp.net/api, OHLC data) with `step=86400`,
-// `limit=1`, `start` at yesterday and the open candle excluded.
+// `limit=1`, `start` at the window's day and the open candle excluded. The runner's window names the
+// day; the real clock only bounds it, so a window of more than one day, or a day other than yesterday
+// or the day before (a run that passed midnight after it started), is refused as a failure, unread.
 import { addDays, compareDates } from '@proofofcalm/core';
 import type { StoreRow } from '@proofofcalm/data';
 import * as z from 'zod/mini';
@@ -27,11 +29,12 @@ export const bitstamp: Source = {
   async closes(pair, from, to, io) {
     if (!SYMBOL.test(pair)) throw new Error('refused: bitstamp unknown pair');
     const yesterday = addDays(utcToday(io.now()), -1);
-    if (compareDates(yesterday, from) < 0 || compareDates(yesterday, to) > 0) return [];
+    const known = from === yesterday || from === addDays(yesterday, -1);
+    if (compareDates(from, to) !== 0 || !known) throw refused('bitstamp', pair, 'out of window');
     const query = new URLSearchParams({
       step: '86400',
       limit: '1',
-      start: String(dayStart(yesterday)),
+      start: String(dayStart(from)),
       exclude_current_candle: 'true',
     });
     const json = await getJson('bitstamp', pair, `https://www.bitstamp.net/api/v2/ohlc/${pair}/?${query}`, io);
@@ -41,6 +44,6 @@ export const bitstamp: Source = {
       candleRow(SECONDS.test(candle.timestamp) ? Number.parseInt(candle.timestamp, 10) : null, candle.close),
     );
     if (rows.some((row) => row === null)) throw refused('bitstamp', pair, 'malformed');
-    return rows.filter((row): row is StoreRow => row?.date === yesterday).slice(0, 1);
+    return rows.filter((row): row is StoreRow => row?.date === from).slice(0, 1);
   },
 };
