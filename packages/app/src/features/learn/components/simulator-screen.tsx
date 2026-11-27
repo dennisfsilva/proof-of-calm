@@ -109,7 +109,8 @@ export function SimulatorScreen({ load = loadReferenceCloses }: SimulatorScreenP
   );
   const ranges = Object.values(closes).filter((range): range is ClosesRange => range !== 'none');
   const window = defaultWindow(ranges);
-  const dataFrom = window?.first ?? (first?.ok ? rangeOf(first.value)?.first : undefined);
+  // BTC's first day only while no coin is chosen; a split with no window has no day to give.
+  const dataFrom = chosen.length > 0 ? window?.first : first?.ok ? rangeOf(first.value)?.first : undefined;
 
   const onCoins = (ids: CoinId[]) => {
     setChosen(ids);

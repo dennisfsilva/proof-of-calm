@@ -207,8 +207,9 @@ form. Each coin the person adds is asked for once: while its file loads its clos
 dataset marks its row as a coin with no closes yet (the run refuses it and focuses its share), and its network
 failure, error status or invalid file shows the failed state with Reload in place of the form. The window is the
 default one over the chosen coins' closes (Default dates below). The data's first day, with the reason §8 names
-(the first day with two exchanges' closes), is the start field's description, the window's first day or BTC's
-while no coin is chosen. A run calls the core's `simulate` and `startDateSensitivity` and shows the Result below
+(the first day with two exchanges' closes), is the start field's description: BTC's while no coin is chosen,
+then the window's first day, and none while the chosen coins have no window (a coin without closes alone, closes
+that do not overlap, or a file still loading). A run calls the core's `simulate` and `startDateSensitivity` and shows the Result below
 the form under an h2 "Result", which takes the focus after each run; the credit line ADR-0036 sets while Coinbase
 is off stands once, in the Result. After a fill from the plan, "Your own purchases and their value are on
 Portfolio." stands under the result. Decided in #608: BTC is loaded first, its 404 or empty dataset shows not

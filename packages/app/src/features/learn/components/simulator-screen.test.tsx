@@ -120,6 +120,39 @@ describe('the simulator screen', () => {
     expect(screen.queryByRole('button', { name: 'Reload' })).toBeNull();
   });
 
+  it("with coins chosen, the data-from line gives the window's first day, never BTC's for a split without it", async () => {
+    const later = { ...dataset('SOL', 10), days: dataset('SOL', 70).days.slice(60) } as Dataset;
+    await mount(files({ BTC: { ok: true, value: dataset('BTC') }, SOL: { ok: true, value: later } }));
+    await choose({ Solana: '100' });
+    expect(screen.getByText('Data from 1 May 2026, the first day with closes from two exchanges.')).toBeTruthy();
+  });
+
+  it('with coins chosen and no window, the start has no data-from line', async () => {
+    const dataFrom = () => screen.queryByText(/^Data from /);
+    const apart = { ...dataset('SOL', 10), days: dataset('SOL', 80).days.slice(70) } as Dataset;
+    const pending = deferred();
+    const answers: Partial<Record<string, Loaded>> = {
+      BTC: { ok: true, value: dataset('BTC') },
+      ETH: { ok: false, error: { kind: 'unpublished' } },
+      SOL: { ok: true, value: apart },
+    };
+    await mount((coin) => (coin === 'ADA' ? pending.load() : files(answers)(coin)));
+    // The only chosen coin has no closes yet.
+    await choose({ Ethereum: '100' });
+    expect(dataFrom()).toBeNull();
+    // The chosen coins' closes do not overlap: BTC's end on 30 Apr, SOL's start on 11 May.
+    await act(async () => press('Remove Ethereum'));
+    await choose({ Bitcoin: '50', Solana: '50' });
+    expect(dataFrom()).toBeNull();
+    // The only chosen coin's file is still loading.
+    await act(async () => press('Remove Bitcoin'));
+    await act(async () => press('Remove Solana'));
+    await choose({ Cardano: '100' });
+    expect(dataFrom()).toBeNull();
+    await act(async () => press('Remove Cardano'));
+    expect(screen.getByText('Data from 2 Mar 2026, the first day with closes from two exchanges.')).toBeTruthy();
+  });
+
   it('with nothing published: says so, offers no reload, no form and no credit', async () => {
     await mount(async () => ({ ok: false, error: { kind: 'unpublished' } }));
     expect(await screen.findByText('The price history the simulator runs on is not published yet.')).toBeTruthy();
