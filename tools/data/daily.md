@@ -50,7 +50,11 @@ Decision 2), since the job fails while the two differ and that day's closes beco
 The exchanges run in a fixed order, `ORDER` in `daily.ts`: Bitstamp first, since its day cannot be
 read again, then Kraken, whose window heals a missed day, then Coinbase (off). For each exchange and
 each quote, EUR then USD, the job reads each pair's stored rows, asks the reader for the window,
-merges with `mergeAppend` and writes the file only when it gained rows, never under `--dry`. Each
+merges with `mergeAppend` and writes the file only when it gained rows, never under `--dry`. A store
+file the job cannot use (malformed, say with a merge-conflict marker, or one that cannot be read or
+written) fails that pair only: its refusal is printed, the pair counts as failed, unread when the read
+failed, and the run goes on with the next pair and the next exchange, so one bad file never costs a
+later pair's day, Bitstamp's above all. Any other error stops the run. Each
 exchange's requests go through one pacer for the whole run (`pace.ts`): one request a second, each
 with its own 30-second timeout; a try that times out is not retried (the pacer retries only a
 rate-limited answer). Whether 3 pairs in a row refused as `unreachable` stop an exchange is `HEALS`
@@ -82,7 +86,7 @@ close, a price or an exchange's response:
 | `refused: <exchange> <symbol> <status>` | stderr | a reader's refusal (`README.md`, Output), and the pair counts as failed |
 | `refused: <exchange> <symbol> unexpected error` | stderr | any other error of a reader, and the pair counts as failed |
 | `kraken: stopped after 3 unreachable` | stderr | after Kraken's third pair in a row refused as `unreachable`: its remaining pairs count as failed, unread; Bitstamp never stops |
-| `refused: closes/<exchange>/<COIN>-<QUOTE>.csv <reason>` | stderr | a store file that is malformed or cannot be read or written: the run stops |
+| `refused: closes/<exchange>/<COIN>-<QUOTE>.csv <reason>` | stderr | a store file that is malformed or cannot be read or written: the pair counts as failed and the run goes on |
 | `daily refused: usage` | stderr | a missing `--store`, an unknown flag or argument, a `--today` that is not a date |
 | `daily refused: --store is inside this repository` | stderr | the guard's refusal, before any request |
 | `daily refused: --store is not a folder` | stderr | before any request |
