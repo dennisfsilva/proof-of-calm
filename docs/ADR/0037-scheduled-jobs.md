@@ -40,3 +40,9 @@ None.
   Reading of 2026-11-27), the job writes to the private store behind a publish switch that is off,
   not to `packages/data` on `main`, and its logs hold no value. It reads Kraken's public OHLC endpoint
   at most once a second per address.
+- 2026-11-27, where the price-history append runs (ADR-0058): the job that writes the private store
+  runs in the private repository dennisfsilva/proof-of-calm-closes, not in this one, so its logs are
+  private and its own `GITHUB_TOKEN` writes; the Decision's `permissions: contents: write` is that
+  token's. Its workflow is a byte-for-byte copy of `tools/data/closes-store.yml` (planned: M2),
+  checked with `cmp`, that checks out this repository's `main` only and takes no ref input. This
+  repository runs only a dry run that prints counts, `.github/workflows/data-dry.yml` (planned: M2).
