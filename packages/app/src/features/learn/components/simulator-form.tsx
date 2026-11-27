@@ -40,6 +40,10 @@ export type SimulatorFormProps = {
   readonly onCoins: (ids: CoinId[]) => void;
   readonly onRun: (input: SimulatorInputs) => void;
   readonly onEdit: () => void;
+  /** Called on each fill from the plan, so the screen can say the result is no replay of it. */
+  readonly onFill?: () => void;
+  /** The start field's description: the day the data begins. */
+  readonly startDescription?: string;
 };
 
 /** The whole catalogue by name: the simulator is not bound to the plan's coins. */
@@ -54,7 +58,16 @@ type Draft = Omit<SimulatorFields, 'buyDay' | 'start' | 'end'> & {
   readonly end: CalendarDate | '' | null;
 };
 
-export function SimulatorForm({ closes, window, plan, onCoins, onRun, onEdit }: SimulatorFormProps) {
+export function SimulatorForm({
+  closes,
+  window,
+  plan,
+  onCoins,
+  onRun,
+  onEdit,
+  onFill,
+  startDescription,
+}: SimulatorFormProps) {
   const t = useTranslations('learn.simulator.form');
   const p = useTranslations('plan');
   const input = useTranslations('errors.input');
@@ -113,6 +126,7 @@ export function SimulatorForm({ closes, window, plan, onCoins, onRun, onEdit }: 
     const amount = filled.amount === null ? {} : { amount: filled.amount };
     change({ split: filled.split, buyDay: filled.buyDay, ...amount });
     setLine(filled.line);
+    onFill?.();
   };
 
   const run = () => {
@@ -190,6 +204,9 @@ export function SimulatorForm({ closes, window, plan, onCoins, onRun, onEdit }: 
             onChange={(event) => change({ [field]: event.currentTarget.value as CalendarDate | '' })}
             {...(window === null ? {} : { min: window.first, max: window.last })}
           />
+          {field === 'start' && startDescription !== undefined && (
+            <FieldDescription>{startDescription}</FieldDescription>
+          )}
           {error !== null && <FieldError>{error}</FieldError>}
         </Field>
       </div>
