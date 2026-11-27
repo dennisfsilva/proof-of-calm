@@ -171,6 +171,25 @@ describe('CoinEditor notes', () => {
   });
 });
 
+describe('CoinEditor with an empty split allowed', () => {
+  function EmptyHost() {
+    const [value, setValue] = useState<CoinSplitValue>({ coins: [BTC], shares: shares({ BTC: '100' }) });
+    return <CoinEditor value={value} catalogue={[BTC, ETH]} issues={[]} onChange={setValue} allowEmpty />;
+  }
+
+  it('offers Remove on a sole coin, and removing it moves focus to the first coin to add', () => {
+    render(
+      <I18nProvider messages={{ plan, errors }}>
+        <EmptyHost />
+      </I18nProvider>,
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Remove Bitcoin' }));
+    expect(screen.queryAllByRole('textbox')).toEqual([]);
+    expect(addButtons()).toEqual(['Add Bitcoin', 'Add Ethereum']);
+    expect(document.activeElement).toBe(screen.getByRole('button', { name: 'Add Bitcoin' }));
+  });
+});
+
 describe('CoinEditor legend', () => {
   const show = (legend?: 'shown' | 'hidden') =>
     render(
