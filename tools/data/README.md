@@ -47,8 +47,8 @@ prices:
 Coinbase stays off until it consents in writing (ADR-0036, the Reading of Coinbase's terms): no
 agent reads its endpoints, `pairs.json` has no Coinbase entry, and its reader stays `null`.
 
-`sources/source.ts` holds the `Source` type of a reader that takes `fetch`, `sleep` and `now` from
-its caller, and `sources/index.ts` holds `SOURCES`, one reader per exchange. Each reader sends a plain GET with no header of its own:
+`sources/source.ts` holds the `Source` type of a reader that takes `fetch`, `sleep`, `now` and
+`timeout` from its caller, and `sources/index.ts` holds `SOURCES`, one reader per exchange. Each reader sends a plain GET with no header of its own:
 
 | Reader | Endpoint | What it returns |
 |---|---|---|
@@ -59,7 +59,10 @@ A close is kept as the exact decimal string the exchange sent; exponent notation
 moving its digits, and a JSON number, which has already become a float, is refused. `pace.ts` wraps
 one exchange's io for a whole run: at least `minMs` between two requests (1,000 ms: Kraken asks for
 one a second per address), and on HTTP 429 or Kraken's `EAPI:Rate limit exceeded` it waits 2, 4 and
-8 times `minMs` before the next try, giving up with `RateLimited` after the fourth.
+8 times `minMs` before the next try, giving up with `RateLimited` after the fourth. Each try carries
+its own 30-second timeout (`REQUEST_TIMEOUT_MS`), made from the io's `timeout` when the try is sent,
+so waiting for a slot or backing off never counts against it. The readers set no timeout of their
+own, so every source's io goes through `pace()`, and the real io's `timeout` is `AbortSignal.timeout`.
 
 ## Output
 
