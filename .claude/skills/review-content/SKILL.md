@@ -215,7 +215,9 @@ Arguments: $ARGUMENTS
   the closed list of `docs/CONTENT-STYLE.md` §4) is replaced by U+2011 instead (`\u2011` in a
   JSON file). A source's title keeps its published hyphen-minus, with U+2060 after it where
   `range-join` asks for one, never U+2011.
-- Fetch only the domains in `packages/content/sources.allow.json`. Nothing refuses an off-list
+- Fetch only the domains in `packages/content/sources.allow.json`, and nothing on a `coinbase.com`
+  or `kraken.com` host, though the `facts` list holds `exchange.coinbase.com` (§4 step 1 says why
+  and what each such item takes); this holds on a country run too. Nothing refuses an off-list
   fetch: no `allowed-tools` rule approves WebFetch, so Claude Code asks the owner unless the
   session's settings or permission mode approve it. The finish refuses an off-list URL in the draft's link
   fields: `changes[].url` and `pending[].url` off their item's list, `verified[].urls` and
@@ -243,7 +245,8 @@ Arguments: $ARGUMENTS
    follow that step; on a no, stop. On any other refusal stop: the owner follows its advice, such as
    `git switch --detach origin/main`, which is the owner's to run, then runs you again.
 1. `docs/content-review-log.md`, whole: what the owner's reviews found wrong in earlier drafts. Its
-   "Kind" column is your checklist in step 5.
+   "Kind" column is your checklist in step 5. A reading there of Coinbase's candles is history:
+   §4 step 1 fetches none.
 2. `docs/JURISDICTIONS.md` §1 (the honesty rule), §2 (the schema), §6 (versions and review dates),
    §7.11 and §7.12 (the watch lists and the queues). The draft's `queue` holds each
    verification-queue item and each §7.11 or §7.12 watch item of the reviewed countries, closed or
@@ -359,8 +362,9 @@ For each profile in `packages/content/jurisdictions/`:
 
 ## 4. Per fact, template and cycle row
 
-1. Re-read each source. When the number or the date changed, update the entry; when the source is
-   gone, name it in the draft's notes. `j.next-halving`'s source names a fixed height, and
+1. Re-read each source but those on a Coinbase or Kraken host (the first item below). When the
+   number or the date changed, update the entry; when the source is gone, name it in the draft's
+   notes. `j.next-halving`'s source names a fixed height, and
    `docs/EDUCATION.md` §9's rules for use recompute it from the current height. Read the tip's
    height from `https://mempool.space/api/v1/blocks` (its first block's `height`), then three
    requests, each of which answers its own block first with its `height` and `timestamp`:
@@ -389,10 +393,16 @@ For each profile in `packages/content/jurisdictions/`:
      the draft's `notes` (§7 step 2), which the body lists under `Notes for the owner`, and in your
      closing report. Change nothing in such an entry or row except a copy that another row's change
      reaches (the next item: fact b's `LINK 2018` clause when the CoinMarketCap row changes), and
-     move no row to Coinbase or Kraken. Its URLs count in every `of` that counts them and in no
-     `read`, so each such file's review is partial (the `accessed` item below). The first note asks
-     the owner nothing and takes no mark (§6); the second asks for a recomputation and takes §6's
-     mark when the run would otherwise stage nothing.
+     move no row to Coinbase or Kraken. Fact b's `LINK 2021 to 2023 (Coinbase)` clause is no such
+     copy: the Bitstamp row `drawdowns[7]` (`LINK 2021-05-10`) reaches it, but its figures are
+     Coinbase's. Revert a change of that row and of its template copies, write §1's
+     `chart row for the owner:` note for the row, and give fact b the
+     `left to the session PR of #577` note. An unfetched entry's or row's URLs count in every `of`
+     that counts them and in no `read`, so each such file's review is partial (the `accessed`
+     item below). The `left to the session PR of #577` note asks the owner nothing and takes no
+     mark (§6); the `recompute for the owner` note asks for a recomputation
+     (`docs/CONTENT-OPS.md` §8 step 4) and takes §6's mark when the run would otherwise stage
+     nothing.
    - When you change a row of `packages/content/cycles/drawdowns.json`, change every template's
      `drawdowns` row of that coin and high to the same high, low and fall, each with its own
      `changes` row, and fact a's or b's clause of that coin and high to the row's dates, prices and
@@ -441,7 +451,9 @@ For each profile in `packages/content/jurisdictions/`:
    takes no note and no change: no listed source holds it, and the owner's content review of the
    English facts reads it (tracker #23's Needs the owner line on `a.btc-drawdowns`).
 4. Read the items of `docs/CONTENT-OPS.md` §6 and §7 for the templates and
-   `packages/content/cycles/drawdowns.json`.
+   `packages/content/cycles/drawdowns.json`. Where one reads, compares or moves a Coinbase or
+   Kraken row or request (§6's ETH 2021–22 sources, §7's Coinbase facts and its Kraken method),
+   step 1 holds: fetch nothing for it and write only step 1's note for each such row.
 
 ## 5. Check each draft
 
@@ -521,7 +533,7 @@ The finish refuses a changed entry at any other value.
    tool reads `\x{…}` as the character; never type the character itself), since a test writes it
    either way (`5(?:\\u[0-9a-fA-F]{4}|[\x{00A0}\x{2060}\x{2011}])years` for a profile's
    `5`, U+00A0, `years`); a URL by its address before `?` and by each `key=value` of its query, since a
-   test can build it in parts (`start=2021-10-01T00:00:00Z`); a publisher also by each name it
+   test can build it in parts (`start=1385769600`); a publisher also by each name it
    joins (`Bitcoinity \(Mt\. Gox\)` and `CoinMarketCap`), since a chart names each once; each old
    date by its day and year,
    `(?:\b|\d{4}|\\u[0-9a-fA-F]{4})0?<day>\b(?:\D|\\u[0-9a-fA-F]{4}|\b0?<month>\b){1,30}<year>`
@@ -588,7 +600,8 @@ The finish refuses a changed entry at any other value.
    change §1 reverted takes no such note: its `tests:` list names the literal. Move no row to
    Coinbase or Kraken (§4 step 1). A row of a coin of `UNREGAINED_KEYS` that your review would move
    to another publisher keeps its series, since that test reads its low window, from its low to
-   the row's `accessed`, only from a Bitstamp request: leave the row and write
+   the row's `accessed`, only from a Bitstamp or Coinbase request, and §4 step 1 moves no row to
+   Coinbase: leave the row and write
    `chart row for the owner: …` with `; keeps its series, unregained` after the row's copies. That
    note asks no data change but asks the owner to record its reading in the log
    (`docs/CONTENT-OPS.md` §8 steps 4 and 5), so it takes §6's mark on the cycles file when the run
