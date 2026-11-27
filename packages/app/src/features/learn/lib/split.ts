@@ -4,7 +4,10 @@
 import {
   type Coin,
   type CoinId,
+  compare,
+  decimalPlaces,
   err,
+  isNegative,
   ok,
   type Percent,
   type Plan,
@@ -12,6 +15,7 @@ import {
   planIssues,
   type Result,
   type Split,
+  sum,
 } from '@proofofcalm/core';
 import type { NumberInput, NumberInputError } from '../../../lib/format';
 
@@ -49,15 +53,16 @@ export function setShare(value: CoinSplitValue, id: CoinId, text: string): CoinS
   return { ...value, shares: { ...value.shares, [id]: text } };
 }
 
+/** A share's most decimals: the core's `PERCENT_DECIMALS` (packages/core/src/schema/plan.ts:144), not exported. */
+const SHARE_DECIMALS = 4;
+
 /**
- * The coins and the split the value makes, or its issues: the shares that cannot be read first (the sum
- * waits for them), then the core's issues on `coins` and `split` for the rest of the plan as it is.
+ * The split the value makes with no plan to check it against, the shape a simulation takes, or its
+ * issues as `coinSplit` gives them: the shares that cannot be read first (the sum waits for them), then
+ * `coins-max`, and the core's checks of a plan's coins and split in its order (planIssues' split
+ * checks, which read nothing else of the plan; a test compares the two on every issue).
  */
-export function coinSplit(
-  plan: Plan,
-  value: CoinSplitValue,
-  numberInput: NumberInput,
-): Result<{ coins: Coin[]; split: Split }, SplitIssue[]> {
+export function readShares(value: CoinSplitValue, numberInput: NumberInput): Result<Split, SplitIssue[]> {
   const split: Record<CoinId, Percent> = {};
   const unread: ShareIssue[] = [];
   for (const coin of value.coins) {
@@ -67,8 +72,35 @@ export function coinSplit(
     else unread.push({ ...read.error, path: ['split', coin.id] });
   }
   if (unread.length > 0) return err(unread);
+  const issues: SplitIssue[] = [];
+  if (value.coins.length > MAX_COINS) issues.push({ code: 'coins-max', path: ['coins'] });
+  if (new Set(value.coins.map((coin) => coin.id)).size !== value.coins.length) {
+    issues.push({ code: 'coins-not-unique', path: ['coins'] });
+  }
+  const shares = Object.entries(split) as [CoinId, Percent][];
+  for (const [coin, share] of shares) {
+    if (isNegative(share)) issues.push({ code: 'split-negative', path: ['split', coin] });
+    if (decimalPlaces(share) > SHARE_DECIMALS) issues.push({ code: 'split-precision', path: ['split', coin] });
+  }
+  if (compare(sum(shares.map(([, share]) => share)), '100' as Percent) !== 0) {
+    issues.push({ code: 'split-sum', path: ['split'] });
+  }
+  return issues.length > 0 ? err(issues) : ok(split);
+}
+
+/**
+ * The coins and the split the value makes, or its issues: `readShares`, then the core's issues on
+ * `coins` and `split` for the rest of the plan as it is, so a plan's split stays the core's to judge.
+ */
+export function coinSplit(
+  plan: Plan,
+  value: CoinSplitValue,
+  numberInput: NumberInput,
+): Result<{ coins: Coin[]; split: Split }, SplitIssue[]> {
+  const read = readShares(value, numberInput);
+  if (!read.ok) return read;
   const coins = [...value.coins];
+  const split = read.value;
   const issues: SplitIssue[] = planIssues({ ...plan, coins, split }).filter((issue) => PATHS.has(issue.path[0]));
-  if (coins.length > MAX_COINS) issues.unshift({ code: 'coins-max', path: ['coins'] });
   return issues.length > 0 ? err(issues) : ok({ coins, split });
 }
