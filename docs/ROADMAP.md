@@ -185,6 +185,9 @@ external links and the Risk link in the mobile export (M3).
   writing, ADR-0036's Reading of 2026-11-27 on Coinbase's terms) refreshed by the scheduled job; every catalogue coin that Kraken, Bitstamp or Coinbase lists (ADR-0052), its start date
   stated from the dataset; the caveat text. Before this work starts: the letters to Kraken (written
   confirmation) and Bitstamp (Data License Agreement) are sent and their answers recorded in ADR-0036.
+  The pipeline's daily job and its Kraken backfill built on 2026-11-27 (#580, #581,
+  `tools/data/README.md`); the job's first run in the private repository and the backfill into the
+  private store (Kraken EUR and USD, 26 pairs each) on 2026-11-27, with a second run of the job after it.
 - Attribution text under every price and chart per ADR-0036, shipped with the simulator.
 - Annual review prompt in-app. The review page at `/plan/review` built on 2026-11-11 (#114) with its
   units per venue (#117, 2026-11-11), and Today's prompt at the foot with `Later`'s 30-day snooze on
