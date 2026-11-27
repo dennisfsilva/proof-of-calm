@@ -50,10 +50,11 @@ one in the name or the risk label (`template-date-field`) and a written month na
 its sources and any `lowSource` on the facts allow-list and `accessed` no later than `lastReviewed` once signed off (below);
 the validator refuses a low before its high (`drawdown-low-before-high`), a coin the template does
 not buy (`drawdown-unknown-coin`), drawdown rows that are not one per coin in the order of `coins`
-(`drawdown-coins`), a fall of 0 or of more than 100 percent
-(`drawdown-fall-out-of-range`) and a publisher that the falls tables, which split it on ` and `, would not read as
-one name or as two whole names, such as three names, a join inside parentheses, an empty name or a space at a
-name's edge (`drawdown-publisher-joined`, `src/publisher-validate.ts`). In the English explanation, `src/template-figures.ts` reads each sentence that holds
+(`drawdown-coins`) and a fall of 0 or of more than 100 percent
+(`drawdown-fall-out-of-range`). The falls tables split a publisher on ` and ` into the names of its two series.
+The validator refuses a publisher that this split would not read as one name or as two whole names
+(`drawdown-publisher-joined`, `src/publisher-validate.ts`). It refuses three names and a join inside brackets or
+quotes. It also refuses an empty name, a space at a name's edge and a second "and" beside the join. In the English explanation, `src/template-figures.ts` reads each sentence that holds
 a percentage or a drawdown date against the closed shapes of `docs/CONTENT-STYLE.md` §4 (F1, F2 and S1 to S4), whole.
 It refuses a dated sentence that matches neither fall shape, a fall that names another row's coin, or a coin given
 two shares (`figure-form`), a figure other than its row's fall or its coin's share (`figure-mismatch`), and a
