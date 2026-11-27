@@ -54,7 +54,8 @@ describe('ModuleChart', () => {
     const { container } = mount();
     await screen.findByRole('img');
     const headers = [...container.querySelectorAll('details thead th')].map((header) => header.textContent);
-    expect(headers).toEqual(['Coin', 'Date of high', 'Date of low', 'Fall']);
+    // The rows mix intraday falls and falls between Kraken's closes, so a last column names each row's publisher.
+    expect(headers).toEqual(['Coin', 'Date of high', 'Date of low', 'Fall', 'Source']);
   });
 
   it('sets the sentence directly under the chart, each publisher once, as text with no link', async () => {
@@ -135,7 +136,8 @@ describe("DrawdownBars: the page's number locale", () => {
     const [first] = falls;
     if (first === undefined) throw new Error('no falls');
     const values = [...container.querySelectorAll('[data-slot="bar-chart-value"]')].map((value) => value.textContent);
-    const cells = [...container.querySelectorAll('details tbody tr')].map((row) => row.lastElementChild?.textContent);
+    // The Fall cell, the fourth: the rows mix both bases, so the Source column follows it.
+    const cells = [...container.querySelectorAll('details tbody tr')].map((row) => row.children[3]?.textContent);
     return { written: fallPercent(f, first.fall), first, values, cells };
   };
 
