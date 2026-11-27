@@ -5,7 +5,7 @@ import { expect, userEvent } from 'storybook/test';
 import { createNumberInput } from '../../../lib/format';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { type CoinSplitValue, coinSplit } from '../lib/split';
-import { CoinEditor } from './coin-editor';
+import { CoinEditor, type CoinEditorProps } from './coin-editor';
 
 // The coin editor held as a host holds it, with the issues of coinSplit in en-GB: the fixture's split,
 // a split off 100 and a single coin; the test projects render each at 360 and 1280 px, light and dark,
@@ -22,10 +22,18 @@ const catalogue = [
 const english = createNumberInput('en-GB');
 const shares = (entries: Record<string, string>) => entries as Record<CoinId, string>;
 
-function Host({ initial }: { initial: CoinSplitValue }) {
+function Host({ initial, notes }: { initial: CoinSplitValue; notes?: CoinEditorProps['notes'] }) {
   const [value, setValue] = useState(initial);
   const result = coinSplit(plan, value, english);
-  return <CoinEditor value={value} catalogue={catalogue} issues={result.ok ? [] : result.error} onChange={setValue} />;
+  return (
+    <CoinEditor
+      value={value}
+      catalogue={catalogue}
+      issues={result.ok ? [] : result.error}
+      onChange={setValue}
+      notes={notes}
+    />
+  );
 }
 
 const meta = {
@@ -93,5 +101,19 @@ export const OneCoin: Story = {
     await expect(canvas.queryByRole('button', { name: 'Remove Bitcoin' })).toBeNull();
     await userEvent.click(canvas.getByRole('button', { name: 'Add Ethereum' }));
     await expect(canvas.getByRole('textbox', { name: 'Ethereum share (%)' })).toHaveFocus();
+  },
+};
+
+// A host's line under one coin's row, as the simulator's on a coin with no closes; it describes that share.
+export const WithNote: Story = {
+  args: {
+    initial: { coins: [BTC, catalogue[2] as Coin], shares: shares({ BTC: '70', SOL: '30' }) },
+    notes: { ['SOL' as CoinId]: 'No reference closes for Solana yet.' },
+  },
+  play: async ({ canvas }) => {
+    const note = canvas.getByText('No reference closes for Solana yet.');
+    await expect(note).toBeVisible();
+    const field = canvas.getByRole('textbox', { name: 'Solana share (%)' });
+    await expect(field.getAttribute('aria-describedby')?.split(' ')).toContain(note.id);
   },
 };

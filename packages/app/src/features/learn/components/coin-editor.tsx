@@ -2,7 +2,7 @@
 
 import type { Coin, CoinId } from '@proofofcalm/core';
 import { Button } from '@proofofcalm/ui/components/button';
-import { Field, FieldError, FieldLabel } from '@proofofcalm/ui/components/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@proofofcalm/ui/components/field';
 import { NumericInput } from '@proofofcalm/ui/components/input';
 import { useEffect, useId, useRef } from 'react';
 import { useLocale, useTranslations } from 'use-intl';
@@ -25,9 +25,11 @@ export type CoinEditorProps = {
   readonly onChange: (value: CoinSplitValue) => void;
   /** `hidden` under a host's own heading (onboarding): the legend still names the group for screen readers. */
   readonly legend?: 'shown' | 'hidden' | undefined;
+  /** A host's line under a coin's row, in its share's description (the simulator's line on a coin's closes). */
+  readonly notes?: Readonly<Partial<Record<CoinId, string>>> | undefined;
 };
 
-export function CoinEditor({ value, catalogue, issues, onChange, legend = 'shown' }: CoinEditorProps) {
+export function CoinEditor({ value, catalogue, issues, onChange, legend = 'shown', notes }: CoinEditorProps) {
   const t = useTranslations('plan.coins');
   const input = useTranslations('errors.input');
   const locale = useLocale();
@@ -75,6 +77,7 @@ export function CoinEditor({ value, catalogue, issues, onChange, legend = 'shown
       <ul className="flex flex-col gap-stack-sm">
         {value.coins.map((coin) => {
           const own = message(coin.id);
+          const note = notes?.[coin.id];
           return (
             <li key={coin.id}>
               <Field invalid={offSum || own !== null} className="min-w-0">
@@ -98,6 +101,7 @@ export function CoinEditor({ value, catalogue, issues, onChange, legend = 'shown
                   )}
                 </div>
                 {own !== null && <FieldError>{own}</FieldError>}
+                {note !== undefined && <FieldDescription>{note}</FieldDescription>}
               </Field>
             </li>
           );
