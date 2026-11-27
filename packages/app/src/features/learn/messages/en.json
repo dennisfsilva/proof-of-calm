@@ -79,8 +79,8 @@
       },
       "fill": "Fill in from your plan",
       "fillLine": {
-        "other-currency": "The simulator works in euros for now; type the amount in euros.",
-        "no-monthly": "Your plan has no monthly amount; type one."
+        "other-currency": "The simulator works in euros for now; enter the amount in euros.",
+        "no-monthly": "Your plan has no monthly amount; enter one."
       },
       "loading": "The reference closes for {coin} are still loading.",
       "start": "Start",

@@ -152,8 +152,8 @@ describe('SimulatorForm', () => {
 
   it('leaves the amount of a plan in another currency or with no monthly amount, saying why', () => {
     for (const [patch, line] of [
-      [{ payCurrency: 'USD' as CurrencyCode }, 'The simulator works in euros for now; type the amount in euros.'],
-      [{ monthlyAmount: '0' as Money }, 'Your plan has no monthly amount; type one.'],
+      [{ payCurrency: 'USD' as CurrencyCode }, 'The simulator works in euros for now; enter the amount in euros.'],
+      [{ monthlyAmount: '0' as Money }, 'Your plan has no monthly amount; enter one.'],
     ] as const) {
       mount({ plan: { ...thePlan, ...patch } });
       type(box(MONTHLY), '50');

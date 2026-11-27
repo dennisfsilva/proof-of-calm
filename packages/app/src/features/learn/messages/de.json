@@ -80,7 +80,7 @@
       "fill": "Aus dem Plan übernehmen",
       "fillLine": {
         "other-currency": "Der Simulator rechnet vorerst in Euro; geben Sie den Betrag in Euro ein.",
-        "no-monthly": "Ihr Plan hat keinen monatlichen Betrag; geben Sie einen ein."
+        "no-monthly": "Der Plan hat keinen monatlichen Betrag; geben Sie einen ein."
       },
       "loading": "Die Referenzschlusskurse für {coin} werden noch geladen.",
       "start": "Start",
