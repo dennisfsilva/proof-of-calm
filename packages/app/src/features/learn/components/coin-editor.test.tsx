@@ -140,6 +140,37 @@ describe('CoinEditor', () => {
   });
 });
 
+describe('CoinEditor notes', () => {
+  const NOTE = 'No reference closes for Solana yet.';
+  const show = (notes?: Readonly<Partial<Record<CoinId, string>>>) =>
+    render(
+      <I18nProvider messages={{ plan, errors }}>
+        <CoinEditor
+          value={{ coins: [BTC, SOL], shares: shares({ BTC: '70', SOL: '30' }) }}
+          catalogue={[BTC, SOL]}
+          issues={[]}
+          onChange={() => undefined}
+          notes={notes}
+        />
+      </I18nProvider>,
+    );
+  const describedBy = (coin: string) => share(coin).getAttribute('aria-describedby')?.split(' ') ?? [];
+
+  it("puts a host's line under the coin's row and names it in that share's description", () => {
+    show({ [SOL.id]: NOTE });
+    const note = screen.getByText(NOTE);
+    expect(note.closest('li')).toBe(share('Solana').closest('li'));
+    expect(describedBy('Solana')).toContain(note.id);
+    expect(describedBy('Bitcoin')).not.toContain(note.id);
+  });
+
+  it('shows no line without notes', () => {
+    show();
+    expect(screen.queryByText(NOTE)).toBeNull();
+    expect(describedBy('Solana')).toEqual([]);
+  });
+});
+
 describe('CoinEditor legend', () => {
   const show = (legend?: 'shown' | 'hidden') =>
     render(
