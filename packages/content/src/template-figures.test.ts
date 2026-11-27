@@ -6,7 +6,7 @@ import { sentencesOf, shapeOf, templateFigureProblems } from './template-figures
 import { type ContentFile, validateContent } from './validate.ts';
 
 // A template's figures against its rows and split (docs/CONTENT-STYLE.md §4, R1 to R4), through the content gate on
-// literal files: the split 40/30/15/15 and the rows BTC 78, ETH 83, SOL 97 and LINK 91.
+// literal files: the split 40/30/15/15 and the rows BTC 78, ETH 83, SOL 98 and LINK 91.
 const { $comment: _, ...allow } = allowList;
 const options = { today: '2026-10-17', allow };
 const PATH = 'packages/content/templates/four.json';
@@ -30,7 +30,7 @@ const four = (explanation: string) => ({
   split: { BTC: '40', ETH: '30', SOL: '15', LINK: '15' },
   sellWindow: null,
   references: {},
-  drawdowns: [row('BTC', '78'), row('ETH', '83'), row('SOL', '97'), row('LINK', '91')],
+  drawdowns: [row('BTC', '78'), row('ETH', '83'), row('SOL', '98'), row('LINK', '91')],
   lastReviewed: '2026-10-16',
   reviewedBy: 'owner',
 });
@@ -49,15 +49,15 @@ const LIVE = readdirSync(new URL('../templates/', import.meta.url));
 
 describe('templateFigureProblems: the closed shapes pass (the judge’s must-pass list)', () => {
   it.each([
-    `Solana fell 97 % ${D('SOL')}.`,
-    'From its high on {date:drawdowns.SOL.high} to its low on {date:drawdowns.SOL.low}, Solana fell 97 %.',
+    `Solana fell 98 % ${D('SOL')}.`,
+    'From its high on {date:drawdowns.SOL.high} to its low on {date:drawdowns.SOL.low}, Solana fell 98 %.',
     `Solana fell more than 96 % ${D('SOL')}.`,
-    `Solana fell −97 % ${D('SOL')}.`,
+    `Solana fell −98 % ${D('SOL')}.`,
     'It splits each monthly amount 40 % Bitcoin, 30 % Ethereum, 15 % Solana, and 15 % Chainlink.',
     'What can go wrong: 15 % of every amount goes into Solana.',
     'Solana: 15 % of each amount.',
     'Bitcoin takes 40 % of each amount; 30 % goes into Ethereum.',
-    `Bitcoin takes 40 % of each amount. Solana fell 97 % ${D('SOL')}.`,
+    `Bitcoin takes 40 % of each amount. Solana fell 98 % ${D('SOL')}.`,
     'It splits each amount 40 % Bitcoin and 30 % Ethereum.',
   ])('%s', (explanation) => {
     expect(run(explanation)).toEqual([]);
@@ -105,7 +105,7 @@ describe('sentencesOf', () => {
 
 describe('templateFigureProblems: figure-mismatch', () => {
   it('refuses a fall other than its row’s, and a bound its row does not meet (R2)', () => {
-    for (const figure of ['96 %', '98 %', 'more than 97 %', 'more than 98 %']) {
+    for (const figure of ['96 %', '99 %', 'more than 98 %', 'more than 99 %']) {
       expect(ruled(`Solana fell ${figure} ${D('SOL')}.`)).toEqual(['figure-mismatch R2']);
     }
   });
@@ -120,7 +120,7 @@ describe('templateFigureProblems: figure-mismatch', () => {
 });
 
 describe('templateFigureProblems: figure-form', () => {
-  it.each(['less than 98 %', 'over 97 %', 'about 97 %', 'at least 96 %', 'up to 98 %', '96–97 %'])(
+  it.each(['less than 99 %', 'over 98 %', 'about 98 %', 'at least 96 %', 'up to 99 %', '96–98 %'])(
     'refuses a dated fall written %s (R1, D14 of #318)',
     (figure) => {
       expect(ruled(`Solana fell ${figure} ${D('SOL')}.`)).toEqual(['figure-form R1']);
@@ -130,19 +130,19 @@ describe('templateFigureProblems: figure-form', () => {
   it.each([
     `Ethereum, 83 % of each amount, fell 83 % ${D('ETH')}.`,
     `Ethereum takes 83 % of each amount ${D('ETH')}.`,
-    `Solana fell 97 % ${D('SOL')}; Chainlink fell too.`,
-    'Solana fell 97 % from its high on {date:drawdowns.SOL.high} to its low on {date:drawdowns.ETH.low}.',
-    'Solana fell 97 % from its high on {date:drawdowns.SOL.high}.',
-    'Solana fell 97 % from its high on {date:drawdowns.SOL.high} to its low on {date:drawdowns.SOL.high}.',
+    `Solana fell 98 % ${D('SOL')}; Chainlink fell too.`,
+    'Solana fell 98 % from its high on {date:drawdowns.SOL.high} to its low on {date:drawdowns.ETH.low}.',
+    'Solana fell 98 % from its high on {date:drawdowns.SOL.high}.',
+    'Solana fell 98 % from its high on {date:drawdowns.SOL.high} to its low on {date:drawdowns.SOL.high}.',
     `Ethereum’s high and low came ${D('ETH')}.`,
-    `Solana fell 97 %, or 97 % again, ${D('SOL')}.`,
-    `solana fell 97 % ${D('SOL')}.`,
+    `Solana fell 98 %, or 98 % again, ${D('SOL')}.`,
+    `solana fell 98 % ${D('SOL')}.`,
   ])('refuses a dated sentence that matches neither F1 nor F2: %s (R1)', (explanation) => {
     expect(ruled(explanation)).toEqual(['figure-form R1']);
   });
 
   it('refuses a fall that names no coin, so no coin crosses a sentence (R1, amendment 2)', () => {
-    expect(ruled(`It fell 97 % ${D('SOL')}.`)).toEqual(['figure-form R1']);
+    expect(ruled(`It fell 98 % ${D('SOL')}.`)).toEqual(['figure-form R1']);
     expect(ruled(`Bitcoin takes 40 % of each amount. It fell 83 % ${D('ETH')}.`)).toEqual(['figure-form R1']);
   });
 
@@ -169,8 +169,8 @@ describe('templateFigureProblems: figure-unclassed (R4: any other percentage fai
     ['Bitcoin is 40 % of each amount; of the rest, 40 % goes to one coin: Ethereum.', 1],
     ['Bitcoin is 40 % of each amount. Of the rest of each amount, 40 % goes to one coin: Ethereum.', 2],
     ['Solana takes 15 % of each amount. The largest coin takes 15 % of each amount too.', 1],
-    ['Solana fell 97 percent.', 1],
-    ['Solana fell 97 per cent.', 1],
+    ['Solana fell 98 percent.', 1],
+    ['Solana fell 98 per cent.', 1],
     ['Solana fell 15 per cent.', 1],
     ['Solana fell 15 per cent.', 1],
     ['Solana fell 15 per‑cent.', 1],
@@ -191,14 +191,14 @@ describe('the round-2 leaks (the stated requirement of #334)', () => {
   it.each([
     [`Each amount buys 4 coins. 3 years ago Solana fell 15 %.`, 'figure-unclassed R4'],
     [`Bitcoin is 40 % of each amount, give or take.`, 'figure-unclassed R4'],
-    ['Solana fell (roughly): 97 %', 'figure-unclassed R4'],
-    [`Solana fell (roughly): 97 % ${D('SOL')}`, 'figure-form R1'],
+    ['Solana fell (roughly): 98 %', 'figure-unclassed R4'],
+    [`Solana fell (roughly): 98 % ${D('SOL')}`, 'figure-form R1'],
     ...[true, false].flatMap((dated) =>
       [
-        `Roughly, Solana fell 97 %${at(dated)}.`,
-        `Solana roughly fell 97 %${at(dated)}.`,
-        `Solana fell, give or take: 97 %${at(dated)}.`,
-        `Solana fell between ninety and 97 %${at(dated)}.`,
+        `Roughly, Solana fell 98 %${at(dated)}.`,
+        `Solana roughly fell 98 %${at(dated)}.`,
+        `Solana fell, give or take: 98 %${at(dated)}.`,
+        `Solana fell between ninety and 98 %${at(dated)}.`,
       ].map((text): [string, string] => [text, dated ? 'figure-form R1' : 'figure-unclassed R4']),
     ),
   ])('%s: %s', (explanation, verdict) => {
@@ -256,12 +256,12 @@ describe('the trigger reads the whole explanation: no break hides it (round 4 of
   });
 
   it('passes two paragraphs whose percentages each sit inside one sentence of a shape', () => {
-    expect(run(`Bitcoin takes 40 % of each amount.\n\nSolana fell 97 % ${D('SOL')}.`)).toEqual([]);
+    expect(run(`Bitcoin takes 40 % of each amount.\n\nSolana fell 98 % ${D('SOL')}.`)).toEqual([]);
   });
 });
 
 describe('the check reads the paragraphs the app renders: paragraphsOf (round 5 of #340)', () => {
-  const F1 = `Solana fell 97 % ${D('SOL')}.`;
+  const F1 = `Solana fell 98 % ${D('SOL')}.`;
   const SEPARATORS = ['\n\n', '\n \n', '\r\n\r\n', '\n\t\n', '\n\n\n', '\n\n\n\n', '\n\f\n'];
 
   it.each(SEPARATORS)('%j ends a paragraph, so an exact F1 after it passes', (separator) => {
@@ -303,7 +303,7 @@ describe('a percentage is the one token the app formats: N, an ordinary space, %
     const all = (explanation: string) => validateContent([{ path: PATH, json: four(explanation) }], options);
     const share = all(`Bitcoin: 40${joiner}% of each amount.`).map(({ code }) => code);
     expect(share).toEqual(['percent-token', 'figure-unclassed']);
-    const fall = all(`Solana fell 97${joiner}% ${D('SOL')}.`).map(({ code }) => code);
+    const fall = all(`Solana fell 98${joiner}% ${D('SOL')}.`).map(({ code }) => code);
     expect(fall).toEqual(['percent-token', 'figure-form']);
   });
 
@@ -394,8 +394,8 @@ describe('the details (D17 of #318: a datum written in passes, one step past it 
   const datum = (detail: string) => Number(/ of (\d+) %/.exec(detail)?.[1]);
 
   it.each([
-    [(n: number) => `Solana fell ${n} % ${D('SOL')}.`, 96, 97],
-    [(n: number) => `Solana fell ${n} % ${D('SOL')}.`, 98, 97],
+    [(n: number) => `Solana fell ${n} % ${D('SOL')}.`, 96, 98],
+    [(n: number) => `Solana fell ${n} % ${D('SOL')}.`, 99, 98],
     [(n: number) => `Bitcoin takes ${n} % of each amount.`, 45, 40],
   ])('names the datum of a mismatch (%#)', (write, start, expected) => {
     const [problem] = run(write(start));
@@ -408,8 +408,8 @@ describe('the details (D17 of #318: a datum written in passes, one step past it 
 
   it('a bound on the datum of a fall passes one step below it and fails at it', () => {
     const write = (n: number) => `Solana fell more than ${n} % ${D('SOL')}.`;
-    const [problem] = run(write(97));
-    expect(problem?.detail).toContain('"more than 97 %" is not below SOL\'s fall of 97 %');
+    const [problem] = run(write(98));
+    expect(problem?.detail).toContain('"more than 98 %" is not below SOL\'s fall of 98 %');
     const n = datum(problem?.detail ?? '');
     expect(run(write(n - 1))).toEqual([]);
     expect(codes(write(n))).toEqual(['figure-mismatch']);
@@ -417,17 +417,17 @@ describe('the details (D17 of #318: a datum written in passes, one step past it 
 
   it('quote the sentence, name the figure, its coin and datum, end with the rule and print no text to write', () => {
     const cases: [string, string[]][] = [
-      [`Solana fell 96 % ${D('SOL')}.`, ['"96 %"', "SOL's fall of 97 %", '"more than N %"']],
+      [`Solana fell 96 % ${D('SOL')}.`, ['"96 %"', "SOL's fall of 98 %", '"more than N %"']],
       ['Bitcoin takes 45 % of each amount.', [`"45 %" is not BTC's share of 40 %`]],
-      [`Solana fell about 97 % ${D('SOL')}.`, ['"97 %"', "SOL's fall of 97 %", 'neither F1 nor F2']],
+      [`Solana fell about 98 % ${D('SOL')}.`, ['"98 %"', "SOL's fall of 98 %", 'neither F1 nor F2']],
       [`Ethereum’s high and low came ${D('ETH')}.`, ["ETH's fall of 83 %"]],
       [
-        `Solana fell 97 % from its high on {date:drawdowns.SOL.high} to its low on {date:drawdowns.ETH.low}.`,
-        ["SOL's fall of 97 % and ETH's fall of 83 %"],
+        `Solana fell 98 % from its high on {date:drawdowns.SOL.high} to its low on {date:drawdowns.ETH.low}.`,
+        ["SOL's fall of 98 % and ETH's fall of 83 %"],
       ],
       ['Bitcoin takes 40 % of each amount; 30 % goes into Bitcoin.', ['"30 %"', '"Bitcoin"', "BTC's share of 40 %"]],
-      ['Solana fell 15 %.', ['"15 %"', 'SOL: fall 97 %, share 15 %']],
-      ['Solana fell 15 per cent.', ['"15 perU+00A0 cent"', 'SOL: fall 97 %, share 15 %']],
+      ['Solana fell 15 %.', ['"15 %"', 'SOL: fall 98 %, share 15 %']],
+      ['Solana fell 15 per cent.', ['"15 perU+00A0 cent"', 'SOL: fall 98 %, share 15 %']],
       ['A fall of 40 % can come again.', ['"40 %" matches no shape']],
     ];
     for (const [explanation, parts] of cases) {
@@ -444,17 +444,17 @@ describe('the details (D17 of #318: a datum written in passes, one step past it 
     const exact: [string, string][] = [
       [
         `Solana fell 96 % ${D('SOL')}.`,
-        `explanation: "96 %" is neither SOL's fall of 97 % nor a bound below it written "more than N %"`,
+        `explanation: "96 %" is neither SOL's fall of 98 % nor a bound below it written "more than N %"`,
       ],
       [
-        `Solana fell about 97 % ${D('SOL')}.`,
-        `explanation: "97 %" beside the dates of SOL's fall of 97 % matches neither F1 nor F2`,
+        `Solana fell about 98 % ${D('SOL')}.`,
+        `explanation: "98 %" beside the dates of SOL's fall of 98 % matches neither F1 nor F2`,
       ],
       [
         `Ethereum’s high and low came ${D('ETH')}.`,
         `explanation: the dates of ETH's fall of 83 % sit in no F1 or F2 sentence`,
       ],
-      [`Solana fell 97 % ${D('DOGE')}.`, `explanation: "97 %" carries the dates of DOGE, which has no drawdown row,`],
+      [`Solana fell 98 % ${D('DOGE')}.`, `explanation: "98 %" carries the dates of DOGE, which has no drawdown row,`],
     ];
     for (const [explanation, what] of exact) {
       const rule = what.includes('neither SOL') ? 2 : 1;
@@ -490,10 +490,10 @@ describe('templateFigureProblems prints its quoted text by code point (printedTe
   });
 
   it('names a U+2060 in the coin of a drawdown placeholder by code point', () => {
-    const [sold, came] = [`Solana fell 97 % ${D('DO\u2060GE')}.`, `Ethereum came ${D('E\u2060TH')}.`];
+    const [sold, came] = [`Solana fell 98 % ${D('DO\u2060GE')}.`, `Ethereum came ${D('E\u2060TH')}.`];
     const shown = (sentence: string) => sentence.replace('\u2060', 'U+2060 ').replace('\u2060', 'U+2060 ');
     expect(details(`${sold} ${came}`)).toEqual([
-      `explanation: "97 %" carries the dates of DOU+2060 GE, which has no drawdown row, in "${shown(sold)}"; R1 ` +
+      `explanation: "98 %" carries the dates of DOU+2060 GE, which has no drawdown row, in "${shown(sold)}"; R1 ` +
         '(docs/CONTENT-STYLE.md §4)',
       `explanation: the dates of EU+2060 TH, which has no drawdown row, sit in no F1 or F2 sentence in "${shown(came)}"; ` +
         'R1 (docs/CONTENT-STYLE.md §4)',

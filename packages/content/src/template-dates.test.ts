@@ -47,7 +47,7 @@ const template = (overrides: Record<string, unknown> = {}) => ({
   split: { BTC: '70', ETH: '30' },
   sellWindow: null,
   references: {},
-  drawdowns: [drawdown('BTC', '2021-11-10', '2022-11-21'), drawdown('ETH', '2021-11-10', '2022-06-18')],
+  drawdowns: [drawdown('BTC', '2021-11-10', '2022-11-21'), drawdown('ETH', '2021-12-01', '2022-06-30')],
   lastReviewed: '2026-10-16',
   reviewedBy: 'owner',
   ...overrides,
