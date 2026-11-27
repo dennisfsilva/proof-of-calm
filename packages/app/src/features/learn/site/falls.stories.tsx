@@ -42,8 +42,6 @@ const MIXED = [
   { coin: 'LINK', high: '2021-05-11', low: '2023-06-09', fall: '90', publisher: 'Bitstamp' },
 ] as unknown as readonly PastFall[];
 
-export const MixedBases: Story = { args: { falls: MIXED } };
-
 // Before any scroll the caption reads whole: every line box of its text ends inside the region, though the Source
 // column makes the table wider than the box.
 const captionInBox = async (region: HTMLElement) => {
@@ -55,6 +53,12 @@ const captionInBox = async (region: HTMLElement) => {
   const lines = [...text.getClientRects()];
   await expect(lines.length).toBeGreaterThan(0);
   for (const line of lines) await expect(line.right).toBeLessThanOrEqual(edge);
+};
+
+// At each tested width, 360 and 1280 px, the caption reads whole.
+export const MixedBases: Story = {
+  args: { falls: MIXED },
+  play: async ({ canvas }) => captionInBox(canvas.getByRole('region', { name: /^Falls from each high/ })),
 };
 
 // The narrowest phone at 125 % text: the fall, the main figure after the coin (docs/DESIGN.md §8), reads in the box
