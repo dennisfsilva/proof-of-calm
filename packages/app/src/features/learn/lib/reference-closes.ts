@@ -17,18 +17,26 @@ export const closesPath = (coin: CoinId) => `/data/prices/${coin}-EUR.json`;
 const failed = (kind: ClosesFailure['kind']): Result<Dataset, ClosesFailure> => ({ ok: false, error: { kind } });
 
 /**
+ * The api client's wait (lib/adapters/api-client.ts), kept here rather than imported: the closes are static data
+ * from the host's own origin, not an API call (docs/ARCHITECTURE.md), and the client lives in Today's chunk.
+ */
+const DEFAULT_TIMEOUT_MS = 10_000;
+
+/**
  * Loads one coin's reference closes in EUR. A 404 is unpublished; a fetch that rejects (fetch rejects with a
- * TypeError when the network fails), a connection that drops mid-body or any other error status is offline; a
- * body that is not JSON, fails the schema, names another coin or holds no day is invalid.
+ * TypeError when the network fails), a connection that stalls past `timeoutMs` or drops mid-body, or any other
+ * error status is offline; a body that is not JSON, fails the schema, names another coin or holds no day is invalid.
  */
 export async function loadReferenceCloses(
   coin: CoinId,
   fetcher: typeof fetch = fetch,
+  timeoutMs = DEFAULT_TIMEOUT_MS,
 ): Promise<Result<Dataset, ClosesFailure>> {
   let response: Response;
   let text: string;
   try {
-    response = await fetcher(closesPath(coin));
+    // No cookies, as the api client sends none; the signal also ends a body that stalls mid-read.
+    response = await fetcher(closesPath(coin), { credentials: 'omit', signal: AbortSignal.timeout(timeoutMs) });
     if (response.status === 404) return failed('unpublished');
     if (!response.ok) return failed('offline');
     text = await response.text();

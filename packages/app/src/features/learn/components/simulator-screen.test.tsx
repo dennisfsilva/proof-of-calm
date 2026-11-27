@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import type { Result } from '@proofofcalm/core';
+import type { CoinId, Result } from '@proofofcalm/core';
 import type { Dataset } from '@proofofcalm/data';
 import { act, cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -9,7 +9,7 @@ import { ServicesProvider } from '../../../lib/services';
 import { createTestServices, recordingPlatform } from '../../../lib/services/testing';
 import learn from '../../../messages/en/learn.json';
 import shell from '../../../messages/en/shell.json';
-import type { ClosesFailure } from '../lib/reference-closes';
+import { type ClosesFailure, loadReferenceCloses } from '../lib/reference-closes';
 import { SimulatorScreen } from './simulator-screen';
 
 // The simulator's route before its inputs and result (docs/EDUCATION.md §7): the title, then one of the data
@@ -43,7 +43,7 @@ function deferred() {
   return { load: () => promise, settle };
 }
 
-async function mount(load: () => Promise<Loaded>) {
+async function mount(load: (coin: CoinId) => Promise<Loaded>) {
   const platform = recordingPlatform();
   const services = createTestServices({ platform });
   await services.start();
@@ -103,6 +103,19 @@ describe('the simulator screen', () => {
       expect(platform.calls.reloads).toBe(1);
     },
   );
+
+  it('a load whose connection stalls ends busy with the failed line and Reload once the timeout passes', async () => {
+    // The real loader over a fetch that answers only its signal's abort, with a 20 ms timeout for the test.
+    const stalling: typeof fetch = (_, init) =>
+      new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => reject(init.signal?.reason));
+      });
+    await mount((coin) => loadReferenceCloses(coin, stalling, 20));
+    expect(area().getAttribute('aria-busy')).toBe('true');
+    expect(await screen.findByText(FAILED)).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Reload' })).toBeTruthy();
+    expect(area().getAttribute('aria-busy')).toBe('false');
+  });
 
   it('a load that rejects is a failure too, never an unhandled error', async () => {
     await mount(() => Promise.reject(new Error('a programmer error in the loader')));

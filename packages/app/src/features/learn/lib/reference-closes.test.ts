@@ -50,6 +50,29 @@ describe('loadReferenceCloses', () => {
     expect(await loadReferenceCloses(BTC, fetcher)).toEqual({ ok: false, error: { kind: 'offline' } });
   });
 
+  it('sends no credentials and a signal that ends the request', async () => {
+    const inits: (RequestInit | undefined)[] = [];
+    const fetcher: typeof fetch = async (_, init) => {
+      inits.push(init);
+      return json(DATASET);
+    };
+    await loadReferenceCloses(BTC, fetcher);
+    expect(inits).toHaveLength(1);
+    expect(inits[0]?.credentials).toBe('omit');
+    expect(inits[0]?.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it('a connection that stalls is offline once the timeout ends it', async () => {
+    // Settles only when its signal aborts, as the platform's fetch does on a connection never answered.
+    const stalling: typeof fetch = (_, init) =>
+      new Promise((_resolve, reject) => {
+        init?.signal?.addEventListener('abort', () => reject(init.signal?.reason));
+      });
+    const started = Date.now();
+    expect(await loadReferenceCloses(BTC, stalling, 20)).toEqual({ ok: false, error: { kind: 'offline' } });
+    expect(Date.now() - started).toBeLessThan(1_000);
+  });
+
   it.each([500, 502, 503])('a %i is offline', async (status) => {
     const result = await loadReferenceCloses(
       BTC,
