@@ -82,3 +82,13 @@ export const FailedOffline: Story = {
     await expect(canvas.queryByText(CREDIT)).toBeNull();
   },
 };
+
+/** The file answered but is not this coin's dataset: worded as the offline failure. */
+export const FailedInvalid: Story = {
+  args: { load: failed('invalid') },
+  play: async ({ canvas }) => {
+    await expect(await canvas.findByText(FAILED)).toBeVisible();
+    await expect(canvas.getByRole('button', { name: 'Reload' })).toBeVisible();
+    await expect(canvas.queryByText(/^Data from/)).toBeNull();
+  },
+};
