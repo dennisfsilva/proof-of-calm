@@ -87,7 +87,7 @@ tap" in Option 3 (`docs/JURISDICTIONS.md` §3 owns the rules):
 For the owner's sign-off at the end of M2.
 
 **2026-11-23, the outcome: the four rules stand.** They were decided on the owner's delegation of
-2026-11-18 ("have it decide the Needs you items and have it decide them for me") by the session that
+2026-11-18 by the session that
 delegation started; the owner's own sign-off is not given, and the decision is on the list the owner
 confirms at the end of M2 (#409). Each rule is at least as careful as the "confirmed with one tap"
 it deviates from: before #404 the step preselected every suggestion, a `low` one and one made from
