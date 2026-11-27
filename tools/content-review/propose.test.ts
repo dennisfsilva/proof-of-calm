@@ -202,7 +202,7 @@ const PR1 = 'https://github.com/o/r/pull/1';
 const LEAVE = 'to start another review, run git switch --detach origin/main';
 const REFUSED = 'finish: refused; nothing committed or pushed';
 
-// Load (2026-11-27): worst 10,277 ms in six forced pnpm check runs; seen past 30 s on busier ones, so 3 × 30 s.
+// Load (2026-11-27): worst 18,265 ms in nine forced pnpm check runs; seen past 30 s on busier ones, so 3 × 30 s.
 describe('propose', { timeout: 90_000 }, () => {
   it('parseRaw lists modes, deletions and binaries', () => {
     const raw = [

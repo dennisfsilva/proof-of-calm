@@ -104,7 +104,7 @@ const shown = () =>
 /** LEGAL §4: the data line, once, after a sale's holding warnings. */
 const NOTE = 'Computed from your dates, not tax advice';
 
-// Load (2026-11-27): worst 4,904 ms in six forced pnpm check runs; 15 s keeps it under a third.
+// Load (2026-11-27): worst 4,904 ms in nine forced pnpm check runs; 15 s keeps it under a third.
 describe('EntryForm', { timeout: 15_000 }, () => {
   it('fills the units as an amount is typed', async () => {
     await renderForm();
