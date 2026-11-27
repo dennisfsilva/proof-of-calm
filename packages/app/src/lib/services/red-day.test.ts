@@ -239,7 +239,7 @@ describe('pastFalls', () => {
   it('gives each coin’s rows in the order of the coins passed, with their publishers', async () => {
     const falls = await createTestServices().redDay.pastFalls(['SOL', 'BTC'] as CoinId[]);
     expect(falls.map((fall) => `${fall.coin} ${fall.high} ${fall.fall}`)).toEqual([
-      'SOL 2021-11-06 97',
+      'SOL 2021-11-06 96',
       'BTC 2011-06-08 94',
       'BTC 2013-11-30 87',
       'BTC 2017-12-17 84',

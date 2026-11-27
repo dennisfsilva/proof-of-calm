@@ -195,7 +195,7 @@ describe('renderSitePage (ADR-0045 §6)', () => {
     expect(risk).toContain('<link rel="canonical" href="https://proofofcalm.com/en/learn/risk-honestly">');
     expect(risk).toContain('<main id="main">');
     expect(risk).toContain('href="/en/learn"');
-    expect(risk).toContain('intraday highs and lows in US dollars');
+    expect(risk).toContain('intraday highs and lows, and Kraken daily closes, in US dollars');
     const drops = renderSitePage('en/learn/when-the-market-drops', assets, data);
     expect(drops).toContain('When the market drops');
     expect(drops).not.toContain('href="/learn');

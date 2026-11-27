@@ -65,7 +65,7 @@ describe('ModuleChart', () => {
     expect(line?.tagName).toBe('P');
     // One row's publisher is "Bitcoinity (Mt. Gox) and CoinMarketCap": split, CoinMarketCap is named once.
     expect(line?.textContent).toBe(
-      'Bitcoinity (Mt. Gox), Bitstamp, Coinbase, and CoinMarketCap intraday highs and lows in US dollars, ' +
+      'Bitcoinity (Mt. Gox), Bitstamp, and CoinMarketCap intraday highs and lows, and Kraken daily closes, in US dollars, ' +
         "8\u00a0Jun\u00a02011 to 10\u00a0Jun\u00a02023; the falls are Proof of Calm's own computation. " +
         'Past performance is not a reliable indicator of future results. Risk disclosure',
     );
