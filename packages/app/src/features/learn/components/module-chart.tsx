@@ -10,6 +10,7 @@ import { useFormatters, useServices } from '../../../lib/services';
 import type { PastFall } from '../../../lib/services/red-day-types';
 import { MODULE_ELEMENTS } from '../lib/body-elements';
 import { fallsSources, rowPublisher } from '../lib/falls-basis';
+import { cssString } from './css-string';
 
 // A module's `<Chart />` (docs/EDUCATION.md §2 and §10): the chart its front matter names, then, inside the
 // element, its source as text and the past-performance line (docs/LEGAL.md §3.4 and §4). The rows come through
@@ -57,6 +58,9 @@ export function fallsSpan(falls: readonly PastFall[], f: Formatters) {
   };
 }
 
+/** The custom property globals.css draws before a stacked table's last cell. */
+const SOURCE_LABEL = '--source-label';
+
 export type DrawdownBarsProps = { falls: readonly PastFall[]; f: Formatters };
 
 /** The chart over the rows given, with no services: the app's chart below and the static site pages draw it. */
@@ -77,15 +81,15 @@ export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
   // Rows of both bases name each row's publisher, so a fall between closes reads apart from an intraday one
   // (docs/CONTENT-STYLE.md §1 rules 1 and 2); rows of one basis leave the source to the line below.
   const sourced = span.basis === 'mixed';
-  const columns = [
-    t('columns.coin'),
-    t('columns.high'),
-    t('columns.low'),
-    t('columns.fall'),
-    ...(sourced ? [t('columns.source')] : []),
-  ];
+  // Stacked, each publisher shows "Source" above it, so it never reads as a fifth date or a figure: the stylesheet
+  // draws this property before a stacked table's last cell (docs/DESIGN.md §8). Set after mount through the CSSOM,
+  // never as a style attribute, which the prerendered public page's style-src would refuse.
+  const sourceLabel = (wrapper: HTMLDivElement | null) => {
+    if (sourced) wrapper?.style.setProperty(SOURCE_LABEL, cssString(t('columns.source')));
+    else wrapper?.style.removeProperty(SOURCE_LABEL);
+  };
   return (
-    <div lang={lang} className="flex flex-col gap-stack-xs">
+    <div ref={sourceLabel} lang={lang} className="flex flex-col gap-stack-xs">
       <BarChart
         bars={falls.map((row) => ({
           id: `${row.coin}-${row.high}`,
@@ -97,7 +101,13 @@ export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
         description={t('description')}
         table={{
           summary: t('summary'),
-          columns,
+          columns: [
+            t('columns.coin'),
+            t('columns.high'),
+            t('columns.low'),
+            t('columns.fall'),
+            ...(sourced ? [t('columns.source')] : []),
+          ],
           rows: falls.map((row) => [
             row.coin,
             f.date(row.high),
@@ -106,8 +116,6 @@ export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
             ...(sourced ? [rowPublisher(row, f)] : []),
           ]),
           numericColumns: [3],
-          // Stacked, each publisher shows "Source" above it, so it never reads as a fifth date or a figure.
-          labelledColumns: sourced ? [columns.length - 1] : [],
         }}
       />
       <p className="text-16">
