@@ -4,7 +4,9 @@ import { BRAND } from '../../../lib/brand';
 import { createFormatters } from '../../../lib/format';
 import type { PastFall } from '../../../lib/services/red-day-types';
 import { createTestServices } from '../../../lib/services/testing';
+import learnDe from '../../../messages/de/learn.json';
 import learn from '../../../messages/en/learn.json';
+import learnPt from '../../../messages/pt-PT/learn.json';
 import { DRAWDOWN_COINS, fallsSpan } from './module-chart';
 
 // The falls' source sentence (docs/LEGAL.md §4): each publisher once under the basis its rows were computed on,
@@ -52,8 +54,24 @@ describe('fallsSpan', () => {
       closes: 'Kraken',
     });
     expect(sentence(falls)).toBe(
-      'Bitcoinity (Mt. Gox), Bitstamp, and CoinMarketCap intraday highs and lows and Kraken daily closes in US dollars, ' +
+      'Bitcoinity (Mt. Gox), Bitstamp, and CoinMarketCap intraday highs and lows, and Kraken daily closes, in US dollars, ' +
         "8 Jun 2011 to 20 Dec 2022; the falls are Proof of Calm's own computation.",
+    );
+  });
+
+  it('joins the second kind as each language does when the rows mix them', () => {
+    const falls = [
+      row('BTC', '2017-12-17', '2018-12-15', 'Bitstamp'),
+      row('ETH', '2018-01-20', '2018-12-08', 'Kraken', 'close'),
+    ];
+    const de = createTranslator({ locale: 'de', messages: { learn: learnDe }, namespace: 'learn.chart' });
+    const pt = createTranslator({ locale: 'pt-PT', messages: { learn: learnPt }, namespace: 'learn.chart' });
+    const span = (locale: string) => ({ ...fallsSpan(falls, createFormatters(locale, locale)), product: BRAND.name });
+    expect(de('source', span('de-DE'))).toMatch(
+      /^Tageshochs und Tagestiefs von Bitstamp sowie Tagesschlusskurse von Kraken in US-Dollar, /,
+    );
+    expect(pt('source', span('pt-PT'))).toMatch(
+      /^Máximos e mínimos intradiários de Bitstamp e os fechos diários de Kraken, em dólares americanos, /,
     );
   });
 });

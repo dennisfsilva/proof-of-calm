@@ -108,7 +108,7 @@
       "low": "Datum des Tiefs",
       "fall": "Rückgang"
     },
-    "source": "{basis, select, intraday {Tageshochs und Tagestiefs von {intraday}} close {Tagesschlusskurse von {closes}} other {Tageshochs und Tagestiefs von {intraday} und Tagesschlusskurse von {closes}}} in US-Dollar, {first} bis {last}; die Rückgänge sind eine eigene Berechnung von {product}.",
+    "source": "{basis, select, intraday {Tageshochs und Tagestiefs von {intraday}} close {Tagesschlusskurse von {closes}} other {Tageshochs und Tagestiefs von {intraday} sowie Tagesschlusskurse von {closes}}} in US-Dollar, {first} bis {last}; die Rückgänge sind eine eigene Berechnung von {product}.",
     "failed": "Die früheren Rückgänge konnten nicht geladen werden. Öffnen Sie diese Seite erneut, um es noch einmal zu versuchen."
   }
 }

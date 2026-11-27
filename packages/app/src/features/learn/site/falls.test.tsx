@@ -74,7 +74,7 @@ describe('SiteFalls', () => {
     const markup = html(FALLS).replaceAll('&#x27;', "'");
     const line = markup.match(/<\/table><\/div><p[^>]*>(.*?)<\/p>/)?.[1] ?? '';
     expect(line).toContain(
-      'Bitcoinity (Mt. Gox), Bitstamp, and CoinMarketCap intraday highs and lows and Kraken daily closes in US dollars',
+      'Bitcoinity (Mt. Gox), Bitstamp, and CoinMarketCap intraday highs and lows, and Kraken daily closes, in US dollars',
     );
     expect(line).toContain('8 Jun 2011 to 10 Jun 2023');
     for (const publisher of ['Bitstamp', 'Kraken', 'CoinMarketCap']) {

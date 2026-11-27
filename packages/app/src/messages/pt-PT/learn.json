@@ -108,7 +108,7 @@
       "low": "Data do mínimo",
       "fall": "Queda"
     },
-    "source": "{basis, select, intraday {Máximos e mínimos intradiários de {intraday}} close {Fechos diários de {closes}} other {Máximos e mínimos intradiários de {intraday} e fechos diários de {closes}}}, em dólares americanos, {first} a {last}; as quedas são um cálculo próprio da {product}.",
+    "source": "{basis, select, intraday {Máximos e mínimos intradiários de {intraday}} close {Fechos diários de {closes}} other {Máximos e mínimos intradiários de {intraday} e os fechos diários de {closes}}}, em dólares americanos, {first} a {last}; as quedas são um cálculo próprio da {product}.",
     "failed": "Não foi possível carregar as quedas anteriores. Volte a abrir esta página para tentar de novo."
   }
 }
