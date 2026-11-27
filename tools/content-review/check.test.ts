@@ -233,7 +233,7 @@ describe('reviewerProblems', () => {
     const btc1 = { coin: 'BTC', high: '2013-11-30', fall: '87' };
     const btc2 = { coin: 'BTC', high: '2017-12-17', fall: '84' };
     const btc3 = { coin: 'BTC', high: '2021-11-10', fall: '78' };
-    const sol = { coin: 'SOL', high: '2021-11-20', fall: '96' };
+    const sol = { coin: 'SOL', high: '2021-11-20', fall: '95' };
     const before = chart(btc1, btc2, btc3, sol);
     const removed = (coin: string) =>
       `${cycles}: a ${coin} row removed; the draft names the removal and the owner deletes it`;
@@ -247,12 +247,12 @@ describe('reviewerProblems', () => {
     });
 
     it('passes a changed fall, an added row and a moved high, asking only for agent-draft', () => {
-      expect(reviewerProblems(cycles, before, chart(btc1, btc2, btc3, { ...sol, fall: '95' }))).toEqual([]);
+      expect(reviewerProblems(cycles, before, chart(btc1, btc2, btc3, { ...sol, fall: '96' }))).toEqual([]);
       expect(reviewerProblems(cycles, before, chart(btc1, btc2, btc3, sol, { ...sol, high: '2025-01-19' }))).toEqual(
         [],
       );
       expect(reviewerProblems(cycles, before, chart(btc1, { ...btc2, high: '2017-12-16' }, btc3, sol))).toEqual([]);
-      const owner = chart(btc1, btc2, btc3, { ...sol, fall: '95' }).replace('agent-draft', 'owner');
+      const owner = chart(btc1, btc2, btc3, { ...sol, fall: '96' }).replace('agent-draft', 'owner');
       expect(reviewerProblems(cycles, before, owner)).toEqual([`${cycles}: reviewedBy is owner, not agent-draft`]);
     });
 
