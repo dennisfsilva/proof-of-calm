@@ -38,7 +38,8 @@ const EPISODE = {
 const FALLS = [
   { coin: 'BTC', high: '2017-12-17', low: '2018-12-15', fall: '84', publisher: 'Bitstamp' },
   { coin: 'BTC', high: '2021-11-10', low: '2022-11-21', fall: '78', publisher: 'Bitstamp' },
-  { coin: 'ETH', high: '2021-11-10', low: '2022-06-18', fall: '82', publisher: 'Coinbase' },
+  // A synthetic row computed from daily closes, not a figure of the cycles file.
+  { coin: 'ETH', high: '2021-11-10', low: '2022-06-18', fall: '80', publisher: 'Kraken', basis: 'close' },
 ] as unknown as readonly PastFall[];
 
 const meta = {
@@ -87,7 +88,8 @@ export const SeveralCoins: Story = {
     await expect(canvas.getByText(/^Bitcoin and Ethereum, in the amounts you hold/)).toBeVisible();
     await expect(canvas.getByRole('button', { name: 'Why? The fall under way' })).toBeVisible();
     await expect(canvas.getByText(/^Kaspa is not in these figures/)).toBeVisible();
-    await expect(canvas.getByText(/^Earlier falls of Ethereum/)).toBeVisible();
+    await expect(canvas.getByText(/^Earlier falls of Ethereum, .* daily closes in US dollars:$/)).toBeVisible();
+    await expect(canvas.getByText(/^Earlier falls of Bitcoin, .* intraday highs and lows in US dollars:$/)).toBeVisible();
     await expect(canvas.getByText(/no dated earlier fall for Kaspa/)).toBeVisible();
   },
 };

@@ -215,20 +215,29 @@ describe('ThisFallPage, a fall under way', () => {
     expect(links).toEqual(['Back to Today', 'Risk disclosure']);
   });
 
-  it('lists the earlier falls of a held coin outside the plan, as the figure names it', async () => {
-    // ETH left the plan in Settings; its entries stay, so the portfolio still holds it.
+  it('lists the earlier falls of a held coin outside the plan, as the figure names it, on its basis', async () => {
+    // ETH left the plan in Settings; its entries stay, so the portfolio still holds it. Its rows are synthetic ones
+    // computed from daily closes, so the coin's line names closes, and Bitcoin's keeps intraday highs and lows.
+    const eth = [
+      { coin: 'ETH', high: '2018-01-13', low: '2018-12-14', fall: '93', publisher: 'Kraken', basis: 'close' },
+      { coin: 'ETH', high: '2021-11-10', low: '2022-06-18', fall: '80', publisher: 'Kraken', basis: 'close' },
+    ] as unknown as readonly PastFall[];
     await mount({
       model: Promise.resolve(
         episode({ coins: ['BTC', 'ETH'] } as unknown as Partial<Figure>, { held: [BITCOIN, ETHEREUM] }),
       ),
+      falls: async (coins) => [...(await pastFalls(coins as PastFall['coin'][])).filter(({ coin }) => coin === 'BTC'), ...eth],
       plan: { coins: (fixtureSnapshot().plan as Plan).coins.filter((coin) => coin.id === 'BTC') },
     });
     await screen.findByText(/^Bitcoin and Ethereum, in the amounts you hold/);
-    expect(await screen.findByText(/^Earlier falls of Ethereum/)).toBeDefined();
-    const eth = ROWS.filter((row) => row.coin === 'ETH');
+    const heading = await screen.findByText(/^Earlier falls of Ethereum/);
+    expect(heading.textContent).toBe(
+      "Earlier falls of Ethereum, computed by Proof of Calm from each source's daily closes in US dollars:",
+    );
+    expect(screen.getByText(/^Earlier falls of Bitcoin/).textContent).toContain('intraday highs and lows');
     const btc = ROWS.filter((row) => row.coin === 'BTC');
-    expect(eth.length).toBeGreaterThan(0);
     expect(screen.getAllByRole('listitem')).toHaveLength(btc.length + eth.length);
+    expect(text()).toContain('−93% from 13 Jan 2018 to 14 Dec 2018 · Kraken');
   });
 
   it('says a held coin has no dated earlier fall, by the name the falls use', async () => {

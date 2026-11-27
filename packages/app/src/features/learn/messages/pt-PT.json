@@ -50,7 +50,7 @@
     "missing": "{coin} não está nestes valores: a {product} não tem histórico de preços desta moeda.",
     "data": "Fechos diários em {currency}, {first} a {last} · Dados de preços da CoinGecko",
     "failed": "Não foi possível carregar o histórico de preços, por isso os valores de hoje não são mostrados. Volte a abrir esta página para tentar de novo.",
-    "fallsOf": "Quedas anteriores de {coin}, calculadas pela {product} a partir dos máximos e mínimos intradiários de cada fonte, em dólares americanos:",
+    "fallsOf": "Quedas anteriores de {coin}, calculadas pela {product} a partir {basis, select, intraday {dos máximos e mínimos intradiários} close {dos fechos diários} other {dos máximos e mínimos intradiários ou dos fechos diários}} de cada fonte, em dólares americanos:",
     "fall": "{fall} de {high} a {low} · {publisher}",
     "noFalls": "A {product} não tem nenhuma queda anterior datada de {coin}.",
     "fallsFailed": "Não foi possível carregar as quedas anteriores. Volte a abrir esta página para tentar de novo.",
@@ -99,7 +99,7 @@
   },
   "chart": {
     "label": "Quedas de cada máximo até ao mínimo mais baixo que se lhe seguiu, de {coins}, {first} a {last}",
-    "description": "Uma barra por moeda e ciclo, com o comprimento da queda do máximo intradiário ao mínimo intradiário, em dólares americanos.",
+    "description": "Uma barra por moeda e ciclo, com o comprimento da queda do máximo ao mínimo, em dólares americanos.",
     "bar": "{coin} {year}",
     "summary": "Mostrar as quedas numa tabela",
     "columns": {
@@ -108,7 +108,7 @@
       "low": "Data do mínimo",
       "fall": "Queda"
     },
-    "source": "Máximos e mínimos intradiários de {publishers}, em dólares americanos, {first} a {last}; as quedas são um cálculo próprio da {product}.",
+    "source": "{basis, select, intraday {Máximos e mínimos intradiários de {intraday}} close {Fechos diários de {closes}} other {Máximos e mínimos intradiários de {intraday} e fechos diários de {closes}}}, em dólares americanos, {first} a {last}; as quedas são um cálculo próprio da {product}.",
     "failed": "Não foi possível carregar as quedas anteriores. Volte a abrir esta página para tentar de novo."
   }
 }

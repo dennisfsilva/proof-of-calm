@@ -63,13 +63,15 @@ export type RedDayModel = {
 
 /**
  * A cycle's fall from packages/content, intraday high to intraday low in positive whole percent, USD: a completed
- * cycle's, or one from a high the coin has not regained (LINK 2021), to its lowest low so far.
+ * cycle's, or one from a high the coin has not regained (LINK 2021), to its lowest low so far. `basis: 'close'`: the
+ * fall runs from the highest daily close to the lowest daily close after it instead.
  */
 export type PastFall = {
   readonly coin: CoinId;
   readonly high: CalendarDate;
   readonly low: CalendarDate;
   readonly fall: Percent;
+  readonly basis?: 'close';
   readonly publisher: string;
 };
 
