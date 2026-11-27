@@ -5,6 +5,7 @@ export {
   CountryDateLine,
   coinSplit,
   type SplitIssue,
+  splitValueOf,
 } from '../learn';
 export { EarlyWindowNotice, type EarlyWindowNoticeProps } from './components/early-window-notice';
 export { HoldingRuleEditor, type HoldingRuleEditorProps } from './components/holding-rule-editor';

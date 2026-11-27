@@ -2,7 +2,16 @@ import { type Coin, type CoinId, type Plan, PlanSchema, planIssues } from '@proo
 import { describe, expect, it } from 'vitest';
 import { createNumberInput } from '../../../lib/format';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
-import { addCoin, type CoinSplitValue, coinSplit, MAX_COINS, readShares, removeCoin, setShare } from './split';
+import {
+  addCoin,
+  type CoinSplitValue,
+  coinSplit,
+  MAX_COINS,
+  readShares,
+  removeCoin,
+  setShare,
+  splitValueOf,
+} from './split';
 
 // The coin editor's value: the plan's coins and the shares as typed. The split is read with the
 // formatting locale (ADR-0034) and checked by the core's invariants (docs/DOMAIN.md §2.1).
@@ -156,5 +165,31 @@ describe('coinSplit', () => {
   it('keeps only the issues of the coins and the split', () => {
     const unfunded = { ...plan, monthlyAmount: '0', startingAmount: '0' } as Plan;
     expect(coinSplit(unfunded, value, english).ok).toBe(true);
+  });
+});
+
+describe('splitValueOf', () => {
+  it('gives the plan’s coins in order with each share written in the locale', () => {
+    expect(splitValueOf({ ...plan, split: { BTC: '70.5', ETH: '29.5' } } as Plan, createNumberInput('pt-PT'))).toEqual({
+      coins: [BTC, ETH],
+      shares: { BTC: '70,5', ETH: '29,5' },
+    });
+  });
+
+  it('a de-DE share of 33.333 reads back as 33.333, not as 33333', () => {
+    const german = createNumberInput('de-DE');
+    const thirds = {
+      ...plan,
+      coins: [BTC, ETH, SOL],
+      split: { BTC: '33.333', ETH: '33.333', SOL: '33.334' },
+    } as Plan;
+    const filled = splitValueOf(thirds, german);
+    expect(filled.shares[id('BTC')]).toBe('33,333');
+    expect(readShares(filled, german)).toEqual({ ok: true, value: thirds.split });
+  });
+
+  it('a coin of the plan with no share reads as 0', () => {
+    const value = splitValueOf({ ...plan, split: { BTC: '100' } } as Plan, english);
+    expect(value.shares).toEqual({ BTC: '100', ETH: '0' });
   });
 });
