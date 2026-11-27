@@ -78,7 +78,9 @@ describe('pace', () => {
       () => new Response('', { status: 503 }),
     ]);
     const paced = pace(1000, fake.io);
-    expect(await (await paced.fetch('https://example.test/a')).json()).toEqual({ error: ['EQuery:Unknown asset pair'] });
+    expect(await (await paced.fetch('https://example.test/a')).json()).toEqual({
+      error: ['EQuery:Unknown asset pair'],
+    });
     expect(await (await paced.fetch('https://example.test/b')).text()).toBe('{not json');
     expect((await paced.fetch('https://example.test/c')).status).toBe(503);
     expect(fake.requests).toHaveLength(3);

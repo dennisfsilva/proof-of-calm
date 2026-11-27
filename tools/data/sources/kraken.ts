@@ -22,7 +22,9 @@ export const kraken: Source = {
   async closes(pair, from, to, io) {
     if (!SYMBOL.test(pair)) throw new Error('refused: kraken unknown pair');
     const query = new URLSearchParams({ pair, interval: '1440', since: String(dayStart(from) - 1) });
-    const body = BodySchema.safeParse(await getJson('kraken', pair, `https://api.kraken.com/0/public/OHLC?${query}`, io));
+    const body = BodySchema.safeParse(
+      await getJson('kraken', pair, `https://api.kraken.com/0/public/OHLC?${query}`, io),
+    );
     if (!body.success) throw refused('kraken', pair, 'malformed');
     if (body.data.error.length > 0) throw refused('kraken', pair, 'error');
     const series = Object.entries(body.data.result ?? {}).filter(([key]) => key !== 'last');
