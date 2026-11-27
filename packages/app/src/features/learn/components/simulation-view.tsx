@@ -166,10 +166,12 @@ export function SimulationView({ simulation, sensitivity, currency, closesFrom, 
         </dl>
       )}
       <Card>
-        <p className="text-16">{t('simulator.result.caveat', {
+        <p className="text-16">
+          {t('simulator.result.caveat', {
             fee: isPositive(feePercent) ? 'flat' : 'none',
             percent: f.percent(feePercent, { decimals: decimalPlaces(feePercent) }),
-          })}</p>
+          })}
+        </p>
       </Card>
       <ChartTable
         summary={t('simulator.result.starts.summary')}

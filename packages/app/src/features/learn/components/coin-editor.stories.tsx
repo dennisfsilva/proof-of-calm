@@ -137,7 +137,9 @@ export const WithNote: Story = {
     notes: { ['SOL' as CoinId]: 'No reference closes for Solana yet. Set its share to 0 to simulate the other coins.' },
   },
   play: async ({ canvas }) => {
-    const note = canvas.getByText('No reference closes for Solana yet. Set its share to 0 to simulate the other coins.');
+    const note = canvas.getByText(
+      'No reference closes for Solana yet. Set its share to 0 to simulate the other coins.',
+    );
     await expect(note).toBeVisible();
     const field = canvas.getByRole('textbox', { name: 'Solana share (%)' });
     await expect(field.getAttribute('aria-describedby')?.split(' ')).toContain(note.id);
