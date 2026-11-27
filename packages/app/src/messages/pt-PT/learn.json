@@ -67,7 +67,7 @@
     "credit": "Fechos de referência derivados de dados públicos da Kraken e da Bitstamp; câmbio: taxas de referência do BCE",
     "result": {
       "legend": {
-        "value": "Valor",
+        "value": "Valor simulado",
         "invested": "Investido",
         "underwater": "Abaixo de um máximo anterior"
       },
@@ -90,7 +90,7 @@
       "monthsOf": "{figure} de {months}",
       "gaps": "Dias de compra sem fecho",
       "multiple": "Valor face ao montante investido",
-      "multipleLine": "{value} em {end} para {invested} investidos.",
+      "multipleLine": "Valor simulado de {value} em {end} para {invested} investidos.",
       "caveat": "Os preços passados são factos; uma simulação feita com eles não é uma previsão. Impostos, comissões, derrapagem e o seu próprio comportamento não estão neste gráfico.",
       "starts": {
         "summary": "Mostrar o plano a partir de 12 datas de início numa tabela",

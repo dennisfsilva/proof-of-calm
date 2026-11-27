@@ -67,7 +67,7 @@
     "credit": "Referenzschlusskurse, abgeleitet aus öffentlichen Daten von Kraken und Bitstamp; Wechselkurse: Referenzkurse der EZB",
     "result": {
       "legend": {
-        "value": "Wert",
+        "value": "Simulierter Wert",
         "invested": "Investiert",
         "underwater": "Unter einem früheren Höchststand"
       },
@@ -90,7 +90,7 @@
       "monthsOf": "{figure} von {months}",
       "gaps": "Kauftage ohne Schlusskurs",
       "multiple": "Wert im Verhältnis zum investierten Betrag",
-      "multipleLine": "{value} am {end} für {invested} investiert.",
+      "multipleLine": "Simulierter Wert von {value} am {end} für {invested} investiert.",
       "caveat": "Vergangene Kurse sind Tatsachen; eine Simulation damit ist keine Prognose. Steuern, Gebühren, Slippage und Ihr eigenes Verhalten sind in diesem Diagramm nicht enthalten.",
       "starts": {
         "summary": "Den Plan ab 12 Startdaten als Tabelle anzeigen",

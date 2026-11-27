@@ -140,7 +140,7 @@ describe('the simulation view', () => {
       'Past performance is not a reliable indicator of future results.',
       'Reference closes derived from Kraken and Bitstamp public data; FX: ECB reference rates',
       'Maximum drawdown',
-      'Longest time under water',
+      'Longest time below an earlier high',
       'Months in loss',
       'Buy days with no close',
       'Value against money invested',
@@ -152,6 +152,14 @@ describe('the simulation view', () => {
     expect(screen.getByText(CAVEAT)).toBeTruthy();
     expect(screen.getByRole('link', { name: 'Risk disclosure' }).getAttribute('href')).toBe('/risk');
     expect(text).not.toMatch(/annual/i);
+  });
+
+  // No hindsight figure without its label (docs/LEGAL.md §6 Q6): the end value is named simulated where it shows.
+  it('names the value simulated in the legend and the multiple’s line', async () => {
+    const container = await mount(run(FLAT));
+    const legend = container.querySelector('[data-slot="simulator-chart-legend"]');
+    expect(legend?.textContent).toMatch(/^Simulated value/);
+    expect(screen.getByText(/^Simulated value of €.+ on .+ for €.+ invested\.$/, { selector: 'dd' })).toBeTruthy();
   });
 
   it('sets the caveat in its own box, as a Learn module does (docs/CONTENT-STYLE.md §5)', async () => {
