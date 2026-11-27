@@ -92,7 +92,7 @@ describe("German's chart section passes", () => {
     [
       'a one-fall B beside the real B',
       page(
-        `${BR} ${B('Solana', 1, 90, '2021 bis 2022')} Ethereum fiel um ${p(93)} und ${p(81)} und Chainlink um ${p(89)} und ${p(91)}.`,
+        `${BR} ${B('Solana', 1, 91, '2021 bis 2022')} Ethereum fiel um ${p(93)} und ${p(81)} und Chainlink um ${p(89)} und ${p(91)}.`,
       ),
     ],
     [
@@ -114,7 +114,7 @@ describe("German's chart section passes", () => {
     [
       'two B sentences, B and E in two paragraphs',
       page(
-        `${BR} ${B('Ethereum', 2, 80, '2018 bis 2022')}\n\nChainlink fiel um ${p(89)} und ${p(91)} und Solana um ${p(98)}.`,
+        `${BR} ${B('Ethereum', 2, 79, '2018 bis 2022')}\n\nChainlink fiel um ${p(89)} und ${p(91)} und Solana um ${p(98)}.`,
       ),
     ],
   ])('%s: []', async (_, source) => {
@@ -219,7 +219,7 @@ describe("German's chart section refuses", () => {
     [
       'Rückgänge with 1',
       page(
-        `${BR} Von 2021 bis 2022 hatte Solana im Diagramm ${k(1, 'Rückgänge')} um mehr als ${p(90)}. Ethereum fiel um ${p(93)} und ${p(81)} und Chainlink um ${p(89)} und ${p(91)}.`,
+        `${BR} Von 2021 bis 2022 hatte Solana im Diagramm ${k(1, 'Rückgänge')} um mehr als ${p(91)}. Ethereum fiel um ${p(93)} und ${p(81)} und Chainlink um ${p(89)} und ${p(91)}.`,
       ),
       [FC, FU],
     ],
