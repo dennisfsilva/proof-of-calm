@@ -73,9 +73,10 @@ const toggles = () => screen.getAllByRole('button', { expanded: false });
 const caption = () => screen.getByText(/^Entries \d+ to \d+ of /);
 const press = (name: string) => act(async () => fireEvent.click(screen.getByRole('button', { name })));
 
-describe('LogScreen past LOG_WINDOW transactions', () => {
+// Load (2026-11-27): worst 5,088 ms in six forced pnpm check runs; 20 s keeps it under a third.
+describe('LogScreen past LOG_WINDOW transactions', { timeout: 20_000 }, () => {
   // At the cap: Show all mounted 10,000 rows in one render of 17 to 20 s at 6x (docs/ENGINEERING.md §4).
-  it('shows all 10,000 entries 100 at a time, the 13th row focused', { timeout: 15_000 }, async () => {
+  it('shows all 10,000 entries 100 at a time, the 13th row focused', async () => {
     await mount(withBuys(MAX_ENTRIES - fixtureSnapshot().entries.length));
     const button = screen.getByRole('button', { name: /^Show all 9[\s.,]?9\d\d entries, 100 at a time$/ });
     button.focus();

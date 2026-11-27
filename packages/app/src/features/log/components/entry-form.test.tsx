@@ -104,7 +104,8 @@ const shown = () =>
 /** LEGAL §4: the data line, once, after a sale's holding warnings. */
 const NOTE = 'Computed from your dates, not tax advice';
 
-describe('EntryForm', () => {
+// Load (2026-11-27): worst 4,904 ms in six forced pnpm check runs; 15 s keeps it under a third.
+describe('EntryForm', { timeout: 15_000 }, () => {
   it('fills the units as an amount is typed', async () => {
     await renderForm();
     type('BTC cost before fees (EUR)', '120.00');
@@ -1301,10 +1302,8 @@ describe('EntryForm', () => {
 
   // docs/ENGINEERING.md §4, the Log at the cap: with no move stored, no save leaves one short, so a keystroke reads
   // no move line (DOMAIN §3.7), while the holding warning still reads every entry. The warning's renders over the
-  // 10,000 entries take 0.65 s alone here (2.5 s while the move line ran), so the timeout keeps the margin for CI.
-  it('at 10,000 entries with no move stored, a keystroke in an edit reads no move line and keeps the warning', {
-    timeout: 6_000,
-  }, async () => {
+  // 10,000 entries take 0.65 s alone here (2.5 s while the move line ran, 1.4 s at worst under pnpm check's load).
+  it('at 10,000 entries with no move stored, a keystroke in an edit reads no move line and keeps the warning', async () => {
     const past = { ...older, units: units('0.10') };
     const recent = Array.from({ length: 9_998 }, (_, index) =>
       anEntry({
