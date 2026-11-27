@@ -8,6 +8,7 @@ import {
 } from '@proofofcalm/core';
 import { ChartTable } from '@proofofcalm/ui/charts/chart-table';
 import { SimulatorChart } from '@proofofcalm/ui/charts/simulator-chart';
+import { Card } from '@proofofcalm/ui/components/card';
 import { type ReactNode, useMemo } from 'react';
 import { useTranslations } from 'use-intl';
 import { createNumberInput } from '../../../lib/format';
@@ -17,8 +18,9 @@ import { simulatorGeometry } from '../lib/simulator-chart';
 // The simulator's result (docs/EDUCATION.md §7 and §8): the path first, with its table view by month; directly
 // under it the past-performance line of the first view of historic data (docs/LEGAL.md §4) with the Risk link, as a
 // Learn module sets it, and the closes' credit at text-14 (docs/CONTENT-STYLE.md §3); then the falls, the months in
-// loss and the gaps; then the multiple, never an annualised return; the caveat; and the same plan started in each
-// of 12 months behind one disclosure, the rows the closes cannot cover said once above it.
+// loss and the gaps; then the multiple, never an annualised return; the caveat in the box a Learn module gives its
+// caveat; and the same plan started in each of 12 months behind one disclosure, the rows the closes cannot cover
+// said once above it.
 
 /** The chart's viewBox: simulatorGeometry places the paths in it. */
 const SIMULATION_VIEW_BOX = { width: 300, height: 100 };
@@ -159,7 +161,9 @@ export function SimulationView({ simulation, sensitivity, currency, closesFrom }
           </Figure>
         </dl>
       )}
-      <p className="text-16">{t('simulator.result.caveat')}</p>
+      <Card>
+        <p className="text-16">{t('simulator.result.caveat')}</p>
+      </Card>
       <ChartTable
         summary={t('simulator.result.starts.summary')}
         {...(refused === 0
