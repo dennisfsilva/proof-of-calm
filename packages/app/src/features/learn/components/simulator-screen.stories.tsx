@@ -92,3 +92,14 @@ export const FailedInvalid: Story = {
     await expect(canvas.queryByText(/^Data from/)).toBeNull();
   },
 };
+
+export const Data: Story = {
+  args: { load: settled({ ok: true, value: DATASET }) },
+  play: async ({ canvas }) => {
+    await expect(
+      await canvas.findByText('Data from 2 Mar 2026, the first day with closes from two exchanges.'),
+    ).toBeVisible();
+    await expect(canvas.getByText(CREDIT)).toBeVisible();
+    await expect(canvas.queryByRole('button', { name: 'Reload' })).toBeNull();
+  },
+};
