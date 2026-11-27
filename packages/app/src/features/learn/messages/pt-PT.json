@@ -72,7 +72,7 @@
         "invalid-fee": "Introduza uma comissão abaixo de 100% com no máximo 4 casas decimais.",
         "invalid-buy-day": "Escolha um dia de compra de 1 a 28.",
         "invalid-dates": "Escolha um fim a partir do início.",
-        "history-missing": "Ainda não há fechos de referência para {coin}.",
+        "history-missing": "Ainda não há fechos de referência para {coin}. Defina o peso como 0 para simular as outras moedas.",
         "history-starts-later": "Os fechos de referência de {coin} começam em {date}. Escolha um início a partir desse dia.",
         "history-ends-earlier": "Os fechos de referência de {coin} terminam em {date}. Escolha um fim até esse dia.",
         "date-required": "Escolha uma data completa: dia, mês e ano."

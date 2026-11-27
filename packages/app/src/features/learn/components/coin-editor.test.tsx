@@ -83,6 +83,8 @@ describe('CoinEditor', () => {
     expect(screen.queryByText(SUM)).toBeNull();
     type('Ethereum', '20');
     const message = screen.getByText(SUM);
+    // The sign never wraps from its number (docs/CONTENT-STYLE.md §4): the line holds a no-break space.
+    expect(message.textContent).toBe('Make the shares add up to 100\u00a0%.');
     for (const coin of ['Bitcoin', 'Ethereum']) {
       expect(share(coin).getAttribute('aria-invalid')).toBe('true');
       expect(share(coin).getAttribute('aria-describedby')?.split(' ')).toContain(message.id);
@@ -141,7 +143,7 @@ describe('CoinEditor', () => {
 });
 
 describe('CoinEditor notes', () => {
-  const NOTE = 'No reference closes for Solana yet.';
+  const NOTE = 'No reference closes for Solana yet. Set its share to 0 to simulate the other coins.';
   const show = (notes?: Readonly<Partial<Record<CoinId, string>>>) =>
     render(
       <I18nProvider messages={{ plan, errors }}>
