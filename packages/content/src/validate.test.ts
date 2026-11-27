@@ -529,6 +529,16 @@ describe('validateContent: templates (docs/DOMAIN.md §5)', () => {
       'coin-not-in-catalogue: SOL',
     ]);
   });
+
+  it('reports a drawdown publisher the falls tables would split into more than two names, and takes two', () => {
+    const [btc, eth] = template().drawdowns;
+    const three = template({ drawdowns: [btc, { ...eth, publisher: 'A and B and C' }] });
+    expect(codes([file(path, three)])).toEqual([
+      'drawdown-publisher-joined: drawdowns.1 publisher "A and B and C": joins more than two names with " and "',
+    ]);
+    const two = template({ drawdowns: [{ ...btc, publisher: 'Bitcoinity (Mt. Gox) and CoinMarketCap' }, eth] });
+    expect(codes([file(path, two)])).toEqual([]);
+  });
 });
 
 describe('validateContent: the coin catalogue (ADR-0036)', () => {
@@ -698,6 +708,15 @@ describe('validateContent: cycles (docs/EDUCATION.md §2 and §6)', () => {
       expect.stringMatching(/^schema: /),
     ]);
     expect(codes([file(path, cycles(sol))])).toEqual([]);
+  });
+
+  it('reports a publisher the falls tables would split into more than two names, and takes two', () => {
+    const three = [rows[0], { ...rows[1], publisher: 'A and B and C' }, rows[2]];
+    expect(codes([catalogue, file(path, cycles(three))])).toEqual([
+      'drawdown-publisher-joined: drawdowns.1 publisher "A and B and C": joins more than two names with " and "',
+    ]);
+    const two = [{ ...rows[0], publisher: 'Bitcoinity (Mt. Gox) and CoinMarketCap' }, rows[1], rows[2]];
+    expect(codes([catalogue, file(path, cycles(two))])).toEqual([]);
   });
 });
 
