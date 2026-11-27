@@ -302,8 +302,9 @@ the verification queues left by the research of 2026-10-16 (unread primary PDFs,
 confirm, penalty figures to quote).
 
 The templates' ETH rows for the 2021–22 fall cite Bitstamp, while `packages/content/cycles/drawdowns.json`
-cites Coinbase for the same fall. The first full run proposes one source for both, or records why
-they differ.
+cites Coinbase for the same fall. Until the session PR of #577 merges, no review settles that: the
+review reads no Coinbase row (§7), and that PR moves the cycles row onto the templates' Bitstamp
+row.
 
 ## 7. Education facts
 
@@ -321,16 +322,26 @@ quote the same falls to one decimal, each on the series it names; the file round
 nearest whole percent (96.923 % is 97, never 96), and a template's own `drawdowns` copy of a row
 holds the same high, low and fall, tied only by `packages/content/src/cycles.test.ts`. A fall runs to the lowest low before the coin regains its high; a coin that has not regained it, as LINK on 2 Nov 2026,
 is read again at every review, because its low can still move.
-A fact that cites Coinbase Exchange's daily candles names one request: `start` and `end` at
-`T00:00:00Z`, fewer than 300 days apart, since a request answers at most 300 candles and one without
-a window only the latest days. The window holds where the review starts: `b.alt-drawdowns`' ETH 2021
-high and 2022 low (the ETH 2021 row's window in the cycles file while that row cites Coinbase; a
-review that moves the row to another publisher gives the row its own request there and leaves the
-fact's `source` at this window, which the test named below holds and the agent's branch cannot
-change), a simulation's first buy (`p.simulator-examples-eth`'s worst value-to-cost too); the review reaches the rest of the series by
-moving both, and another coin by its product (`SOL-USD`, `LINK-USD`), so the review trims no such
-fact to the window its URL names (the skill's §4 step 3).
-`packages/content/src/fact-windows.test.ts` holds each window.
+The review fetches no request on a Coinbase or Kraken host and computes no window for one:
+Coinbase's market-data terms bar an agent session from its data (their §3.E), and Kraken's closes
+are read from a private store (`docs/ADR/0036-market-data-providers.md`, the Readings of
+2026-11-27). Until the session PR of #577 merges, three facts cite Coinbase Exchange's daily
+candles (`b.alt-drawdowns`, `o.dca-windows-eth` and `p.simulator-examples-eth`, each by the one
+request `packages/content/src/fact-windows.test.ts` holds), as do the cycles file's ETH rows and
+the SOL rows of the cycles file and the templates, and the review changes none of them: each
+takes the note `not fetched, left to the session PR of #577`, since that PR re-sources or removes
+each figure (ETH 2018 and SOL from Kraken's daily closes, the ETH 2021–22 row onto the templates'
+Bitstamp row, §6).
+An item that cites Kraken takes `not fetched, recompute for the owner (docs/CONTENT-OPS.md §7)`, and
+the owner recomputes it by the method below (§8 step 4; the skill's §4 step 1).
+
+A fall from Kraken's daily closes takes the highest close within 45 days of the row's high date and
+the lowest close after it, before the first close at or above that high; fall = 1 − low ÷ high,
+which a fact quotes to one decimal and a row rounds to the nearest whole percent (96.923 % is 97,
+never 96). A Kraken figure cites Kraken's OHLCVT archive article, support article 360047124832
+(`https://support.kraken.com/articles/360047124832`, `tools/data/backfill.md` step 1); a day after
+2026-09-30 is checked at Kraken's public OHLC endpoint (`interval=1440`, its latest 720 days) until
+the archive's next quarterly file is published. The private store is never cited.
 
 ## 8. The owner's review, step by step
 
@@ -407,8 +418,15 @@ fact to the window its URL names (the skill's §4 step 3).
    gap, else in a pull request of your own. A chart row note
    that ends `keeps its series, unregained` (a coin of `UNREGAINED_KEYS`) asks no data change: record
    its reading in the log (step 5) and leave the row, since `packages/content/src/cycles.test.ts`
-   wants that coin's low window to run to the row's `accessed`, which no Coinbase request of
-   fewer than 300 days does (§7). A file or fact entry
+   reads that coin's low window, from its low to the row's `accessed`, only from a Bitstamp or
+   Coinbase request, and a review moves no row to Coinbase (§7). A
+   `not fetched, left to the session PR of #577` note asks nothing: that pull request re-sources
+   the item (§7), and its file's review stays partial, so its `lastReviewed` stays. A
+   `not fetched, recompute for the owner (docs/CONTENT-OPS.md §7)` note asks you to recompute the
+   item from Kraken's daily closes in the private store's clone (`tools/data/backfill.md`) by §7's
+   method before you set its file's `lastReviewed`: a figure that matches counts as that source
+   read; one that differs leaves `lastReviewed` as it was and is corrected in a pull request of
+   your own, as a chart row note's change is. A file or fact entry
    changed only in its mark carries a note (§3 step 3): flip it back, and close the pull request
    unmerged when nothing else is left in it. The Learn country
    screens print `lastReviewed`, and a screen that shows a value the review changed changes with it
@@ -424,20 +442,20 @@ fact to the window its URL names (the skill's §4 step 3).
    test fails while one stays. When a row moved to a publisher fact b's opening did not name, the
    review added it there in the order the clauses first name each publisher, with a serial comma
    from three on (`Coinbase Exchange, Bitstamp, and CoinMarketCap`), and removed a publisher no
-   clause names any more (decided 2026-11-18); §9 row b takes that opening as written. When the
-   cycles file's ETH row for the 2021–22 fall moved to Bitstamp, the log PR also rewrites the two
-   places that still describe its old series: §6's paragraph on the templates' ETH rows and the cycles file, and the comment above
-   `DATED` in `packages/content/src/fact-windows.test.ts`, which calls fact b's window its cycles
-   row's. It also writes each `unloggedFalls` entry's `now` into `FALLS` in
+   clause names any more (decided 2026-11-18); §9 row b takes that opening as written. Until the
+   session PR of #577 merges, no review moves the cycles file's ETH row for the 2021–22 fall (§7);
+   that PR moves it to Bitstamp with the places that still describe its old series: §6's paragraph
+   on the templates' ETH rows and the cycles file, and the comment above `DATED` in
+   `packages/content/src/fact-windows.test.ts`, which calls fact b's window its cycles row's. The
+   log PR also writes each `unloggedFalls` entry's `now` into `FALLS` in
    `packages/content/src/cycles.test.ts` in place of its literal and removes the entry, since that
    test's stale check fails on an entry whose literal reads `now` or is gone. When `now` moves a
    row's high, it also writes the new `<coin> <high>` in place of the old one in that test's
    `UNREGAINED_KEYS`, which reads the old key through the entry only while it stays (its check
    names a key no `FALLS` literal holds). A changed publisher needs no such edit, since the test
-   reads its Coinbase rows from the held falls, `FALLS` read through any entry. A row moved to
-   Coinbase passes that test's windows only with a `source`, and a `lowSource` when one request
-   cannot hold both ends, each with `start` and `end` fewer than 300 days apart (§7); a coin of
-   `UNREGAINED_KEYS` stays, with a `chart row for the owner:` note that ends
+   reads its Coinbase rows from the held falls, `FALLS` read through any entry. A review moves no
+   row to Coinbase or Kraken (§7); a row of a coin of `UNREGAINED_KEYS` that a review would move to
+   another publisher stays, with a `chart row for the owner:` note that ends
    `keeps its series, unregained`, whose reading the log records (step 4). The log PR writes
    back each assertion step 4 removed at the new value, app, web, and end-to-end tests included. It
    also writes the new value into each passing test the review's notes name for the log pull
