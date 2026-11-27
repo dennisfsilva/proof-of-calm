@@ -5,7 +5,9 @@ import { bitstamp } from './bitstamp.ts';
 import type { SourceIo } from './index.ts';
 
 // Synthetic closes only (ADR-0036, Reading of 2026-11-27): no exchange's figure enters this file.
-const NOW = new Date(Date.UTC(2026, 10, 27, 0, 30, 0));
+// Five minutes past midnight: inside the allowance, so the day before yesterday is a window too.
+const NOW = new Date(Date.UTC(2026, 10, 27, 0, 5, 0));
+const at = (time: string) => new Date(`2026-11-27T${time}Z`);
 const day = (date: string) => date as CalendarDate;
 const seconds = (date: string) => Date.parse(`${date}T00:00:00Z`) / 1000;
 const candle = (date: string, close: unknown) => ({
@@ -18,10 +20,10 @@ const candle = (date: string, close: unknown) => ({
 });
 const body = (candles: unknown[]) => ({ data: { pair: 'BTC/EUR', ohlc: candles } });
 
-function io(answer: () => Response | Promise<Response>) {
+function io(answer: () => Response | Promise<Response>, now = NOW) {
   const calls: { url: string; init: RequestInit | undefined }[] = [];
   const value: SourceIo = {
-    now: () => NOW,
+    now: () => now,
     sleep: async () => undefined,
     timeout: () => new AbortController().signal,
     fetch: async (input, init) => {
@@ -54,13 +56,37 @@ describe("Bitstamp's reader", () => {
     expect(fake.calls[0]?.init?.headers).toBeUndefined();
   });
 
-  it('reads the day before yesterday, for a run whose clock passed midnight after it started', async () => {
-    const fake = io(() => Response.json(body([candle('2026-11-25', '2')])));
-    expect(await bitstamp?.closes('btceur', day('2026-11-25'), day('2026-11-25'), fake.io)).toEqual([
-      { date: '2026-11-25', close: '2' },
-    ]);
-    expect(new URL(fake.calls[0]?.url ?? '').searchParams.get('start')).toBe(String(seconds('2026-11-25')));
-  });
+  it.each(['00:00:00.000', '00:07:59.999'])(
+    'reads the day before yesterday at %s UTC, for a daily step that passed midnight after it started',
+    async (time) => {
+      const fake = io(() => Response.json(body([candle('2026-11-25', '2')])), at(time));
+      expect(await bitstamp?.closes('btceur', day('2026-11-25'), day('2026-11-25'), fake.io)).toEqual([
+        { date: '2026-11-25', close: '2' },
+      ]);
+      expect(new URL(fake.calls[0]?.url ?? '').searchParams.get('start')).toBe(String(seconds('2026-11-25')));
+    },
+  );
+
+  it.each(['00:08:00.000', '12:00:00.000', '23:59:59.999'])(
+    'refuses the day before yesterday at %s UTC, past the daily step’s timeout, before any request',
+    async (time) => {
+      const fake = io(() => Response.json(body([candle('2026-11-25', '2')])), at(time));
+      await expect(bitstamp?.closes('btceur', day('2026-11-25'), day('2026-11-25'), fake.io)).rejects.toThrow(
+        /^refused: bitstamp btceur out of window$/,
+      );
+      expect(fake.calls).toHaveLength(0);
+    },
+  );
+
+  it.each(['00:00:00.000', '00:07:59.999', '00:08:00.000', '12:00:00.000', '23:59:59.999'])(
+    'reads yesterday at %s UTC',
+    async (time) => {
+      const fake = io(() => Response.json(body([candle('2026-11-26', '2')])), at(time));
+      expect(await bitstamp?.closes('btceur', day('2026-11-26'), day('2026-11-26'), fake.io)).toEqual([
+        { date: '2026-11-26', close: '2' },
+      ]);
+    },
+  );
 
   it.each([
     ['a window of two days', '2026-11-25', '2026-11-26'],

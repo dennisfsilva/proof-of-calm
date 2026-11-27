@@ -3,6 +3,7 @@
 // Their pins, permissions and triggers, and what neither may hold: a cache, an artifact, a ref input.
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import { MIDNIGHT_ALLOWANCE_MINUTES } from './sources/bitstamp.ts';
 
 const read = (path: string) => readFileSync(new URL(path, import.meta.url), 'utf8').replaceAll('\r\n', '\n');
 const store = read('./closes-store.yml');
@@ -77,6 +78,11 @@ describe('closes-store.yml', () => {
     expect(step).toBeGreaterThan(0);
     // The commit step needs the rest: install before the daily step, the commit and push after it.
     expect(step).toBeLessThanOrEqual(job - 5);
+  });
+
+  it('gives Bitstamp’s midnight allowance the daily step’s timeout, the longest a step can still read', () => {
+    const daily = /- name: Append the closes\n((?: {8}.*\n)+)/.exec(store)?.[1] ?? '';
+    expect(MIDNIGHT_ALLOWANCE_MINUTES).toBe(Number(/^ {8}timeout-minutes: (\d+)$/m.exec(daily)?.[1]));
   });
 
   it('stages only finished store files, never the temporary file a killed write leaves', () => {
