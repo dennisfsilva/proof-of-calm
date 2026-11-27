@@ -79,6 +79,7 @@ in `.claude/rules/` list them per path.
 | 0055 | A move's fee that nothing outside its destination covers comes from the destination | Accepted | `packages/core` (lots, the cover refusal, the per-lot file); `packages/app` (Portfolio's notice, the Log's refusals, the tax-year header) |
 | 0056 | Exchange CSV import: Kraken's ledger first, then Trade Republic, on synthetic fixtures | Accepted | `packages/core` (the exchange readers, the import plan, the ids, the write); `packages/app` features: settings (the preview and the import); `packages/app/src/lib/adapters` (the export's ZIP reader); `docs/research/csv-import-exchanges.md` |
 | 0057 | Translated content overlays: sparse prose over the English files, English the source of every number | Accepted | `packages/content` (the overlays under `i18n/` and their validation; `rules/<language>/` and the profile, rules and template-text loaders in a language; the facts overlay and its loader are cut, Corrections of 2026-11-16) |
+| 0058 | The job that writes the private closes store runs in a private repository | Accepted | `.github/workflows` (the data dry run, M2); `tools` (the closes-store workflow and the pipeline's output lines, M2); the private repository's copy of the workflow |
 
 Template:
 
