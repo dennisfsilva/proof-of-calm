@@ -28,7 +28,10 @@ describe('fallsSpan', () => {
   });
 
   it('names daily closes when every row was computed from them', () => {
-    const falls = [row('ETH', '2021-11-10', '2022-06-18', 'Kraken', 'close'), row('SOL', '2021-11-06', '2022-12-29', 'Kraken', 'close')];
+    const falls = [
+      row('ETH', '2021-11-10', '2022-06-18', 'Kraken', 'close'),
+      row('SOL', '2021-11-06', '2022-12-29', 'Kraken', 'close'),
+    ];
     expect(fallsSpan(falls, f)).toMatchObject({ basis: 'close', intraday: '', closes: 'Kraken' });
     expect(sentence(falls)).toBe(
       "Kraken daily closes in US dollars, 6 Nov 2021 to 29 Dec 2022; the falls are Proof of Calm's own computation.",

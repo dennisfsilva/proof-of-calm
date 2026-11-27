@@ -226,7 +226,10 @@ describe('ThisFallPage, a fall under way', () => {
       model: Promise.resolve(
         episode({ coins: ['BTC', 'ETH'] } as unknown as Partial<Figure>, { held: [BITCOIN, ETHEREUM] }),
       ),
-      falls: async (coins) => [...(await pastFalls(coins as PastFall['coin'][])).filter(({ coin }) => coin === 'BTC'), ...eth],
+      falls: async (coins) => [
+        ...(await pastFalls(coins as PastFall['coin'][])).filter(({ coin }) => coin === 'BTC'),
+        ...eth,
+      ],
       plan: { coins: (fixtureSnapshot().plan as Plan).coins.filter((coin) => coin.id === 'BTC') },
     });
     await screen.findByText(/^Bitcoin and Ethereum, in the amounts you hold/);
