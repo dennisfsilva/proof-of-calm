@@ -87,7 +87,9 @@ exit codes and the copy rule: `daily.md`.
 
 ## Backfill
 
-- `tools/data/backfill.ts` and `tools/data/backfill.md` (planned: M2)
+`backfill.ts --source kraken-bulk` fills the store's Kraken closes from Kraken's downloadable archive,
+read by `kraken-bulk.ts`; it runs by hand outside CI, prints counts only, and `backfill.md` says how
+to fetch, verify and extract the archive and run it.
 
 ## Reference
 
