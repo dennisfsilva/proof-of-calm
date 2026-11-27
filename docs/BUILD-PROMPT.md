@@ -1204,6 +1204,18 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A builder checks each commit subject's length before the commit's first push, since the brief
   pushes after each step and the check's commit-subject step runs only at the end: a 101-character
   subject reached the remote, and only a re-cut pushed with the lease fixed it (#595; 2026-11-27).
+- A feature that needs more from a shared component that Today imports, such as `ChartTable`, gets
+  it from its own lazy chunk: a custom property set on the feature's wrapper and one rule in
+  `globals.css` that reads it cost Today no byte. Set the property through the CSSOM after mount (a
+  ref and `style.setProperty`), never with a `style` prop, when a public page prerenders the
+  component: the prerendered HTML would carry a `style` attribute that the hashed `style-src`
+  refuses with a console error, as the public Learn page's falls chart would have once its rows
+  mixed bases. With `var()` a duplicate fallback declaration never applies, so say what a browser
+  without the syntax shows (#595; 2026-11-27).
+- A guard in which each of two review rounds found a gap is rebuilt as an allow-list of what the
+  guarded parser reads whole, with a case one step from each clause and a mutation pass that weakens
+  each clause in turn, its table in the PR. The falls publisher guard's third round, on such a
+  grammar, found nothing (#598; 2026-11-27).
 
 ## Known gaps
 
