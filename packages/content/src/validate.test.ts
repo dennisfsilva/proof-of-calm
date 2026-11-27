@@ -655,7 +655,7 @@ describe('validateContent: cycles (docs/EDUCATION.md §2 and §6)', () => {
     const wrong = [
       cycle('BTC', '2021-11-10', '2021-11-09', '78', { source: 'https://news.example/btc' }),
       cycle('ETH', '2021-12-01', '2022-06-30', '100.5'),
-      cycle('ETH', '2021-12-02', '2022-06-30', '81.9', { accessed: '2026-10-17' }),
+      cycle('ETH', '2021-12-02', '2022-06-30', '82.9', { accessed: '2026-10-17' }),
       cycle('SOL', '2021-11-20', '2022-12-20', '98'),
     ];
     expect(codes([catalogue, file(path, cycles(wrong))])).toEqual([
@@ -665,7 +665,7 @@ describe('validateContent: cycles (docs/EDUCATION.md §2 and §6)', () => {
       'accessed-after-review: drawdowns.2 accessed 2026-10-17, last reviewed 2026-10-16',
       'drawdown-unknown-coin: drawdowns.3 SOL',
       'drawdown-fall-not-whole: drawdowns.1 fall 100.5',
-      'drawdown-fall-not-whole: drawdowns.2 fall 81.9',
+      'drawdown-fall-not-whole: drawdowns.2 fall 82.9',
     ]);
   });
 
