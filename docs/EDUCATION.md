@@ -201,7 +201,20 @@ state, worded in `learn.simulator`: the result area busy while the file loads; a
 published yet; a network failure, an error status, or a file that is not that coin's dataset says it could not be
 loaded, names the fix (check the connection, then reload) and offers Reload; a dataset gives its first day with
 the reason §8 names (the first day with two exchanges' closes) and, at text-14, the credit line ADR-0036 sets
-while Coinbase is off. The inputs and the result build on this route (planned: M2).
+while Coinbase is off. The inputs build on this route (planned: M2).
+**Default dates** (`packages/app/src/features/learn/lib/simulator-dates.ts`): the window is the days every chosen
+coin has closes for, from the latest first close to the earliest last one. The start is the first day 11 months
+after the window's first day whose start-date table keeps every row inside the closes, when a 12-month plan from
+it still ends by the window's last day; otherwise the window's first day. The end is the window's last day, and the
+buy day is the start's day of the month, at most the 28th.
+**Result** (`packages/app/src/features/learn/components/simulation-view.tsx`, not yet on the route), worded in
+`learn.simulator.result`, in this order: the chart of value and money invested with the falls below an earlier
+high shaded, and its table by month; under it the closes' first and last day with the past-performance sentence
+and the Risk link of a Learn module, then the credit line at text-14, the one on the screen; the maximum drawdown
+with its dates, the longest time under water, the months in loss and the buy days with no close; the multiple of
+value against money invested, never an annualised return; the caveat above; and behind one disclosure the
+start-date table, 12 rows oldest first. A row that starts before the closes reads as having none, and one line
+above the table says once how many of the 12 rows have none and the day the closes begin.
 
 ## 8. Simulator method (implemented in `packages/core/src/simulate`)
 
