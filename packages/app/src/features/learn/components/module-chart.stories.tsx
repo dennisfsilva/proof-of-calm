@@ -58,7 +58,8 @@ export const MixedBases: Story = {
   },
 };
 
-// The narrowest phone: the table stacks, and each publisher shows the column's name above it (docs/DESIGN.md §8).
+// The narrowest phone: the table stacks, and each publisher shows the column's name above it, drawn from the custom
+// property the chart sets (docs/DESIGN.md §8); no other cell draws one.
 export const MixedBasesStacked: Story = {
   ...MixedBases,
   globals: { viewport: { value: 'android-small', isRotated: false } },
@@ -66,9 +67,12 @@ export const MixedBasesStacked: Story = {
     await userEvent.click(canvas.getByText('Show the falls as a table'));
     const table = canvasElement.querySelector('details table');
     await waitFor(() => expect(table).toHaveAttribute('data-stacked'));
-    const sources = [...canvasElement.querySelectorAll('details tbody tr')].map((row) => row.lastElementChild);
-    await expect(sources.map((cell) => cell?.textContent)).toEqual(['Bitstamp', 'Kraken']);
-    for (const cell of sources)
-      await expect(cell === null ? 'missing' : getComputedStyle(cell, '::before').content).toMatch(/^"Source"/);
+    const rows = [...canvasElement.querySelectorAll('details tbody tr')];
+    const before = (cell: Element | null) => (cell === null ? 'missing' : getComputedStyle(cell, '::before').content);
+    await expect(rows.map((row) => row.lastElementChild?.textContent)).toEqual(['Bitstamp', 'Kraken']);
+    for (const row of rows) {
+      await expect(before(row.lastElementChild)).toMatch(/^"Source"/);
+      await expect(before(row.firstElementChild)).toMatch(/^(none|normal)$/);
+    }
   },
 };
