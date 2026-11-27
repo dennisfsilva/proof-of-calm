@@ -278,61 +278,100 @@ Decided:
 ### Reading of 2026-11-27: Coinbase's market-data terms forbid the reference close without its written consent
 
 Coinbase's Exchange API documentation (https://docs.cdp.coinbase.com/exchange/introduction/welcome,
-read on 2026-11-27) says "Market Data APIs provide market data and are public" and "By accessing the
-Exchange Market Data API, you agree to be bound by the Market Data Terms of Use", linking
+read on 2026-11-27) says "Market Data APIs provide market data and are public." and "By accessing
+the Exchange Market Data API, you agree to be bound by the Market Data Terms of Use.", linking
 https://www.coinbase.com/legal/market_data. The fetch tool got 403 there, as the Context's reading
 of 2026-10-16 did, so the terms were read on 2026-11-27 through a desktop browser's request: "Market
-Data Terms of Use", "Last updated: August 7, 2026". They define "Market Data" as "all data made
-available to you by Coinbase", so they also govern the Advanced Trade API's public candles, whose
-overview links no other terms. The governing sentences:
+Data Terms of Use", "Last updated: August 7, 2026". Their preamble binds on access: "By accessing or
+using Coinbase Market Data, you agree to be bound by these Market Data Terms of Use". They define
+"Market Data" as "all data made available to you by Coinbase". The Advanced Trade API's overview
+links no terms; its keys come from the Coinbase Developer Platform, whose Terms of Service (read on
+2026-11-27) add "you are strictly prohibited from recording data or content accessed via the CDP
+Tools through the use of any automated programs, software, or any other method of screen scraping".
+The pipeline uses neither API. The session keeps a dated plain-text copy of the market-data terms
+as read, coinbase-market-data-terms-2026-11-27.txt, in its sandbox folder data-letters outside the
+repository, as the Kraken thread is kept outside it; the section numbers below follow the page's
+ordered lists. A Wayback Machine capture of the same page of 2025-12-05 ("Last updated: February 6,
+2023") has the same §2, §3.B and §3.C, word for word, and no §3.E. The governing sentences:
 
-- The licence: "a nonexclusive, nontransferable, non-sublicensable, revocable, limited license,
+- §2, the licence: "a nonexclusive, nontransferable, non-sublicensable, revocable, limited license,
   solely for you and/or the officers and employees of your entity". "Your use of Market Data is
-  exclusively for you or your entity's personal or research purposes and may not be used to build an
+  exclusively for you or your entity’s personal or research purposes and may not be used to build an
   application intended for use by end users other than for you or your officers/employees."
-- "Absent prior express written consent from Coinbase, you may not":
-  - "Redistribute, display, or disseminate the Market Data—or any data, charts, analytics, research,
-    or other works based on, referring to, or derived from the Market Data ("Derived Works") — to
-    any third party outside of your organization by electronic means or otherwise";
-  - "Use Market Data or authorized Derived Works, directly or indirectly, to create any of the
+- §3 opens "Absent prior express written consent from Coinbase, you may not:", then:
+  - §3.B: "Redistribute, display, or disseminate the Market Data—or any data, charts, analytics,
+    research, or other works based on, referring to, or derived from the Market Data (“Derived
+    Works”) — to any third party outside of your organization by electronic means or otherwise;"
+  - §3.C: "Use Market Data or authorized Derived Works, directly or indirectly, to create any of the
     following Derived Works, whether for internal use or otherwise: (i) indexes, fixings, or other
     benchmarks; (ii) generic or fair value prices; or (iii) valuations of any investment product,
-    digital currency, digital tokens or blockchain-based asset";
-  - use it "as a benchmark", for a financial product or contract;
-  - use it to "develop, train, fine-tune, teach, validate, benchmark, or otherwise improve any
-    artificial intelligence or machine learning model, algorithm, chatbot, agent, or other automated
-    system", "or for any other purpose related to the research, development, or operation of
-    artificial intelligence technologies".
-- "Coinbase reserves all rights in the Market Data not expressly granted in these Terms." "You agree
-  that you have no right to any Coinbase trademark or service mark and may not use any such mark in
-  any way unless expressly authorized by Coinbase." "Coinbase may modify these Terms from time to
-  time at its discretion."
-- The only address the terms give: "If you have a question, complaint, or otherwise wish to contact
-  us regarding the Market Data or these Terms, please contact us at: marketdata@coinbase.com."
+    digital currency, digital tokens or blockchain-based asset or other similar instrument of any
+    kind or character, securities, or financial derivatives (whether for purposes of settlement or
+    otherwise) including, without limitation, swaps or options (each a “Financial Product”); or"
+  - §3.D: "Use any Market Data or Derived Work (understanding, for clarity, that “Derived Works”
+    includes combinations of Market Data or Derived Works with one or more other benchmarks or
+    indexes) as a benchmark. Use “as a benchmark” includes, without limitation:" "Issuance of a
+    Financial Product which references Market Data or a Derived Work; or" "Determination of the
+    amount payable under a Financial Product or other financial contract by referencing Market Data
+    or a Derived Work; or" "Being a party to a Financial Product or other financial contract which
+    references Market Data or a Derived Work; or" "Providing a borrowing rate calculated as a spread
+    or mark-up over Market Data or a Derived Work and that is used as a reference in a Financial
+    Product or other financial contract to which the creditor is a party; or" "Measuring the
+    performance of an investment fund or Financial Product through Market Data or a Derived Work for
+    the purpose of tracking the same, of defining the asset allocation of a portfolio, or of
+    computing performance fees."
+  - §3.E, new in the version of 2026-08-07: "Use any Market Data to, or permit or authorize any
+    third party to, in whole or in part, develop, train, fine-tune, teach, validate, benchmark, or
+    otherwise improve any artificial intelligence or machine learning model, algorithm, chatbot,
+    agent, or other automated system, whether generative or non-generative, or for any other purpose
+    related to the research, development, or operation of artificial intelligence technologies."
+- §4: "Coinbase reserves all rights in the Market Data not expressly granted in these Terms." "You
+  agree that you have no right to any Coinbase trademark or service mark and may not use any such
+  mark in any way unless expressly authorized by Coinbase." §6: "Coinbase may modify these Terms from
+  time to time at its discretion."
+- §7: "You agree to pay all applicable fees associated with the Market Data product to which you
+  subscribe in accordance with any applicable Coinbase fee schedule."
+- §12: "In the event of a conflict between these Terms and any agreement(s) between you and
+  Coinbase, these Terms shall control."
+- §13, the only address the terms give: "If you have a question, complaint, or otherwise wish to
+  contact us regarding the Market Data or these Terms, please contact us at: marketdata@coinbase.com."
 - The rate limits (https://docs.cdp.coinbase.com/exchange/introduction/rate-limits-overview.md):
   "Requests per second per IP: 10" for the public endpoints.
 
-The answers to the questions the pipeline asks:
+The answers to the questions the pipeline asks. Where an answer says what one of the app's figures
+is under the terms (a fixing, a generic price, a valuation), that is this Reading's careful reading,
+not the terms' words, as the Kraken Reading marks its own:
 
-- Collecting daily candles from the public endpoint and keeping them in the private store: allowed
-  only for "personal or research purposes", and the pipeline's purpose is an app for end users, which
+- Collecting daily candles from the public endpoint and keeping them in the private store: §2 allows
+  only "personal or research purposes", and the pipeline's purpose is an app for end users, which
   the licence excludes. Not covered.
-- Computing derived closes: the reference close is a fixing, a benchmark or a generic price, and a
-  holding valued at it is a valuation of a digital currency; the terms forbid creating these
-  "whether for internal use or otherwise". Not covered without written consent.
-- Display and redistribution: the closes, and any chart, analysis or figure derived from them, may
-  not be shown to anyone outside the project. Not covered without written consent.
-- Attribution: the terms ask for none, and they give no right to Coinbase's marks.
-- Commercial use: no licence beyond personal or research use; a product with fees is priced by
-  "any applicable Coinbase fee schedule".
+- Computing derived closes: this Reading reads the reference close as a fixing or a generic price,
+  and a holding valued at it as a valuation of a digital currency. §3.C forbids creating these
+  "whether for internal use or otherwise", so a reference close that averages Coinbase's close with
+  another exchange's needs consent even if it were never shown. Not covered without written consent.
+- Use as a benchmark: §3.D counts combinations with other benchmarks or indexes as Derived Works,
+  and each of its five cases ties the use to a financial product, a financial contract, a borrowing
+  rate or a fund's performance. The app makes none of them; the consent asked still names §3.D,
+  since a published reference close is a combination that anyone could reference.
+- Display and redistribution: under §3.B the closes, and any chart, analysis or figure derived from
+  them, may not be shown to anyone outside the project. Not covered without written consent.
+- Attribution: the terms ask for none, and §4 gives no right to Coinbase's marks.
+- Commercial use: §2 grants no licence beyond personal or research use, and §7 expects fees for the
+  Market Data product a person subscribes to, so a consent for a paid tier may carry a price the
+  terms do not state.
+- Agent sessions: this Reading counts an agent session that reads Coinbase market data while it
+  builds or checks the app as a use "for any other purpose related to the research, development, or
+  operation of artificial intelligence technologies" (§3.E).
 
 Decided:
 
-- Coinbase stays off until it consents in writing: the pipeline reads no Coinbase candle, the
-  private store holds none, and no agent session reads Coinbase market data, since the terms also
-  forbid its use for the operation of automated systems. The reference closes take Kraken's and
-  Bitstamp's closes only, and a day with both takes their mean (Kraken's Reading of 2026-11-27
-  above). ADR-0037's cross-check uses Bitstamp alone.
+- Coinbase stays off until it consents in writing: the pipeline reads no Coinbase candle at all, not
+  only none shown, since §3.C reaches internal use; the private store holds none; and no agent
+  session reads Coinbase market data, since §3.E forbids its use "for any other purpose related to
+  the research, development, or operation of artificial intelligence technologies" (sessions read
+  Coinbase's terms pages only). The reference closes take Kraken's and Bitstamp's closes only, and a
+  day with both takes their mean (Kraken's Reading of 2026-11-27 above). ADR-0037's cross-check uses
+  Bitstamp alone.
 - The Decision's Coinbase Exchange ticker fallback is not built, like Kraken's: the last good copy
   stays the fallback.
 - A letter is needed: `docs/research/letters/coinbase.md` asks marketdata@coinbase.com for written
