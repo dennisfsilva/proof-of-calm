@@ -12,8 +12,8 @@ import { addCoin, type CoinSplitValue, MAX_COINS, removeCoin, type SplitIssue, s
 // & split tab and onboarding's custom path, its coins step. The catalogue is a plain list of
 // the coins not in the plan, never a suggestion (ADR-0009). Each share is a numeric field (ADR-0034)
 // that shows its own reading or precision message; the sum message sits on the split and describes
-// every share. Adding a coin moves focus to its share, removing one to the first share, so the
-// keyboard never lands on a button that is gone. A row is the label across its width and, under it, the
+// every share. Adding a coin moves focus to its share, removing one to the first share (to the first
+// coin to add when none is left), so the keyboard never lands on a button that is gone. A row is the label across its width and, under it, the
 // share at one width on every row (room for "100" in tabular figures, 5rem) with Remove after it, so
 // the field never narrows to make room for a longer Remove label.
 
@@ -27,21 +27,34 @@ export type CoinEditorProps = {
   readonly legend?: 'shown' | 'hidden' | undefined;
   /** A host's line under a coin's row, in its share's description (the simulator's line on a coin's closes). */
   readonly notes?: Readonly<Partial<Record<CoinId, string>>> | undefined;
+  /** A sole coin offers Remove too, for a host whose split may be empty (the simulator); a plan's never is. */
+  readonly allowEmpty?: boolean | undefined;
 };
 
-export function CoinEditor({ value, catalogue, issues, onChange, legend = 'shown', notes }: CoinEditorProps) {
+export function CoinEditor({
+  value,
+  catalogue,
+  issues,
+  onChange,
+  legend = 'shown',
+  notes,
+  allowEmpty = false,
+}: CoinEditorProps) {
   const t = useTranslations('plan.coins');
   const input = useTranslations('errors.input');
   const locale = useLocale();
   const sumId = useId();
   const fields = useRef(new Map<CoinId, HTMLInputElement>());
-  const focusNext = useRef<CoinId | null>(null);
+  const adds = useRef<HTMLUListElement>(null);
+  // A coin's share, or 'add' for the first coin to add once no share is left.
+  const focusNext = useRef<CoinId | 'add' | null>(null);
 
   useEffect(() => {
     const id = focusNext.current ?? null;
     if (id === null) return;
     focusNext.current = null;
-    fields.current.get(id)?.focus();
+    if (id === 'add') adds.current?.querySelector('button')?.focus();
+    else fields.current.get(id)?.focus();
   });
 
   const full = value.coins.length >= MAX_COINS;
@@ -65,7 +78,7 @@ export function CoinEditor({ value, catalogue, issues, onChange, legend = 'shown
   };
   const remove = (id: CoinId) => {
     const next = removeCoin(value, id);
-    focusNext.current = next.coins[0]?.id ?? null;
+    focusNext.current = next.coins[0]?.id ?? 'add';
     onChange(next);
   };
 
@@ -94,7 +107,7 @@ export function CoinEditor({ value, catalogue, issues, onChange, legend = 'shown
                       aria-describedby={offSum ? sumId : undefined}
                     />
                   </div>
-                  {value.coins.length > 1 && (
+                  {(allowEmpty || value.coins.length > 1) && (
                     <Button variant="secondary" onClick={() => remove(coin.id)}>
                       {t('remove', { coin: coin.name })}
                     </Button>
@@ -116,7 +129,7 @@ export function CoinEditor({ value, catalogue, issues, onChange, legend = 'shown
       {!full && available.length > 0 && (
         <div className="flex flex-col gap-stack-xs">
           <p className="font-medium text-14 text-ink">{t('add')}</p>
-          <ul className="flex flex-wrap gap-target-gap">
+          <ul ref={adds} className="flex flex-wrap gap-target-gap">
             {available.map((coin) => (
               <li key={coin.id}>
                 <Button variant="secondary" onClick={() => add(coin)}>
