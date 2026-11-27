@@ -27,7 +27,7 @@ const FALLS = [
   },
   { coin: 'BTC', high: '2013-11-30', low: '2015-01-14', fall: '87', publisher: 'Bitstamp' },
   // A synthetic row computed from daily closes, not a figure of the cycles file.
-  { coin: 'ETH', high: '2018-01-13', low: '2018-12-14', fall: '93', publisher: 'Kraken', basis: 'close' },
+  { coin: 'ETH', high: '2018-01-20', low: '2018-12-08', fall: '93', publisher: 'Kraken', basis: 'close' },
   { coin: 'LINK', high: '2021-05-10', low: '2023-06-10', fall: '91', publisher: 'Bitstamp' },
 ] as unknown as readonly PastFall[];
 
@@ -87,7 +87,7 @@ describe('SiteFalls', () => {
     const closes = FALLS.filter(({ coin }) => coin === 'ETH');
     const markup = html(closes).replaceAll('&#x27;', "'");
     const line = markup.match(/<\/table><\/div><p[^>]*>(.*?)<\/p>/)?.[1] ?? '';
-    expect(line.replace(/\s/gu, ' ')).toContain('Kraken daily closes in US dollars, 13 Jan 2018 to 14 Dec 2018;');
+    expect(line.replace(/\s/gu, ' ')).toContain('Kraken daily closes in US dollars, 20 Jan 2018 to 8 Dec 2018;');
     expect(line).not.toContain('intraday');
   });
 });

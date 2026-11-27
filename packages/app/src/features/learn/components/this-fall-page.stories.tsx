@@ -39,7 +39,7 @@ const FALLS = [
   { coin: 'BTC', high: '2017-12-17', low: '2018-12-15', fall: '84', publisher: 'Bitstamp' },
   { coin: 'BTC', high: '2021-11-10', low: '2022-11-21', fall: '78', publisher: 'Bitstamp' },
   // A synthetic row computed from daily closes, not a figure of the cycles file.
-  { coin: 'ETH', high: '2021-11-10', low: '2022-06-18', fall: '80', publisher: 'Kraken', basis: 'close' },
+  { coin: 'ETH', high: '2021-12-01', low: '2022-06-30', fall: '80', publisher: 'Kraken', basis: 'close' },
 ] as unknown as readonly PastFall[];
 
 const meta = {

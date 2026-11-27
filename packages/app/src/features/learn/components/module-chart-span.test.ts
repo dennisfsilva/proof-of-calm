@@ -29,7 +29,7 @@ describe('fallsSpan', () => {
 
   it('names daily closes when every row was computed from them', () => {
     const falls = [
-      row('ETH', '2021-11-10', '2022-06-18', 'Kraken', 'close'),
+      row('ETH', '2021-12-01', '2022-06-30', 'Kraken', 'close'),
       row('SOL', '2021-11-06', '2022-12-29', 'Kraken', 'close'),
     ];
     expect(fallsSpan(falls, f)).toMatchObject({ basis: 'close', intraday: '', closes: 'Kraken' });
@@ -42,7 +42,7 @@ describe('fallsSpan', () => {
     const falls = [
       row('BTC', '2011-06-08', '2011-11-22', 'Bitcoinity (Mt. Gox) and CoinMarketCap'),
       row('BTC', '2017-12-17', '2018-12-15', 'Bitstamp'),
-      row('ETH', '2018-01-13', '2018-12-14', 'Kraken', 'close'),
+      row('ETH', '2018-01-20', '2018-12-08', 'Kraken', 'close'),
       row('SOL', '2021-11-06', '2022-12-29', 'Kraken', 'close'),
       row('LINK', '2018-01-08', '2018-06-29', 'CoinMarketCap'),
     ];
