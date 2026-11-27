@@ -204,7 +204,7 @@
       "credit": "Reference closes derived from Kraken and Bitstamp public data; FX: ECB reference rates",
       "result": {
         "legend": {
-          "value": "Value",
+          "value": "Simulated value",
           "invested": "Invested",
           "underwater": "Below an earlier high"
         },
@@ -220,14 +220,14 @@
         "drawdown": "Maximum drawdown",
         "drawdownDates": "{recovered, select, yes {From the high on {peak} to the low on {trough}, back at that high on {recovery}.} other {From the high on {peak} to the low on {trough}, not back at that high by {end}.}}",
         "noFall": "The value did not fall below an earlier high.",
-        "underwater": "Longest time under water",
+        "underwater": "Longest time below an earlier high",
         "days": "{count, plural, one {{figure} day} other {{figure} days}}",
         "underwaterDates": "{recovered, select, yes {{from} to {to}.} other {{from} to {to}, not back at the high by then.}}",
         "monthsInLoss": "Months in loss",
         "monthsOf": "{figure} of {months}",
         "gaps": "Buy days with no close",
         "multiple": "Value against money invested",
-        "multipleLine": "{value} on {end} for {invested} invested.",
+        "multipleLine": "Simulated value of {value} on {end} for {invested} invested.",
         "caveat": "Past prices are facts; a simulation of them is not a forecast. Taxes, fees, slippage and your own behaviour are not in this chart.",
         "starts": {
           "summary": "Show the plan from 12 start dates as a table",
