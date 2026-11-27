@@ -15,7 +15,7 @@ proof-of-calm/
 │   ├── core/                 pure domain logic (docs/DOMAIN.md); no framework, no I/O, no clock
 │   ├── ui/                   design tokens, Tailwind preset, restyled shadcn (Base UI) components, charts, Storybook
 │   ├── content/              Learn modules in MDX, templates, jurisdiction data, facts, cycle data, banned words, their schemas and tests
-│   ├── data/                 the reference-close price history and DATA-LICENSE.md (planned: M2), only a README today
+│   ├── data/                 the price history's schemas and publish switch; the reference closes and DATA-LICENSE.md (planned: M2)
 │   └── config/               tsconfig bases, the dependency-cruiser rules and the hosts' Vite factory with its plugins (`packages/config/vite`, ADR-0045; Biome and ESLint configs are root files, ADR-0025)
 ├── tools/                    repository scripts, tested like code (each one: tools/README.md); the data pipeline from M2
 ├── docs/                     decisions (ADR/), specs, standards, research
@@ -39,7 +39,7 @@ Thin hosts, fat packages: a host's `src/main.tsx` composes the services over the
 | `packages/core` | types, zod schemas (`zod/mini`), every derived view, validation, import and export formats, chart maths, the calendar-date module, the money module, constants | `big.js`, `zod` | React, Next, DOM, `Date.now`, `Math.random`, `fetch`, storage, i18n strings, formatting, anything in the repo |
 | `packages/ui` | tokens (`packages/ui/src/styles/tokens.css`, OKLCH, light and dark on `data-theme`), `theme.css` (`@theme inline` mapping), `globals.css`, restyled shadcn primitives (Base UI), chart components, the navigation and platform adapters' React pieces, Storybook | React, `@base-ui/react`, `lucide-react`, `class-variance-authority`, `clsx`, Tailwind utilities, `packages/core` types only; `tailwind-merge` only in the class-conflict check of the story tests and the e2e matrix | `packages/app`, `packages/content`, `next/*`, `server-only` |
 | `packages/content` | MDX modules, templates, jurisdictions, facts, cycle data, the banned-words list, loaders and tests | `zod`, `packages/core` types only; a compiled module imports `react/jsx-runtime`, which the host serves (ADR-0048, Deviations of 2026-11-02) | React components, app code |
-| `packages/data` | daily reference closes per coin, ECB rates, `DATA-LICENSE.md`, the pipeline's validation schema (planned: M2) | `zod` | anything else |
+| `packages/data` | the price history's schemas (the private store's rows, the dataset, the ECB rates file) and the publish switch `PUBLISH`, all off (`packages/data/README.md`); the daily reference closes per coin, ECB rates and `DATA-LICENSE.md` once the switch allows them (planned: M2) | `zod`, `packages/core` (its date and decimal schemas, so the dataset's types are never written twice) | anything else |
 | `packages/app` | `features/*`, `lib/*` (ports, adapters with the api-client and the web platform, store, i18n, countries, format, errors, brand, pwa, theme, navigation; the auth client (planned: M3)), `messages/*` | `packages/core`, `packages/ui`, `packages/content`, `packages/data`, React, `use-intl`, `wouter`, `zustand`, `idb`, `zod` (`zod/mini`), `lucide-react` (icons), `@supabase/supabase-js` | `next/*`, `server-only`, anything in `apps/*`; features import other features only through their `index.ts`; `lib` never imports `features` |
 | `packages/config` | shared configuration: the TypeScript bases, the dependency-cruiser rules, the Vite host factory (`packages/config/vite`: the host table, the Learn modules' MDX pipeline with the front-matter transform, the closed-body check and the metadata module (ADR-0048), the boot script and its hash, the font preload, the message precompiler, the client-never-imports-server guard, the web host's chunk report that `tools/size/today.ts` reads) | dev dependencies only; the boot script is inlined into the hosts' documents (`apps/web/app.html`, `apps/mobile/index.html`) at build time | runtime code that a bundle imports |
 | `apps/web` | `app.html` (the shell), `src/main.tsx`, `src/chunk-reload.ts`, `src/site/*` (the prerendered holding, legal, offline and 404 pages and the public Learn, country and holding-date pages under `/en/`; the holding-date tool's island in `src/site/islands/`), `src/shell-navigation.ts` (the worker's navigation lists), `server/api.ts` (the one function: `/api/prices`, `/api/history/<coin>`, `/api/csp-report`), `api/index.mjs`, `vercel.json` written by `scripts/vercel-config.ts` (headers, the hashed CSP, the UK route, rewrites), `src/sw.ts` with the stamped prices copy it keeps (`src/prices-copy.ts`) and the kill switch `public/serwist/sw.js`, `lib/pwa/manifest.ts`, `public/.well-known` (planned: M3), e2e tests, Lighthouse config | everything above | business logic of its own |
@@ -50,6 +50,7 @@ Direction of dependencies, strictly downward:
 ```
 apps/* (routes, config)  →  packages/app/features  →  packages/app/lib  →  packages/{core, ui, content, data}
 packages/ui, packages/content  →  packages/core (types)
+packages/data  →  packages/core
 packages/core  →  (nothing in the repo)
 ```
 
@@ -134,11 +135,11 @@ packages/content/
 ├── scripts/         validate.ts, run by `pnpm validate:content`; rules.ts, which writes rules/
 └── src/             schemas, loaders (the public index and its subpaths: `packages/content/README.md`), tests that validate every file
 
-packages/data/           (planned: M2), only its README exists
-├── prices/          <coin>.json daily reference closes in EUR
-├── fx/              ECB reference rates
-├── DATA-LICENSE.md  sources, dates, derivation method, attribution text
-└── src/             schema and loader
+packages/data/           the schemas and the publish switch today; no value while the switch is off (packages/data/README.md)
+├── prices/          <COIN>-EUR.json daily reference closes in EUR (planned: M2)
+├── fx/              ECB reference rates (planned: M2)
+├── DATA-LICENSE.md  sources, dates, derivation method, attribution text (planned: M2)
+└── src/             the store's, the dataset's and the rates' schemas over the core's, and PUBLISH
 ```
 
 Content and data are data. Nothing in them decides behaviour; the core and the shell consume them.
