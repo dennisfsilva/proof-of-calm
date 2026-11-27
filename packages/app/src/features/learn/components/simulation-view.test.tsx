@@ -154,6 +154,11 @@ describe('the simulation view', () => {
     expect(text).not.toMatch(/annual/i);
   });
 
+  it('sets the caveat in its own box, as a Learn module does (docs/CONTENT-STYLE.md §5)', async () => {
+    const container = await mount(run(FLAT));
+    expect(container.querySelector('[data-slot="card"]')?.textContent).toBe(CAVEAT);
+  });
+
   it('dates the path and the falls of a fall that recovered', async () => {
     const history = closes('2024-01-01', 1096, (date) => (date >= '2025-07-01' && date < '2026-01-01' ? '50' : '100'));
     await mount(run(history));
