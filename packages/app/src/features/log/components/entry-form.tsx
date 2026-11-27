@@ -103,7 +103,8 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
   const rules = useRules();
   const format = useFormatters();
   const clock = useClock();
-  const live = usePrices().state?.snapshot ?? null;
+  const prices = usePrices().state;
+  const live = prices?.snapshot ?? null;
   // The number locale and prices are read once, as the form opens (ADR-0020 Readings): no later change rewrites them.
   const [numberLocale] = useState(() => localesFor(services.language, rules ?? countryLocales(plan.country)).numbers);
   const [numberInput] = useState(() => mounted);
@@ -116,9 +117,11 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
     const base = draftBase(editing);
     const draft = services.drafts.read(DRAFT_FORM, entity, EntryFormDraftSchema);
     const fit = { numberLocale, base, initial, numberInput, currency };
-    return { initial, entity, base, state: restoredState(draft, fit) ?? initial };
+    // A new entry's prices come from the snapshot; CoinGecko's carry its credit, prices typed by hand none (ADR-0050).
+    const credited = editing.length === 0 && prices?.source === 'live';
+    return { initial, entity, base, credited, state: restoredState(draft, fit) ?? initial };
   });
-  const { initial, entity, base } = opened;
+  const { initial, entity, base, credited } = opened;
   const [state, setState] = useState(opened.state);
   const [ids] = useState(() => opened.state.rows.map(() => EntityIdSchema.parse(crypto.randomUUID())));
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -234,18 +237,29 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
     form.current?.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus();
   }, [outcome]);
 
+  // The snapshot's price, filled in as the form opened, carries the credit while the field still shows it: a price
+  // typed, emptied for an earlier date or derived from typed figures is not CoinGecko's (docs/CONTENT-STYLE.md §3).
+  const snapshotPrice = (at: number) => {
+    const opening = initial.rows[at];
+    const row = state.rows[at];
+    return credited && opening?.price !== '' && opening?.coin === row?.coin && opening?.price === row?.price;
+  };
+
   const numberField = (
     field: string,
     label: string,
     value: string,
     onValue: (typed: string) => void,
     onBlur: () => void,
+    credit = false,
   ) => {
     const issue = issueOf(field);
     return (
       <Field key={field} invalid={issue !== undefined}>
         <FieldLabel>{label}</FieldLabel>
         <NumericInput value={value} onChange={(event) => onValue(event.target.value)} onBlur={onBlur} />
+        {/* Unlinked, at text-14 or larger, beside the price it credits (ADR-0050). */}
+        {credit && <p className="text-14 text-ink-2">{t('log.form.priceCredit')}</p>}
         {issue !== undefined && <FieldError>{say(errorMessage(issue.error))}</FieldError>}
       </Field>
     );
@@ -291,6 +305,7 @@ function PlanEntryForm({ plan, numberInput: mounted, kind, editing, slot, onDone
               row.price,
               (typed) => type(at, 'price', typed),
               () => tidyRow(at, 'price', minor),
+              snapshotPrice(at),
             )}
           </fieldset>
         );
