@@ -23,7 +23,7 @@ const YESTERDAY = addDays(TODAY, -1);
 const CLOSED = [
   /^(kraken|bitstamp) (EUR|USD): \d+ pairs, \d+ added, \d+ revised, \d+ failed( \(dry: nothing written\))?$/,
   /^(kraken|bitstamp|coinbase): off$/,
-  /^(kraken|bitstamp): stopped after 3 unreachable$/,
+  /^kraken: stopped after 3 unreachable$/,
   /^refused: (kraken|bitstamp) [A-Za-z0-9]{1,24} (rate limited|unreachable|http \d{3}|error|malformed|out of window|unexpected error)$/,
 ];
 
@@ -43,12 +43,16 @@ const STEP_TIMEOUT_MS =
 type Request = { url: URL; at: number };
 
 // Synthetic exchanges. Kraken: the three complete days before the clock's UTC day and the running one,
-// or, stalled, no answer until the try's timeout. Bitstamp: the daily candle of the day it is asked for.
-function exchanges(options: { close?: string; fail?: string; start?: string; stall?: boolean } = {}) {
+// or, stalled, no answer until the try's timeout. Bitstamp: the daily candle of the day it is asked for,
+// or, for its first `bitstampDown` requests, no answer until the try's timeout.
+function exchanges(
+  options: { bitstampDown?: number; close?: string; fail?: string; start?: string; stall?: boolean } = {},
+) {
   const close = options.close ?? '1.5';
   const requests: Request[] = [];
   let clock = Date.parse(options.start ?? `${TODAY}T01:17:00Z`);
   let timeouts = 0;
+  let bitstampDown = options.bitstampDown ?? 0;
   const io: SourceIo = {
     now: () => new Date(clock),
     sleep: async (ms) => {
@@ -76,6 +80,11 @@ function exchanges(options: { close?: string; fail?: string; start?: string; sta
         });
       }
       if (url.hostname === 'www.bitstamp.net') {
+        if (bitstampDown > 0) {
+          bitstampDown -= 1;
+          clock += REQUEST_TIMEOUT_MS;
+          throw new DOMException('The operation timed out.', 'TimeoutError');
+        }
         const start = url.searchParams.get('start') ?? '';
         return Response.json({ data: { pair: 'X/Y', ohlc: [{ timestamp: start, close }] } });
       }
@@ -213,6 +222,33 @@ describe('runDaily', () => {
     expect(elapsed()).toBeLessThan(STEP_TIMEOUT_MS / 2);
   });
 
+  it.each([3, 4])(
+    'never stops Bitstamp, whose day cannot be read again: after %i unreachable pairs it reads the rest',
+    async (down) => {
+      const { io, requests } = exchanges({ bitstampDown: down, stall: true });
+      const { clean, out, err } = await run(io);
+      const unreachable = symbols('bitstamp', 'EUR').slice(0, down);
+      expect(err).toEqual([
+        ...unreachable.map((symbol) => `refused: bitstamp ${symbol} unreachable`),
+        ...symbols('kraken', 'EUR')
+          .slice(0, 3)
+          .map((symbol) => `refused: kraken ${symbol} unreachable`),
+        'kraken: stopped after 3 unreachable',
+      ]);
+      expect(out.slice(0, 2)).toEqual([
+        summary('bitstamp', 'EUR', count('bitstamp', 'EUR') - down, 0, down),
+        summary('bitstamp', 'USD', count('bitstamp', 'USD')),
+      ]);
+      expect(clean).toBe(false);
+      const bitstamp = requests.filter(({ url }) => url.hostname === 'www.bitstamp.net');
+      expect(bitstamp).toHaveLength(count('bitstamp', 'EUR') + count('bitstamp', 'USD'));
+      expect(requests.filter(({ url }) => url.hostname === 'api.kraken.com')).toHaveLength(3);
+      const pairs = Object.entries(PAIRS).filter(([, venues]) => venues.bitstamp?.EUR !== undefined);
+      expect(existsSync(file('bitstamp', `${pairs[down - 1]?.[0]}-EUR`))).toBe(false);
+      expect(readFileSync(file('bitstamp', `${pairs[down]?.[0]}-EUR`), 'utf8')).toBe(`date,close\n${YESTERDAY},1.5\n`);
+    },
+  );
+
   it('counts only consecutive unreachable pairs: another answer resets the count', async () => {
     let calls = 0;
     const flaky: Source = {
@@ -230,9 +266,12 @@ describe('runDaily', () => {
     expect(clean).toBe(false);
   });
 
-  it('fails every Bitstamp pair, unread, when --today is a week in the past, and Kraken still runs', async () => {
+  it.each([
+    ['a week in the past', -7],
+    ['yesterday, at 01:17 UTC', -1],
+  ])('fails every Bitstamp pair, unread, when --today is %s, and Kraken still runs', async (_, offset) => {
     const { io, requests } = exchanges();
-    const { clean, out, err } = await run(io, { today: addDays(TODAY, -7) });
+    const { clean, out, err } = await run(io, { today: addDays(TODAY, offset) });
     expect(err).toEqual(
       [...symbols('bitstamp', 'EUR'), ...symbols('bitstamp', 'USD')].map(
         (symbol) => `refused: bitstamp ${symbol} out of window`,
