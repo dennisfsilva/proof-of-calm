@@ -46,3 +46,6 @@ None.
   token's. Its workflow is a byte-for-byte copy of `tools/data/closes-store.yml` (planned: M2),
   checked with `cmp`, that checks out this repository's `main` only and takes no ref input. This
   repository runs only a dry run that prints counts, `.github/workflows/data-dry.yml` (planned: M2).
+- 2026-11-27, the price-history append's cross-check: Coinbase's public candles are not read until
+  Coinbase consents in writing (ADR-0036's Reading of 2026-11-27 on Coinbase's terms), so the
+  cross-check uses Bitstamp alone.
