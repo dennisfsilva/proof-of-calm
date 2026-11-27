@@ -152,12 +152,12 @@ const exampleLines = (body: string) =>
     .filter((line) => line.startsWith('- '))
     .map((line) => line.slice(2));
 
-// The gate's first call in a process pays V8's compile of the banned-words patterns (215 ms for the advice pattern,
-// 15,376 characters under /giu): 301 ms on its own locally, 414 ms to 3,703 ms in five full forced `pnpm test` runs
-// (four of them 414 to 982 ms), 3 ms the second time. CI's verify job passed Vitest's 5,000 ms on it in runs 45995742698
-// and 46007452668 (both attempts), at least 6.3 times the 799 ms full-suite figure, past the six times the
-// third-of-timeout rule allows (docs/BUILD-PROMPT.md). So the first call runs here under 120 s: a third of it is
-// 10 times the local worst and 8 times CI's 5 s, and each test below reads the result warm.
+// The gate's first call in a process pays V8's compile of the banned-words patterns (about 215 ms for the advice
+// pattern, 15,376 characters under /giu): 301 to 307 ms alone here, 414 to 3,703 ms in five full forced `pnpm test`
+// runs, and 3 ms the second time. CI's verify job went over Vitest's 5,000 ms default on it in runs 45995742698 and
+// 46007452668 (both attempts). docs/BUILD-PROMPT.md's rule keeps six times the worst under a third of the timeout:
+// six times 3,703 ms is 22.2 s, under a third of 120 s, so the first call runs here with that timeout, and each test
+// below reads its result warm.
 let gate: ReturnType<typeof moduleProblems>;
 beforeAll(() => {
   gate = moduleProblems({ path, source }, context);
