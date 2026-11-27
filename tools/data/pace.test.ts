@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { PACE_TRIES, pace, RateLimited } from './pace.ts';
+import { PACE_TRIES, pace, REQUEST_TIMEOUT_MS, RateLimited } from './pace.ts';
 import type { SourceIo } from './sources/index.ts';
 
 // A clock that moves only when a sleep ends, and a fetch that answers from a script and records the
@@ -8,6 +8,8 @@ function fakeIo(answers: (() => Response)[]) {
   let time = Date.UTC(2026, 10, 27, 6, 0, 0);
   const requests: number[] = [];
   const sleeps: number[] = [];
+  const timeouts: { at: number; ms: number; signal: AbortSignal }[] = [];
+  const signals: (AbortSignal | null | undefined)[] = [];
   const io: SourceIo = {
     now: () => new Date(time),
     sleep: async (ms) => {
@@ -16,13 +18,19 @@ function fakeIo(answers: (() => Response)[]) {
       await Promise.resolve();
       time = Math.max(time, wake);
     },
-    fetch: async () => {
+    timeout: (ms) => {
+      const signal = new AbortController().signal;
+      timeouts.push({ at: time, ms, signal });
+      return signal;
+    },
+    fetch: async (_input, init) => {
       requests.push(time);
+      signals.push(init?.signal);
       const answer = answers.shift() ?? (() => Response.json({ error: [], result: {} }));
       return answer();
     },
   };
-  return { io, requests, sleeps, gaps: () => requests.slice(1).map((at, i) => at - (requests[i] ?? at)) };
+  return { io, requests, sleeps, timeouts, signals, gaps:() => requests.slice(1).map((at, i) => at - (requests[i] ?? at)) };
 }
 
 const ok = () => Response.json({ error: [], result: {} });
@@ -84,6 +92,18 @@ describe('pace', () => {
     expect(await (await paced.fetch('https://example.test/b')).text()).toBe('{not json');
     expect((await paced.fetch('https://example.test/c')).status).toBe(503);
     expect(fake.requests).toHaveLength(3);
+  });
+
+  it('sends each try with its own request timeout, made after its slot and its back-off', async () => {
+    const fake = fakeIo([tooMany, krakenLimited, ok, ok]);
+    const paced = pace(1000, fake.io);
+    await Promise.all([paced.fetch('https://example.test/a'), paced.fetch('https://example.test/b')]);
+    expect(fake.requests).toHaveLength(4);
+    expect(fake.timeouts.map((timeout) => timeout.at)).toEqual(fake.requests);
+    expect(fake.timeouts.map((timeout) => timeout.ms)).toEqual(Array(4).fill(REQUEST_TIMEOUT_MS));
+    expect(fake.signals).toEqual(fake.timeouts.map((timeout) => timeout.signal));
+    expect(new Set(fake.signals).size).toBe(4);
+    expect(REQUEST_TIMEOUT_MS).toBe(30_000);
   });
 
   it('gives up with a typed failure after the fourth limited answer', async () => {

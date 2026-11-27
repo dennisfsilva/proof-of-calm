@@ -1,6 +1,6 @@
 import type { CalendarDate } from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';
-import { RateLimited } from '../pace.ts';
+import { pace, RateLimited, REQUEST_TIMEOUT_MS } from '../pace.ts';
 import type { SourceIo } from './index.ts';
 import { kraken } from './kraken.ts';
 
@@ -16,12 +16,62 @@ function io(answer: () => Response | Promise<Response>) {
   const value: SourceIo = {
     now: () => NOW,
     sleep: async () => undefined,
+    timeout: () => new AbortController().signal,
     fetch: async (input, init) => {
       calls.push({ url: String(input), init });
       return answer();
     },
   };
   return { io: value, calls };
+}
+
+// A clock that moves only when a sleep or a slow answer ends. Its timeouts fire on that clock, each
+// recording when it was made, and its fetch honours the signal it is sent, as the platform's does.
+function clockIo(answers: (() => Response)[], answerMs: number) {
+  let time = NOW.getTime();
+  const timers: { at: number; controller: AbortController }[] = [];
+  const made: { at: number; ms: number; signal: AbortSignal }[] = [];
+  const requests: { at: number; signal: AbortSignal | null | undefined }[] = [];
+  const advance = (to: number) => {
+    time = Math.max(time, to);
+    for (const timer of timers) {
+      if (timer.at <= time && !timer.controller.signal.aborted) {
+        timer.controller.abort(new DOMException('The operation timed out.', 'TimeoutError'));
+      }
+    }
+  };
+  const value: SourceIo = {
+    now: () => new Date(time),
+    sleep: async (ms) => {
+      const wake = time + ms;
+      await Promise.resolve();
+      advance(wake);
+    },
+    timeout: (ms) => {
+      const controller = new AbortController();
+      timers.push({ at: time + ms, controller });
+      made.push({ at: time, ms, signal: controller.signal });
+      return controller.signal;
+    },
+    fetch: async (_input, init) => {
+      const signal = init?.signal;
+      requests.push({ at: time, signal });
+      advance(time + answerMs);
+      if (signal?.aborted) throw signal.reason;
+      return (answers.shift() ?? (() => Response.json(body([candle('2026-11-25', '2'), candle('2026-11-27', '1')]))))();
+    },
+  };
+  return { io: value, made, requests };
+}
+
+// Each request went out with its own timeout, made when that request was sent.
+function expectFreshTimeouts(fake: ReturnType<typeof clockIo>) {
+  expect(fake.made).toHaveLength(fake.requests.length);
+  for (const [i, request] of fake.requests.entries()) {
+    expect(request.signal).toBe(fake.made[i]?.signal);
+    expect(fake.made[i]?.at).toBe(request.at);
+    expect(fake.made[i]?.ms).toBe(REQUEST_TIMEOUT_MS);
+  }
 }
 
 const read = (answer: () => Response | Promise<Response>, from = '2026-11-20', to = '2026-11-27') => {
@@ -133,6 +183,35 @@ describe("Kraken's reader", () => {
     await expect(read(() => Promise.reject(new TypeError('fetch failed: https://x 42.1')))).rejects.toThrow(
       /^refused: kraken XBTEUR unreachable$/,
     );
+  });
+
+  it('reads every pair of a run whose queue outlasts the request timeout', async () => {
+    const fake = clockIo([], 0);
+    const paced = pace(1000, fake.io);
+    const reads = Array.from({ length: 40 }, () => kraken?.closes('XBTEUR', day('2026-11-20'), day('2026-11-26'), paced));
+    const results = await Promise.allSettled(reads);
+    expect(results.filter((result) => result.status === 'rejected')).toEqual([]);
+    expect((fake.requests.at(-1)?.at ?? 0) - (fake.requests[0]?.at ?? 0)).toBeGreaterThan(REQUEST_TIMEOUT_MS);
+    expectFreshTimeouts(fake);
+  });
+
+  it('reads a pair limited three times and then answered, each answer slow', async () => {
+    const tooMany = () => new Response('', { status: 429 });
+    const fake = clockIo([tooMany, tooMany, tooMany], 5000);
+    const rows = await kraken?.closes('XBTEUR', day('2026-11-20'), day('2026-11-26'), pace(1000, fake.io));
+    expect(rows).toEqual([{ date: '2026-11-25', close: '2' }]);
+    expect(fake.requests).toHaveLength(4);
+    expect((fake.requests.at(-1)?.at ?? 0) - (fake.requests[0]?.at ?? 0)).toBeGreaterThan(REQUEST_TIMEOUT_MS);
+    expectFreshTimeouts(fake);
+  });
+
+  it('refuses as unreachable a request that outlasts the timeout', async () => {
+    const fake = clockIo([], REQUEST_TIMEOUT_MS + 1000);
+    await expect(
+      kraken?.closes('XBTEUR', day('2026-11-20'), day('2026-11-26'), pace(1000, fake.io)),
+    ).rejects.toThrow(/^refused: kraken XBTEUR unreachable$/);
+    expect(fake.requests).toHaveLength(1);
+    expectFreshTimeouts(fake);
   });
 
   it('refuses a symbol outside the listing shape before any request', async () => {
