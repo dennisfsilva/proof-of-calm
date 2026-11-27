@@ -1168,6 +1168,22 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
 - A link that carries a query (`/settings?tab=data`) needs the hash host checked too: wouter's hash
   navigate kept the query on a later plain target until #565 (ADR-0045 Deviations of 2026-11-26)
   (#565; 2026-11-26).
+- A change under `.claude/skills/` takes `.claude/rules/skills.md`'s tier 2 and its rehearsal,
+  whatever else the branch touches: 19b's planner tiered the review skill's text as tier 0 by the
+  docs rule, and the session corrected it before the build (#587; 2026-11-27).
+- A sweep across many tests and a feature branch in the same wave split their files in the sweep's
+  brief: 19b's synthetic-fixtures sweep and its close-basis branch both rewrote the falls test and
+  the fall story, and the sweep gave them back before review (#588, #589; 2026-11-27).
+- A near miss in a figures test sits one step from its datum, so a fixture whose datum moves takes
+  its near misses along: #588's first round moved SOL's row from 97 to 98 and kept 96, which only a
+  mutation check showed (a rule accepting one below failed 3 of main's tests and none of the
+  branch's) (#588; 2026-11-27).
+- A content change that sets a source's `accessed` date also moves the `lastReviewed` of its file or
+  fact, since the validator refuses an `accessed` after the review date; the session's content PR
+  says so, and the owner's merge confirms both (#577; 2026-11-27).
+- Figures computed from a private store can be worked out while the wave before them is in review,
+  by an agent that writes only dates, per cents and ratios outside the repository: the builder then
+  re-ran that script, and the reviewer wrote its own, which matched every figure (#577; 2026-11-27).
 
 ## Known gaps
 
