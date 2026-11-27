@@ -3,7 +3,8 @@ import { type Dataset, DatasetSchema } from '@proofofcalm/data';
 
 // The simulator's price history (docs/EDUCATION.md §7 and §8): one dataset file per coin, served by the site at a
 // relative path once the publish switch allows it (packages/data/README.md, The dataset). Until then the path
-// answers 404, which is the screen's "not published yet", never a failure.
+// answers 404, which is the screen's "not published yet", never a failure; a dataset that holds no day yet reads the
+// same, as a coin with no closes yet, never as a broken file.
 
 /** Why the closes are not there: not published yet, not reachable now, or not a dataset of this coin. */
 export type ClosesFailure =
@@ -23,9 +24,10 @@ const failed = (kind: ClosesFailure['kind']): Result<Dataset, ClosesFailure> => 
 const DEFAULT_TIMEOUT_MS = 10_000;
 
 /**
- * Loads one coin's reference closes in EUR. A 404 is unpublished; a fetch that rejects (fetch rejects with a
- * TypeError when the network fails), a connection that stalls past `timeoutMs` or drops mid-body, or any other
- * error status is offline; a body that is not JSON, fails the schema, names another coin or holds no day is invalid.
+ * Loads one coin's reference closes in EUR. A 404, or a dataset of this coin with no day, is unpublished; a fetch
+ * that rejects (fetch rejects with a TypeError when the network fails), a connection that stalls past `timeoutMs`
+ * or drops mid-body, or any other error status is offline; a body that is not JSON, fails the schema or names
+ * another coin is invalid.
  */
 export async function loadReferenceCloses(
   coin: CoinId,
@@ -50,7 +52,8 @@ export async function loadReferenceCloses(
     return failed('invalid');
   }
   const parsed = DatasetSchema.safeParse(body);
-  if (!parsed.success || parsed.data.coin !== coin || parsed.data.days.length === 0) return failed('invalid');
+  if (!parsed.success || parsed.data.coin !== coin) return failed('invalid');
+  if (parsed.data.days.length === 0) return failed('unpublished');
   return { ok: true, value: parsed.data };
 }
 
