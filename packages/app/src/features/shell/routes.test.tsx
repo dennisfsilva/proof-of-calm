@@ -115,10 +115,12 @@ describe('AppRoutes', () => {
   it('Learn still loads through `loadLearnScreen`', async () => {
     const learn = await import('../learn');
     expect(Object.keys(learn).sort()).toEqual([
+      'CoinEditor',
       'ConditionLines',
       'CountryDateLine',
       'HoldingConditions',
       'WhyLink',
+      'coinSplit',
       'loadLearnScreen',
     ]);
     expect((await learn.loadLearnScreen()).default).toBeTypeOf('function');
