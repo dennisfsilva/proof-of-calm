@@ -64,7 +64,42 @@
     "unpublished": "O histórico de preços em que o simulador se baseia ainda não está publicado.",
     "failed": "Não foi possível carregar o histórico de preços. Verifique a ligação e depois recarregue a página.",
     "dataFrom": "Dados desde {date}, o primeiro dia com fechos de duas plataformas de negociação.",
-    "credit": "Fechos de referência derivados de dados públicos da Kraken e da Bitstamp; câmbio: taxas de referência do BCE"
+    "credit": "Fechos de referência derivados de dados públicos da Kraken e da Bitstamp; câmbio: taxas de referência do BCE",
+    "result": {
+      "legend": {
+        "value": "Valor",
+        "invested": "Investido",
+        "underwater": "Abaixo de um máximo anterior"
+      },
+      "label": "Valor simulado e montante investido, de {start} a {end}: valor de {from} para {to}",
+      "description": "{fell, select, yes {A maior queda abaixo de um máximo anterior foi de {depth}, de {peak} a {trough}.} other {O valor não caiu abaixo de um máximo anterior.}}",
+      "table": {
+        "summary": "Mostrar os valores numa tabela",
+        "month": "Mês",
+        "value": "Valor",
+        "invested": "Investido"
+      },
+      "closes": "Fechos de referência, de {start} a {end}.",
+      "drawdown": "Queda máxima",
+      "drawdownDates": "{recovered, select, yes {Do máximo de {peak} ao mínimo de {trough}, de volta a esse máximo em {recovery}.} other {Do máximo de {peak} ao mínimo de {trough}, ainda abaixo desse máximo em {end}.}}",
+      "noFall": "O valor não caiu abaixo de um máximo anterior.",
+      "underwater": "Período mais longo abaixo de um máximo",
+      "days": "{count, plural, one {{figure} dia} other {{figure} dias}}",
+      "underwaterDates": "{recovered, select, yes {De {from} a {to}.} other {De {from} a {to}, ainda abaixo do máximo nessa data.}}",
+      "monthsInLoss": "Meses com perda",
+      "monthsOf": "{figure} de {months}",
+      "gaps": "Dias de compra sem fecho",
+      "multiple": "Valor face ao montante investido",
+      "multipleLine": "{value} em {end} para {invested} investidos.",
+      "caveat": "Os preços passados são factos; uma simulação feita com eles não é uma previsão. Impostos, comissões, derrapagem e o seu próprio comportamento não estão neste gráfico.",
+      "starts": {
+        "summary": "Mostrar o plano a partir de 12 datas de início numa tabela",
+        "start": "Início",
+        "end": "Fim",
+        "none": "Sem fechos",
+        "refused": "A tabela começa o mesmo plano até 11 meses antes; os fechos começam em {date}, por isso {count, plural, one {{figure} das suas 12 linhas não tem nenhum} other {{figure} das suas 12 linhas não têm nenhum}}."
+      }
+    }
   },
   "sheet": {
     "close": "Fechar"
