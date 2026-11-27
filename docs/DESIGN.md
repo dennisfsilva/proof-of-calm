@@ -428,7 +428,10 @@ attribute set), the mount's in its first observation, after the frame's layout. 
 coin's detail row in Holdings) has no width of its own and at least the cell's, so it stacks in the
 cell instead of widening the outer table. No width that decides it is stored, since a stored width goes stale with every input it
 depends on (`docs/research/narrow-tables.md`, 2026-11-16). Stacked, only the cells become blocks, so
-assistive technology reads the same table; empty cells lose their padding. The
+assistive technology reads the same table; empty cells lose their padding. A chart table's labelled
+columns (`labelledColumns`, Learn's Source column when the falls mix bases) show the column's name
+above each stacked cell as generated text with empty alt text, which assistive technology skips, so
+the cell's text stays the value alone and nothing shows side by side. The
 charts draw the core's geometry as SVG attributes (positions, path data) and keep text in HTML: the
 CSP allows no inline style attributes (`docs/SECURITY.md` §4), and stretched SVG text would distort.
 The strip tells its phases apart by weight and by the labels under it; the accent marks today only.
