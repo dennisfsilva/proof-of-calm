@@ -32,15 +32,15 @@ function io(answer: () => Response | Promise<Response>) {
   return { io: value, calls };
 }
 
-const read = (answer: () => Response | Promise<Response>, from = '2026-01-01', to = '2026-11-27') => {
+const read = (answer: () => Response | Promise<Response>, from = '2026-11-26', to = from) => {
   if (bitstamp === null) throw new Error('the Bitstamp reader is not built');
   return bitstamp.closes('btceur', day(from), day(to), io(answer).io);
 };
 
 describe("Bitstamp's reader", () => {
-  it("asks for yesterday's daily candle only, without the open one and with no header of its own", async () => {
+  it("asks for the window's daily candle only, without the open one and with no header of its own", async () => {
     const fake = io(() => Response.json(body([candle('2026-11-26', '2')])));
-    const rows = await bitstamp?.closes('btceur', day('2026-01-01'), day('2026-11-27'), fake.io);
+    const rows = await bitstamp?.closes('btceur', day('2026-11-26'), day('2026-11-26'), fake.io);
     expect(rows).toEqual([{ date: '2026-11-26', close: '2' }]);
     expect(fake.calls).toHaveLength(1);
     const url = new URL(fake.calls[0]?.url ?? '');
@@ -54,17 +54,35 @@ describe("Bitstamp's reader", () => {
     expect(fake.calls[0]?.init?.headers).toBeUndefined();
   });
 
-  it('asks nothing when yesterday is outside `from` to `to`: there is no catch-up', async () => {
-    const fake = io(() => Response.json(body([candle('2026-11-20', '2')])));
-    expect(await bitstamp?.closes('btceur', day('2026-11-01'), day('2026-11-20'), fake.io)).toEqual([]);
-    expect(await bitstamp?.closes('btceur', day('2026-11-27'), day('2026-11-30'), fake.io)).toEqual([]);
+  it('reads the day before yesterday, for a run whose clock passed midnight after it started', async () => {
+    const fake = io(() => Response.json(body([candle('2026-11-25', '2')])));
+    expect(await bitstamp?.closes('btceur', day('2026-11-25'), day('2026-11-25'), fake.io)).toEqual([
+      { date: '2026-11-25', close: '2' },
+    ]);
+    expect(new URL(fake.calls[0]?.url ?? '').searchParams.get('start')).toBe(String(seconds('2026-11-25')));
+  });
+
+  it.each([
+    ['a window of two days', '2026-11-25', '2026-11-26'],
+    ['a window of 720 days', '2024-12-07', '2026-11-26'],
+    ['a day three days back: there is no catch-up', '2026-11-24', '2026-11-24'],
+    ['a week back, as a past --today asks', '2026-11-19', '2026-11-19'],
+    ['today, whose candle is still open', '2026-11-27', '2026-11-27'],
+    ['a day after today', '2026-11-28', '2026-11-28'],
+    ['a window that ends before it starts', '2026-11-26', '2026-11-25'],
+  ])('refuses %s before any request, as a failure', async (_, from, to) => {
+    const fake = io(() => Response.json(body([candle(from, '2')])));
+    await expect(bitstamp?.closes('btceur', day(from), day(to), fake.io)).rejects.toThrow(
+      /^refused: bitstamp btceur out of window$/,
+    );
     expect(fake.calls).toHaveLength(0);
   });
 
-  it('drops a candle dated other than yesterday', async () => {
+  it("drops a candle dated other than the window's day", async () => {
     const candles = [candle('2026-11-25', '1'), candle('2026-11-26', '2'), candle('2026-11-27', '3')];
     expect(await read(() => Response.json(body(candles)))).toEqual([{ date: '2026-11-26', close: '2' }]);
     expect(await read(() => Response.json(body([candle('2026-11-27', '3')])))).toEqual([]);
+    expect(await read(() => Response.json(body([candle('2026-11-26', '2')])), '2026-11-25')).toEqual([]);
     expect(await read(() => Response.json(body([])))).toEqual([]);
   });
 
@@ -118,7 +136,7 @@ describe("Bitstamp's reader", () => {
 
   it('refuses a symbol outside the listing shape before any request', async () => {
     const fake = io(() => Response.json(body([])));
-    await expect(bitstamp?.closes('../btceur', day('2026-01-01'), day('2026-11-27'), fake.io)).rejects.toThrow(
+    await expect(bitstamp?.closes('../btceur', day('2026-11-26'), day('2026-11-26'), fake.io)).rejects.toThrow(
       /^refused: bitstamp unknown pair$/,
     );
     expect(fake.calls).toHaveLength(0);

@@ -19,6 +19,15 @@ const WINDOW_DAYS: Record<Exchange, number | null> = {
   coinbase: null,
 };
 
+/**
+ * The order the exchanges run in: first the one whose day cannot be read again (Bitstamp: yesterday
+ * only), then Kraken, whose window heals a missed day, so a slow or failing Kraken never costs Bitstamp's.
+ */
+const ORDER: readonly Exchange[] = ['bitstamp', 'kraken', 'coinbase'];
+
+/** Consecutive unreachable pairs after which an exchange's remaining pairs fail unread. */
+const STOP_AFTER = 3;
+
 /** The least time between two requests to one exchange (Kraken: one a second per address). */
 const PACE_MS = 1000;
 
@@ -29,7 +38,7 @@ const STORE_REFUSAL =
   /^refused: closes\/(kraken|bitstamp)\/[A-Z0-9]{1,12}-(EUR|USD)\.csv (is malformed|rows are malformed|cannot be (read|written) \([A-Z][A-Z0-9_]{0,31}\))$/;
 // A reader's refusals (sources/read.ts): the exchange, its symbol and a status, or an unknown pair.
 const READER_REFUSAL =
-  /^refused: (kraken|bitstamp) (unknown pair|[A-Za-z0-9]{1,24} (rate limited|unreachable|http \d{3}|error|malformed))$/;
+  /^refused: (kraken|bitstamp) (unknown pair|[A-Za-z0-9]{1,24} (rate limited|unreachable|http \d{3}|error|malformed|out of window))$/;
 
 export type DailyOptions = { readonly store: string; readonly dry: boolean; readonly today: CalendarDate };
 type Print = { readonly out: (line: string) => void; readonly err: (line: string) => void };
@@ -45,7 +54,10 @@ export function line(error: unknown): string {
   return STORE_REFUSAL.test(message(error)) ? message(error) : 'daily refused: unexpected error';
 }
 
-/** Runs every exchange's pairs into the store; false when a pair failed. A store refusal stops the run. */
+/**
+ * Runs every exchange's pairs into the store, in `ORDER`; false when a pair failed. A store refusal stops
+ * the run; `STOP_AFTER` unreachable pairs in a row stop that exchange, its remaining pairs failed unread.
+ */
 export async function runDaily(
   options: DailyOptions,
   io: SourceIo,
@@ -58,7 +70,8 @@ export async function runDaily(
   const { mergeAppend, readStore, writeStore } = await import('./store.ts');
   const readers = sources ?? (await import('./sources/index.ts')).SOURCES;
   let clean = true;
-  for (const [exchange, source] of Object.entries(readers) as [Exchange, Source | null][]) {
+  for (const exchange of ORDER) {
+    const source = readers[exchange];
     const days = WINDOW_DAYS[exchange];
     if (source === null || days === null) {
       print.out(`${exchange}: off`);
@@ -68,6 +81,8 @@ export async function runDaily(
     const paced = pace(PACE_MS, io);
     const from = addDays(options.today, -days);
     const to = addDays(options.today, -1);
+    // Unreachable pairs in a row, across both quotes: an outage costs STOP_AFTER timeouts, not one per pair.
+    let unreachable = 0;
     for (const quote of QUOTES) {
       const pairs = Object.entries(PAIRS).flatMap(([coin, venues]) => {
         const symbol = venues[exchange]?.[quote];
@@ -77,14 +92,22 @@ export async function runDaily(
       let revised = 0;
       let failed = 0;
       for (const { pair, symbol } of pairs) {
+        if (unreachable >= STOP_AFTER) {
+          failed += 1;
+          continue;
+        }
         const stored = await readStore(options.store, exchange, pair);
         let fresh: Awaited<ReturnType<Source['closes']>>;
         try {
           fresh = await source.closes(symbol, from, to, paced);
+          unreachable = 0;
         } catch (error) {
           failed += 1;
           const refusal = message(error);
-          print.err(READER_REFUSAL.test(refusal) ? refusal : `refused: ${exchange} ${symbol} unexpected error`);
+          const closed = READER_REFUSAL.test(refusal);
+          print.err(closed ? refusal : `refused: ${exchange} ${symbol} unexpected error`);
+          unreachable = closed && refusal.endsWith(' unreachable') ? unreachable + 1 : 0;
+          if (unreachable === STOP_AFTER) print.err(`${exchange}: stopped after ${STOP_AFTER} unreachable`);
           continue;
         }
         const merged = mergeAppend(stored, fresh);
