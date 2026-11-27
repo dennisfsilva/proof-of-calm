@@ -16,6 +16,27 @@ const templates = readdirSync(new URL('templates/', root))
 const row = (each: { coin: string; high: string; low: string; fall: string }) =>
   `${each.coin} ${each.high} ${each.low} ${each.fall}`;
 
+type Cited = {
+  coin: string;
+  high: string;
+  low: string;
+  fall: string;
+  basis?: string | undefined;
+  publisher: string;
+  source: string;
+  lowSource?: string | undefined;
+};
+const CITED = ['basis', 'publisher', 'source', 'lowSource'] as const;
+// Each template row's field that differs from the cycles row with its coin, high, low and fall, as "coin high field".
+const untied = (rows: readonly Cited[], drawdowns: readonly Cited[]) =>
+  drawdowns.flatMap((drawdown) => {
+    const match = rows.find((each) => row(each) === row(drawdown));
+    if (match === undefined) return [`${drawdown.coin} ${drawdown.high} row`];
+    return CITED.filter((field) => match[field] !== drawdown[field]).map(
+      (field) => `${drawdown.coin} ${drawdown.high} ${field}`,
+    );
+  });
+
 // docs/CONTENT-OPS.md §7: facts a and b quote each fall to one decimal on the series they name, and the file rounds
 // it to a whole percent on the series it names. The two series can differ; the fall and its two dates cannot.
 const A = 'a.btc-drawdowns';
@@ -241,6 +262,38 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
     for (const template of templates) {
       for (const drawdown of template.drawdowns) expect(rows).toContain(row(drawdown));
     }
+  });
+
+  // docs/DOMAIN.md §5, docs/CONTENT-OPS.md §6: a template row that took a cycles row's figures but kept another
+  // series' source, publisher or basis would state one fall on two series.
+  it('gives every template drawdown its cycles row’s basis, publisher, source and lowSource', () => {
+    const rows = CycleDrawdownsSchema.parse(cycles).drawdowns;
+    expect(
+      untied(
+        rows,
+        templates.flatMap((template) => template.drawdowns),
+      ),
+    ).toEqual([]);
+  });
+
+  it('refuses a template row that keeps another series’ source, publisher or basis', () => {
+    const rows = CycleDrawdownsSchema.parse(cycles).drawdowns;
+    const sol = rows.find(({ coin }) => coin === 'SOL');
+    expect(sol).toBeDefined();
+    if (sol === undefined) return;
+    const { basis: _basis, ...intraday } = sol;
+    const copies = [
+      { ...sol, source: 'https://www.bitstamp.net/api/v2/ohlc/solusd/?step=86400&limit=730&start=1609459200' },
+      { ...sol, publisher: 'Bitstamp' },
+      intraday,
+      { ...sol, lowSource: KRAKEN_ARTICLE },
+    ];
+    expect(untied(rows, copies)).toEqual([
+      'SOL 2021-11-06 source',
+      'SOL 2021-11-06 publisher',
+      'SOL 2021-11-06 basis',
+      'SOL 2021-11-06 lowSource',
+    ]);
   });
 
   it('in the Cycles module a figure stays with its unit and a date stays whole', () => {
