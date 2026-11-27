@@ -58,7 +58,11 @@ describe("Kraken's reader", () => {
     const candles = ['2026-11-19', '2026-11-20', '2026-11-21', '2026-11-27', '2026-11-28', '2026-11-29'];
     const rows = await read(() => Response.json(body(candles.map((date) => candle(date, '4')))), '2026-11-20');
     expect(rows.map((row) => row.date)).toEqual(['2026-11-20', '2026-11-21']);
-    const narrow = await read(() => Response.json(body(candles.map((date) => candle(date, '4')))), '2026-11-19', '2026-11-20');
+    const narrow = await read(
+      () => Response.json(body(candles.map((date) => candle(date, '4')))),
+      '2026-11-19',
+      '2026-11-20',
+    );
     expect(narrow.map((row) => row.date)).toEqual(['2026-11-19', '2026-11-20']);
   });
 
@@ -120,8 +124,12 @@ describe("Kraken's reader", () => {
     await expect(read(() => new Response('secret 42.1', { status: 503 }))).rejects.toThrow(
       /^refused: kraken XBTEUR http 503$/,
     );
-    await expect(read(() => new Response('', { status: 429 }))).rejects.toThrow(/^refused: kraken XBTEUR rate limited$/);
-    await expect(read(() => Promise.reject(new RateLimited()))).rejects.toThrow(/^refused: kraken XBTEUR rate limited$/);
+    await expect(read(() => new Response('', { status: 429 }))).rejects.toThrow(
+      /^refused: kraken XBTEUR rate limited$/,
+    );
+    await expect(read(() => Promise.reject(new RateLimited()))).rejects.toThrow(
+      /^refused: kraken XBTEUR rate limited$/,
+    );
     await expect(read(() => Promise.reject(new TypeError('fetch failed: https://x 42.1')))).rejects.toThrow(
       /^refused: kraken XBTEUR unreachable$/,
     );
