@@ -25,12 +25,18 @@ const CLOSED = [
   /^(kraken|bitstamp|coinbase): off$/,
   /^kraken: stopped after 3 unreachable$/,
   /^refused: (kraken|bitstamp) [A-Za-z0-9]{1,24} (rate limited|unreachable|http \d{3}|error|malformed|out of window|unexpected error)$/,
+  /^refused: closes\/(kraken|bitstamp)\/[A-Z0-9]{1,12}-(EUR|USD)\.csv (is malformed|rows are malformed|cannot be (read|written) \([A-Z][A-Z0-9_]{0,31}\))$/,
 ];
 
 const count = (exchange: Exchange, quote: 'EUR' | 'USD') =>
   Object.values(PAIRS).filter((venues) => venues[exchange]?.[quote] !== undefined).length;
 const symbols = (exchange: Exchange, quote: 'EUR' | 'USD') =>
   Object.values(PAIRS).flatMap((venues) => venues[exchange]?.[quote] ?? []);
+// The store's pair names in the job's order (`BTC-EUR`).
+const pairs = (exchange: Exchange, quote: 'EUR' | 'USD') =>
+  Object.entries(PAIRS).flatMap(([coin, venues]) =>
+    venues[exchange]?.[quote] === undefined ? [] : [`${coin}-${quote}`],
+  );
 
 // The daily step's own timeout in the store's workflow (closes-store.yml), in milliseconds.
 const STEP_TIMEOUT_MS =
@@ -306,11 +312,45 @@ describe('runDaily', () => {
     expect(readFileSync(file('bitstamp', 'BTC-USD'), 'utf8')).toBe(`date,close\n${YESTERDAY},1.5\n${TODAY},1.5\n`);
   });
 
-  it('stops at a malformed store file with the store’s own refusal', async () => {
-    mkdirSync(join(store, 'closes', 'kraken'), { recursive: true });
-    writeFileSync(file('kraken', 'AAVE-EUR'), 'date,close\n2026-11-01,61234.5,x\n');
-    const error = await run(exchanges().io).catch((caught: unknown) => caught);
-    expect(line(error)).toBe('refused: closes/kraken/AAVE-EUR.csv is malformed');
+  // A store refusal fails its pair only: Bitstamp's later pairs, whose day cannot be read again, and
+  // every Kraken pair are still read and written.
+  it.each([
+    [
+      'a malformed store file',
+      (pair: string) => writeFileSync(file('bitstamp', pair), '<<<<<<< HEAD\ndate,close\n'),
+      (pair: string) => `refused: closes/bitstamp/${pair}.csv is malformed`,
+      0,
+    ],
+    [
+      'a store file that cannot be written',
+      // The temporary file's path is a folder with a file in it, on Windows and Linux alike.
+      (pair: string) => mkdirSync(join(`${file('bitstamp', pair)}.tmp`, 'held'), { recursive: true }),
+      (pair: string) => new RegExp(`^refused: closes/bitstamp/${pair}\\.csv cannot be written \\([A-Z]`),
+      1,
+    ],
+  ])('fails only the pair of %s and reads every later pair of both exchanges', async (_, spoil, refusal, read) => {
+    const pair = pairs('bitstamp', 'EUR')[3] ?? '';
+    mkdirSync(join(store, 'closes', 'bitstamp'), { recursive: true });
+    spoil(pair);
+    const { io, requests } = exchanges();
+    const { clean, out, err } = await run(io);
+    expect(err).toHaveLength(1);
+    expect(err[0]).toMatch(refusal(pair));
+    expect(out).toEqual([
+      summary('bitstamp', 'EUR', count('bitstamp', 'EUR') - 1, 0, 1),
+      summary('bitstamp', 'USD', count('bitstamp', 'USD')),
+      summary('kraken', 'EUR', 3 * count('kraken', 'EUR')),
+      summary('kraken', 'USD', 3 * count('kraken', 'USD')),
+      'coinbase: off',
+    ]);
+    expect(clean).toBe(false);
+    const reads = (host: string) => requests.filter(({ url }) => url.hostname === host).length;
+    expect(reads('www.bitstamp.net')).toBe(count('bitstamp', 'EUR') + count('bitstamp', 'USD') - 1 + read);
+    expect(reads('api.kraken.com')).toBe(count('kraken', 'EUR') + count('kraken', 'USD'));
+    const later = [...pairs('bitstamp', 'EUR').slice(4), ...pairs('bitstamp', 'USD')];
+    for (const kept of later)
+      expect(readFileSync(file('bitstamp', kept), 'utf8')).toBe(`date,close\n${YESTERDAY},1.5\n`);
+    expect(existsSync(file('kraken', 'BTC-EUR'))).toBe(true);
   });
 });
 
