@@ -3,7 +3,7 @@ import { GENERIC_COUNTRY, loadProfiles } from '@proofofcalm/content';
 import type { Plan } from '@proofofcalm/core';
 import { act, cleanup, render, screen, within } from '@testing-library/react';
 import { Component, type ReactNode, Suspense } from 'react';
-import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
 import { NavigationProvider, Route, usePathname } from '../../../lib/navigation';
 import { ServicesProvider } from '../../../lib/services';
@@ -172,6 +172,12 @@ describe('the index on a pt-PT screen', () => {
 // The simulator's route (docs/EDUCATION.md §7), ahead of the modules' `/:slug`: its own screen, never a module's
 // route, which would send an unknown slug back to the index.
 describe('/learn/simulator', () => {
+  // The screen's chunk holds the core's simulator and the form: transformed once here, under the hook's timeout,
+  // so a loaded machine does not spend a find's second on the first import (the plan words still load per route).
+  beforeAll(async () => {
+    await import('./simulator-screen');
+  });
+
   it('renders the simulator screen, not a module or the redirect to the index', async () => {
     vi.stubGlobal('fetch', async () => new Response('Not found', { status: 404 }));
     onTestFinished(() => {
