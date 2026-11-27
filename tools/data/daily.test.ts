@@ -124,7 +124,14 @@ const summary = (exchange: Exchange, quote: 'EUR' | 'USD', added: number, revise
   `${exchange} ${quote}: ${count(exchange, quote)} pairs, ${added} added, ${revised} revised, ${failed} failed${tail}`;
 const file = (exchange: Exchange, pair: string) => join(store, 'closes', exchange, `${pair}.csv`);
 
-describe('runDaily', () => {
+// Each case runs the whole job over every pair, and its time is the store's writes in the temporary folder: nothing
+// waits for real (the pacers' sleeps and the tries' timeouts only move the fake clock). Alone the slowest case took
+// 191 ms in three runs (the second-run case; the across-midnight one 180 ms, both run the job twice). Under the load
+// of `pnpm check`'s turbo step (six forced runs of `turbo run typecheck lint test validate`, 2026-11-27) the same
+// cases took up to 5.4 s at Vitest's 5,000 ms default, which timed out 3 and then 2 of them in the first three runs, and
+// up to 10,897 ms (the across-midnight case; others 7,065 and 5,083 ms) in the three runs at a 60 s timeout.
+// docs/BUILD-PROMPT.md's rule keeps the worst under a third of the timeout: 10,897 ms is under 15 s, a third of 45 s.
+describe('runDaily', { timeout: 45_000 }, () => {
   it('fills every pair, Bitstamp first, then Kraken, and prints one line per exchange and quote', async () => {
     const { clean, out, err } = await run(exchanges().io);
     expect(err).toEqual([]);
