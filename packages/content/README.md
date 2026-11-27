@@ -51,15 +51,19 @@ its sources and any `lowSource` on the facts allow-list and `accessed` no later 
 the validator refuses a low before its high (`drawdown-low-before-high`), a coin the template does
 not buy (`drawdown-unknown-coin`), drawdown rows that are not one per coin in the order of `coins`
 (`drawdown-coins`) and a fall of 0 or of more than 100 percent
-(`drawdown-fall-out-of-range`). The falls tables split a publisher on ` and ` into the names of its two series,
+(`drawdown-fall-out-of-range`).
+
+The falls tables split a publisher on ` and ` into the names of its two series,
 so the validator holds each publisher to a closed grammar (`drawdown-publisher-joined`, `src/publisher-validate.ts`).
 A word is letters of any script, digits, full stops, ampersands, hyphens and apostrophes (' or ’). A name is words
 separated by single spaces, its first word starting with a letter or a digit. A name may end with one note in
 parentheses after a space, the note's first word also starting with a letter or a digit. A publisher is one name or
-two names joined by ` and `. The validator refuses three names. It refuses any other sign, such as a comma, a slash,
-a bracket or a quote. It refuses an empty name, two spaces in a row and a space at a name's edge. It refuses a name
-or a note that starts with another sign. It refuses a second note, a note before the name's end and a note with no
-space before it. It refuses a name that is the word "and", starts with it or ends with it. In the English explanation, `src/template-figures.ts` reads each sentence that holds
+two names joined by ` and `. The validator refuses more than two names. It refuses any other sign, such as a comma,
+a slash, a bracket or a quote. It refuses an empty name, two spaces in a row and a space at a name's edge. It refuses
+a name or a note that starts with neither a letter nor a digit. It refuses a second note, a note before the name's end and a
+note with no space before it. It refuses a name that is the word "and", starts with it or ends with it.
+
+In the English explanation, `src/template-figures.ts` reads each sentence that holds
 a percentage or a drawdown date against the closed shapes of `docs/CONTENT-STYLE.md` §4 (F1, F2 and S1 to S4), whole.
 It refuses a dated sentence that matches neither fall shape, a fall that names another row's coin, or a coin given
 two shares (`figure-form`), a figure other than its row's fall or its coin's share (`figure-mismatch`), and a
