@@ -3,6 +3,7 @@
 //
 //   apps/*  →  packages/app/features  →  packages/app/lib  →  packages/{core, ui, content, data}
 //   packages/ui, packages/content  →  packages/core (types only)
+//   packages/data  →  packages/core
 //   packages/core  →  nothing in the repository
 
 // pnpm resolves to node_modules/.pnpm/<name>@<version>/node_modules/<name>/…, which always contains a
@@ -77,10 +78,11 @@ module.exports = {
     },
     {
       name: 'data-imports-nothing',
-      comment: 'packages/data imports only zod.',
+      comment:
+        "packages/data imports only zod and packages/core, whose schemas type the dataset, so no type is written twice (docs/ARCHITECTURE.md).",
       severity: 'error',
       from: { path: '^packages/data/' },
-      to: { path: '^(apps/|packages/(?!data/))' },
+      to: { path: '^(apps/|packages/(?!(data|core)/))' },
     },
     {
       name: 'packages-never-import-hosts',
