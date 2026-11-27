@@ -42,7 +42,7 @@ All commands from the repo root.
 ## Structure
 
 - `apps/web`: the Vite host (ADR-0045; the shell `apps/web/app.html`, the one API function `apps/web/server/api.ts`, `apps/web/vercel.json` with the headers, the hashed CSP and the UK route, the service worker `apps/web/src/sw.ts`, the prerendered site pages `apps/web/src/site`, e2e). `apps/mobile`: the Vite static-export host for Capacitor (hash location). The build served as Vercel would: `node tools/serve/vercel-local.ts`.
-- `packages/app`: the product (features, lib, messages). `packages/core`: pure domain logic, 100 % coverage. `packages/ui`: tokens, components, charts, Storybook. `packages/content`: jurisdictions, templates, facts, banned words. `packages/data`: price history (M2).
+- `packages/app`: the product (features, lib, messages). `packages/core`: pure domain logic, 100 % coverage. `packages/ui`: tokens, components, charts, Storybook. `packages/content`: jurisdictions, templates, facts, banned words. `packages/data`: the price history's schemas and publish switch; the closes (M2).
 - `packages/config`: TypeScript bases, the dependency-cruiser rules and the hosts' Vite factory with its plugins (`packages/config/vite`). `tools/`: repository scripts. `docs/`: specs, standards, ADRs, research. The package map, what each owns and the dependency rule: `docs/ARCHITECTURE.md`. Standards: `docs/ENGINEERING.md`.
 
 ## Conventions (what no tool holds)

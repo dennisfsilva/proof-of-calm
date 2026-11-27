@@ -1,6 +1,6 @@
 # The gate, on every pull request and on main (ADR-0024, ADR-0025); this header owns its composition.
 # verify: Biome, ESLint, the dependency, styling, docs and size lints, knip, types, the unit, property
-# and component tests with 100 % coverage on packages/core, content validation, security.txt, the
+# and component tests with 100 % coverage on packages/core and packages/data, content validation, security.txt, the
 # commit subjects, the PR's label and body lines, and the content review guard (an agent/ or content-review
 # PR changes and deletes only content data, save one exception: it may remove a baseline PNG under
 # apps/web/e2e/*-snapshots/ (the rule: docs/CONTENT-OPS.md §3); judged by the base commit's copy of the

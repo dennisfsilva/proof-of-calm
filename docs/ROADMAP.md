@@ -181,8 +181,8 @@ external links and the Risk link in the mobile export (M3).
   §3.11).
 - Simulator: monthly buying into a split from date A to B with the path, drawdowns and time under
   water shown, from the reference-close dataset in `packages/data` (built by the pipeline in `tools/`
-  from Kraken bulk data, Bitstamp and Coinbase with ECB rates, ADR-0036) refreshed by the scheduled
-  job; every catalogue coin that Kraken, Bitstamp or Coinbase lists (ADR-0052), its start date
+  from Kraken bulk data and Bitstamp with ECB rates, ADR-0036; Coinbase only once it consents in
+  writing, ADR-0036's Reading of 2026-11-27 on Coinbase's terms) refreshed by the scheduled job; every catalogue coin that Kraken, Bitstamp or Coinbase lists (ADR-0052), its start date
   stated from the dataset; the caveat text. Before this work starts: the letters to Kraken (written
   confirmation) and Bitstamp (Data License Agreement) are sent and their answers recorded in ADR-0036.
 - Attribution text under every price and chart per ADR-0036, shipped with the simulator.
