@@ -66,7 +66,8 @@ historic data of `docs/LEGAL.md` §4 in its intraday form, since the bars are fa
 intraday lows: "[Source] intraday highs and lows in US dollars, [first date] to [last date]; the falls are
 Proof of Calm's own computation. Past performance is not a reliable indicator of future results.", as §6
 says for the Red day page; a row with `basis: 'close'` in the cycles file, a fall from the highest to the lowest
-daily close, names its source under "daily closes" instead (§4's forms). The publisher shows as
+daily close, names its source under "daily closes" instead (§4's forms), and once the rows mix the two the
+chart's table and the Risk page's add a last column, `Source`, with each row's publisher. The publisher shows as
 attribution text, never as a link to the exchange's domain (`docs/LEGAL.md` §3.4).
 **Caveat**: "The deepest falls so far are not a limit: a coin can fall further, to zero."
 **Facts needed**: §9 a, b, d, f, m and the e rows of the signs (c stays out: the module quotes no
