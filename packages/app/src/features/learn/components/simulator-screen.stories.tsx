@@ -70,3 +70,15 @@ export const Unpublished: Story = {
     await expect(canvas.queryByText(CREDIT)).toBeNull();
   },
 };
+
+/** The site could not be reached; Reload goes to the stories' recording platform. */
+export const FailedOffline: Story = {
+  args: { load: failed('offline') },
+  play: async ({ canvas }) => {
+    await expect(await canvas.findByText(FAILED)).toBeVisible();
+    const reload = canvas.getByRole('button', { name: 'Reload' });
+    await expect(reload).toBeVisible();
+    await userEvent.click(reload);
+    await expect(canvas.queryByText(CREDIT)).toBeNull();
+  },
+};
