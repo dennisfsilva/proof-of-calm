@@ -28,15 +28,21 @@ dennisfsilva/proof-of-calm-closes. Its workflow is a byte-for-byte copy of
 repository's `main` into `app/` with no credential kept, fails at its first step while the two
 copies differ (`cmp`), installs the tools package, runs the daily job with `--store ../store`, and
 then commits the store's files, `closes/<exchange>/*.csv` and never the `.tmp` file a killed write
-leaves (`store.ts`), as `github-actions[bot]` with the message `data: closes of <UTC date>` when
-anything changed. The daily step has its own 8-minute timeout inside the job's 15: a step timeout
+leaves (`store.ts`), as `github-actions[bot]`, in one commit per exchange that changed, Bitstamp's
+first with the message `data: bitstamp closes of <UTC date>`, then Kraken's (`data: kraken closes of
+<UTC date>`). The daily step has its own 8-minute timeout inside the job's 15: a step timeout
 fails that step without cancelling the job (GitHub's runner marks the step failed), so the commit
 step, which runs unless the run was cancelled, keeps what a slow or failed run wrote. The commit step
 runs after a failed pair too, so the other pairs' closes are kept. A push to the private repository
 after the job's checkout (a backfill, `backfill.md`, or the copy of a changed workflow) makes the job's
 push rejected; the commit step then pulls with rebase and pushes again, up to 3 times 10 seconds
-apart, and fails after the last try, or at once with the rebase aborted when it conflicts, so the run
-is red for the owner and the day's closes, committed only on the runner, are not lost unseen. It keeps
+apart, and fails after the last try, so the run is red for the owner and the day's closes, committed
+only on the runner, are not lost unseen. A rebase that conflicts only on files under `closes/kraken/`
+(a backfill that wrote the same Kraken day) skips Kraken's commit, whose day the next run's 720-day
+window reads again, and goes on pushing, so Bitstamp's day, which cannot be read again (ADR-0036's
+Reading of 2026-11-23), reaches the store; the step still fails at the end, so the owner sees that a
+Kraken day was dropped. A conflict on any other file aborts the rebase and fails the step at once;
+nothing with a conflict marker is ever committed. It keeps
 no cache and uploads no artifact.
 
 The copy rule: when a merged pull request changes `tools/data/closes-store.yml`, the session copies
