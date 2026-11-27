@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import facts from '../facts/education.json' with { type: 'json' };
 import { parseModule, plainText } from './loaders/modules.ts';
 import { moduleProblems } from './modules-validate.ts';
@@ -152,10 +152,21 @@ const exampleLines = (body: string) =>
     .filter((line) => line.startsWith('- '))
     .map((line) => line.slice(2));
 
+// The gate's first call in a process pays V8's compile of the banned-words patterns (215 ms for the advice pattern,
+// 15,376 characters under /giu): 301 ms on its own locally, 414 to 799 ms inside the full forced
+// `pnpm test`, 3 ms the second time. CI's verify job passed Vitest's 5,000 ms on it in runs 45995742698 and
+// 46007452668 (both attempts), at least 6.3 times the full-suite figure, past the six times the third-of-timeout rule
+// allows (docs/BUILD-PROMPT.md). So the first call runs here under 60 s, a third of which is 25 times 799 ms, and
+// each test below reads its result warm.
+let gate: ReturnType<typeof moduleProblems>;
+beforeAll(() => {
+  gate = moduleProblems({ path, source }, context);
+}, 60_000);
+
 describe('the Taxes where you live module', () => {
   it('passes the module gate, with no banned word', () => {
     const module = read();
-    expect(moduleProblems({ path, source }, context)).toEqual([]);
+    expect(gate).toEqual([]);
     expect([module.title, module.idea, module.caveat].flatMap((text) => findBanned(text))).toEqual([]);
     expect([module.slug, module.title, module.chart]).toEqual(['taxes-where-you-live', 'Taxes where you live', 'none']);
     expect(module.idea).toBe('Where you live decides what holding means for tax, and the rules keep changing.');
