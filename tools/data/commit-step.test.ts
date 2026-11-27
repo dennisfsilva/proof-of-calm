@@ -79,7 +79,8 @@ function repositories() {
 const step = (job: string) =>
   spawnSync(bash, ['--noprofile', '--norc', '-eo', 'pipefail', '-c', script], { cwd: job, env, encoding: 'utf8' });
 const subjects = (bare: string) => git(bare, 'log', '--format=%s', 'main').split('\n');
-const day = (exchange: string) => expect.stringMatching(new RegExp(`^data: ${exchange} closes of \\d{4}-\\d{2}-\\d{2}$`));
+const day = (exchange: string) =>
+  expect.stringMatching(new RegExp(`^data: ${exchange} closes of \\d{4}-\\d{2}-\\d{2}$`));
 const rebasing = (job: string) =>
   existsSync(join(job, '.git', 'rebase-merge')) || existsSync(join(job, '.git', 'rebase-apply'));
 // Every file the store's main holds, none of them carrying a conflict marker.
