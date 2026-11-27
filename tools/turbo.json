@@ -13,6 +13,7 @@
         "$TURBO_ROOT$/.github/workflows/lighthouse-branch.yml",
         "$TURBO_ROOT$/.github/workflows/content-review.yml",
         "$TURBO_ROOT$/.github/workflows/daily-rebuild.yml",
+        "$TURBO_ROOT$/.github/workflows/data-dry.yml",
         "$TURBO_ROOT$/.github/PULL_REQUEST_TEMPLATE/content-review.md",
         "$TURBO_ROOT$/.gitignore",
         "$TURBO_ROOT$/apps/web/public/**",
