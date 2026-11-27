@@ -53,6 +53,17 @@ export function setShare(value: CoinSplitValue, id: CoinId, text: string): CoinS
   return { ...value, shares: { ...value.shares, [id]: text } };
 }
 
+/**
+ * The value a plan's split opens the editor with: its coins in order and each share written in the formatting
+ * locale, as `readShares` reads it back (a de-DE `33.333` as `33,333`, never `33.333`, which reads as 33333).
+ */
+export const splitValueOf = (plan: Plan, numberInput: NumberInput): CoinSplitValue => ({
+  coins: plan.coins,
+  shares: Object.fromEntries(
+    plan.coins.map((coin) => [coin.id, numberInput.format(plan.split[coin.id] ?? ('0' as Percent), 0)]),
+  ) as Record<CoinId, string>,
+});
+
 /** A share's most decimals: the core's `PERCENT_DECIMALS` (packages/core/src/schema/plan.ts:144), not exported. */
 const SHARE_DECIMALS = 4;
 
