@@ -67,8 +67,9 @@ describe('closes-store.yml', () => {
     const commit = /- name: Commit the closes\n((?: {8}.*\n)+)/.exec(store)?.[1] ?? '';
     expect(commit).toContain(`        if: $\{{ !cancelled() }}\n`);
     expect(commit).toContain('git config user.email "41898282+github-actions[bot]@users.noreply.github.com"');
-    expect(commit).toContain('git commit --quiet --message "data: closes of $(date -u +%F)"');
-    expect(commit).toContain('git diff --cached --quiet');
+    expect(commit).toContain('git commit --quiet --message "data: $exchange closes of $day"');
+    expect(commit).toContain('day=$(date -u +%F)\n');
+    expect(commit).toContain('if git diff --cached --quiet; then continue; fi');
   });
 
   it('gives the daily step its own timeout, well under the job’s, so a slow run still reaches the commit', () => {
@@ -88,20 +89,40 @@ describe('closes-store.yml', () => {
   it('stages only finished store files, never the temporary file a killed write leaves', () => {
     const commit = /- name: Commit the closes\n((?: {8}.*\n)+)/.exec(store)?.[1] ?? '';
     const adds = commit.match(/git add .*/g) ?? [];
-    expect(adds).toEqual([`git add --all -- ':(glob)closes/*/*.csv'`]);
+    expect(adds).toEqual([`git add --all -- ":(glob)closes/$exchange/*.csv"`]);
+    // One commit per exchange, Kraken's last, so a rebase that skips Kraken's commit has nothing left to apply.
+    expect(commit).toContain('\n          for exchange in bitstamp kraken; do\n');
     // Nothing is staged otherwise, and the step ends quietly when there is no store file yet.
     expect(commit).not.toMatch(/git (commit|stage) .*(-a\b|--all)/);
     expect(commit).toContain(`if ! ls closes/*/*.csv > /dev/null 2>&1; then exit 0; fi`);
   });
 
-  it('retries a rejected push 3 times on top of a pull with rebase, aborting one that conflicts', () => {
+  it('retries a rejected push 3 times on top of a pull with rebase, skipping only a Kraken conflict', () => {
     const commit = /- name: Commit the closes\n((?: {8}.*\n)+)/.exec(store)?.[1] ?? '';
     // commit-step.test.ts runs these lines against a racing push on a depth-1 checkout.
     expect(commit).toMatch(
-      /git commit .*\n {10}for try in 1 2 3 4; do\n {12}if git push --quiet; then exit 0; fi\n {12}if \[ "\$try" = 4 \]; then exit 1; fi\n {12}sleep 10\n {12}if ! git pull --rebase --quiet; then git rebase --abort \|\| true; exit 1; fi\n {10}done\n$/,
+      new RegExp(
+        [
+          String.raw`\n {10}if \[ -z "\$made" \]; then exit 0; fi`,
+          String.raw` {10}for try in 1 2 3 4; do`,
+          String.raw` {12}if git push --quiet; then exit "\$\{dropped:-0\}"; fi`,
+          String.raw` {12}if \[ "\$try" = 4 \]; then exit 1; fi`,
+          String.raw` {12}sleep 10`,
+          String.raw` {12}if git pull --rebase --quiet; then continue; fi`,
+          String.raw` {12}unmerged=\$\(git diff --name-only --diff-filter=U\)`,
+          String.raw` {12}others=\$\(git diff --name-only --diff-filter=U -- ':\(exclude\)closes/kraken/'\)`,
+          String.raw` {12}if \[ -z "\$unmerged" \] \|\| \[ -n "\$others" \]; then git rebase --abort \|\| true; exit 1; fi`,
+          String.raw` {12}if ! git rebase --skip; then git rebase --abort \|\| true; exit 1; fi`,
+          String.raw` {12}dropped=1`,
+          String.raw` {10}done\n$`,
+        ].join('\n'),
+      ),
     );
     expect(commit.match(/git push/g)).toHaveLength(1);
+    // Nothing else continues a rebase, so no file with a conflict marker is ever committed.
+    expect(commit).not.toMatch(/git (rebase --continue|add .*-u|commit .*-a\b)/);
     expect(store).toMatch(/^# .*is retried up to 3 times, each 10 s later on$/m);
+    expect(store).toMatch(/^# top of a pull with rebase\. A rebase that conflicts only on Kraken files skips Kraken's commit/m);
   });
 });
 
