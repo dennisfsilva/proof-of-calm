@@ -90,7 +90,7 @@ function runWithout(missing: Readonly<Partial<Record<CoinId, readonly string[]>>
   };
 }
 
-async function mount(result: ReturnType<typeof run>) {
+async function mount(result: ReturnType<typeof run>, feePercent = '0') {
   const services = createTestServices();
   await services.start();
   const view = render(
@@ -101,6 +101,7 @@ async function mount(result: ReturnType<typeof run>) {
           sensitivity={result.sensitivity}
           currency="EUR"
           closesFrom={result.first}
+          feePercent={feePercent as Percent}
         />
       </I18nProvider>
     </ServicesProvider>,
@@ -118,6 +119,8 @@ const figureOf = (term: string) => screen.getByText(term, { selector: 'dt' }).ne
 
 const CAVEAT =
   'Past prices are facts; a simulation of them is not a forecast. Taxes, fees, slippage and your own behaviour are not in this chart.';
+const CAVEAT_FEE =
+  'Past prices are facts; a simulation of them is not a forecast. Taxes, slippage and your own behaviour are not in this chart; fees are in it only as the flat 0.0001% you set.';
 
 describe('the simulation view', () => {
   it('reads 1.00× at a constant price', async () => {
@@ -127,8 +130,17 @@ describe('the simulation view', () => {
   });
 
   it('reads 0.99× at a constant price with a 1 % fee', async () => {
-    await mount(run(FLAT, '1'));
+    await mount(run(FLAT, '1'), '1');
     expect(figureOf('Value against money invested')).toBe('0.99×');
+  });
+
+  // A fee above 0 is in the chart, so the caveat says how; at 0 it keeps the sentence that names fees as left out.
+  it('words the caveat for a fee of 0 and for a fee above 0', async () => {
+    const container = await mount(run(FLAT));
+    expect(container.querySelector('[data-slot="card"]')?.textContent).toBe(CAVEAT);
+    cleanup();
+    const charged = await mount(run(FLAT, '0.0001'), '0.0001');
+    expect(charged.querySelector('[data-slot="card"]')?.textContent).toBe(CAVEAT_FEE);
   });
 
   it('shows the path, its lines, the figures, the multiple, the caveat and the table in that order', async () => {

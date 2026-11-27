@@ -192,7 +192,9 @@ optional as a flat percentage. Nothing about the future.
 **Chart**: one: value and cost basis over time with drawdown shading; a second small multiple only for
 the sensitivity view.
 **Caveat**: "Past prices are facts; a simulation of them is not a forecast. Taxes, fees, slippage and
-your own behaviour are not in this chart."
+your own behaviour are not in this chart." With a fee above 0 the chart holds that fee, so its second sentence
+reads "Taxes, slippage and your own behaviour are not in this chart; fees are in it only as the flat 0.5% you
+set.", the fee as typed (one `learn.simulator.result.caveat` message with a select on the fee).
 **Facts needed**: data sources and licensing from ADR-0036; the method in §8.
 **Screen**: `/learn/simulator` (`packages/app/src/features/learn/components/simulator-screen.tsx`), its own
 chunk under Learn's, reached only by its address while `PUBLISH.display` is false (`packages/data/README.md`).

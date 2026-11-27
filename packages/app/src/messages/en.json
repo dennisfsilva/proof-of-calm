@@ -241,7 +241,7 @@
         "gaps": "Buy days with no close",
         "multiple": "Value against money invested",
         "multipleLine": "Simulated value of {value} on {end} for {invested} invested.",
-        "caveat": "Past prices are facts; a simulation of them is not a forecast. Taxes, fees, slippage and your own behaviour are not in this chart.",
+        "caveat": "Past prices are facts; a simulation of them is not a forecast. {fee, select, flat {Taxes, slippage and your own behaviour are not in this chart; fees are in it only as the flat {percent} you set.} other {Taxes, fees, slippage and your own behaviour are not in this chart.}}",
         "starts": {
           "summary": "Show the plan from 12 start dates as a table",
           "start": "Start",

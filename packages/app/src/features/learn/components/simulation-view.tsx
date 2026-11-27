@@ -2,6 +2,8 @@ import {
   type CalendarDate,
   type CurrencyCode,
   decimal,
+  decimalPlaces,
+  isPositive,
   type Percent,
   type SensitivityRow,
   type Simulation,
@@ -19,7 +21,7 @@ import { simulatorGeometry } from '../lib/simulator-chart';
 // under it the past-performance line of the first view of historic data (docs/LEGAL.md §4) with the Risk link, as a
 // Learn module sets it, and the closes' credit at text-14 (docs/CONTENT-STYLE.md §3); then the falls, the months in
 // loss and the gaps; then the multiple, never an annualised return; the caveat in the box a Learn module gives its
-// caveat; and the same plan started in each of 12 months behind one disclosure, the rows the closes cannot cover
+// caveat, which names a fee above 0 as the one cost in the chart; and the same plan started in each of 12 months behind one disclosure, the rows the closes cannot cover
 // said once above it.
 
 /** The chart's viewBox: simulatorGeometry places the paths in it. */
@@ -32,6 +34,8 @@ export type SimulationViewProps = {
   readonly currency: CurrencyCode;
   /** The day the chosen coins' closes begin, which the line over the refused rows names. */
   readonly closesFrom: CalendarDate;
+  /** The flat fee the simulation took from each buy, which the caveat names once it is above 0. */
+  readonly feePercent: Percent;
 };
 
 function Figure({
@@ -52,7 +56,7 @@ function Figure({
   );
 }
 
-export function SimulationView({ simulation, sensitivity, currency, closesFrom }: SimulationViewProps) {
+export function SimulationView({ simulation, sensitivity, currency, closesFrom, feePercent }: SimulationViewProps) {
   const t = useTranslations('learn');
   const f = useFormatters();
   const geometry = useMemo(() => simulatorGeometry(simulation.series, SIMULATION_VIEW_BOX), [simulation.series]);
@@ -162,7 +166,10 @@ export function SimulationView({ simulation, sensitivity, currency, closesFrom }
         </dl>
       )}
       <Card>
-        <p className="text-16">{t('simulator.result.caveat')}</p>
+        <p className="text-16">{t('simulator.result.caveat', {
+            fee: isPositive(feePercent) ? 'flat' : 'none',
+            percent: f.percent(feePercent, { decimals: decimalPlaces(feePercent) }),
+          })}</p>
       </Card>
       <ChartTable
         summary={t('simulator.result.starts.summary')}
