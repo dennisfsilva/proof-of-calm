@@ -1,8 +1,8 @@
-import { type Coin, type CoinId, type Plan, PlanSchema } from '@proofofcalm/core';
+import { type Coin, type CoinId, type Plan, PlanSchema, planIssues } from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';
 import { createNumberInput } from '../../../lib/format';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
-import { addCoin, type CoinSplitValue, coinSplit, MAX_COINS, removeCoin, setShare } from './split';
+import { addCoin, type CoinSplitValue, coinSplit, MAX_COINS, readShares, removeCoin, setShare } from './split';
 
 // The coin editor's value: the plan's coins and the shares as typed. The split is read with the
 // formatting locale (ADR-0034) and checked by the core's invariants (docs/DOMAIN.md §2.1).
@@ -49,6 +49,48 @@ describe('the value', () => {
 
   it('sets the typed share of one coin', () => {
     expect(setShare(value, id('ETH'), '30,5').shares).toEqual({ BTC: '70', ETH: '30,5' });
+  });
+});
+
+describe('readShares, with no plan', () => {
+  // The core's invariants on a plan's coins and split, which readShares mirrors with no plan to check.
+  const PATHS = new Set<unknown>(['coins', 'split']);
+  const core = (v: CoinSplitValue, split: Plan['split']) =>
+    planIssues({ ...plan, coins: [...v.coins], split }).filter((issue) => PATHS.has(issue.path[0]));
+
+  it('reads the shares into the split a simulation takes, in the order of the rows', () => {
+    const read = readShares(addCoin(value, SOL), english);
+    expect(read).toEqual({ ok: true, value: { BTC: '70', ETH: '30', SOL: '0' } });
+    expect(read.ok && Object.keys(read.value)).toEqual(['BTC', 'ETH', 'SOL']);
+  });
+
+  const table: [string, CoinSplitValue][] = [
+    ['the fixture split', value],
+    ['a split off 100', setShare(value, id('ETH'), '20')],
+    ['5 decimals', { ...value, shares: { [id('BTC')]: '70.00001', [id('ETH')]: '29.99999' } }],
+    ['no coin at all', { coins: [], shares: {} }],
+    ['a coin twice', { coins: [BTC, BTC], shares: { [id('BTC')]: '100' } }],
+    ['20 coins', many(MAX_COINS)],
+    ['21 coins', many(MAX_COINS + 1)],
+    ['21 coins off 100', setShare(many(MAX_COINS + 1), id('C0'), '1')],
+  ];
+
+  it.each(table)('gives the plan reader’s issues in its order: %s', (_, v) => {
+    const read = readShares(v, english);
+    const planned = coinSplit(plan, v, english);
+    expect(read).toEqual(planned.ok ? { ok: true, value: planned.value.split } : planned);
+    const split = Object.fromEntries(v.coins.map((coin) => [coin.id, v.shares[coin.id] || '0'])) as Plan['split'];
+    const expected = [
+      ...(v.coins.length > MAX_COINS ? [{ code: 'coins-max', path: ['coins'] }] : []),
+      ...core(v, split),
+    ];
+    expect(read.ok ? [] : read.error).toEqual(expected);
+  });
+
+  it('a share that cannot be read is an issue on that share, and the sum waits for it', () => {
+    expect(readShares(setShare(value, id('ETH'), 'thirty'), english)).toEqual(
+      coinSplit(plan, setShare(value, id('ETH'), 'thirty'), english),
+    );
   });
 });
 

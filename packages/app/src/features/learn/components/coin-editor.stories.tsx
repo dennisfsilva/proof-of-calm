@@ -4,12 +4,12 @@ import { useState } from 'react';
 import { expect, userEvent } from 'storybook/test';
 import { createNumberInput } from '../../../lib/format';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
-import { type CoinSplitValue, coinSplit } from '../lib/split';
+import { type CoinSplitValue, coinSplit, readShares } from '../lib/split';
 import { CoinEditor, type CoinEditorProps } from './coin-editor';
 
 // The coin editor held as a host holds it, with the issues of coinSplit in en-GB: the fixture's split,
-// a split off 100 and a single coin; the test projects render each at 360 and 1280 px, light and dark,
-// with axe.
+// a split off 100, a single coin, a host with no plan and a note; the test projects render each at
+// 360 and 1280 px, light and dark, with axe.
 
 const plan = fixtureSnapshot().plan as Plan;
 const [BTC, ETH] = plan.coins as [Coin, Coin];
@@ -101,6 +101,32 @@ export const OneCoin: Story = {
     await expect(canvas.queryByRole('button', { name: 'Remove Bitcoin' })).toBeNull();
     await userEvent.click(canvas.getByRole('button', { name: 'Add Ethereum' }));
     await expect(canvas.getByRole('textbox', { name: 'Ethereum share (%)' })).toHaveFocus();
+  },
+};
+
+// A host with no plan, as the simulator: its issues from readShares, and the sole coin can go too.
+function NoPlanHost({ initial }: { initial: CoinSplitValue }) {
+  const [value, setValue] = useState(initial);
+  const result = readShares(value, english);
+  return (
+    <CoinEditor
+      value={value}
+      catalogue={catalogue}
+      issues={result.ok ? [] : result.error}
+      onChange={setValue}
+      allowEmpty
+    />
+  );
+}
+
+export const EmptyAllowed: Story = {
+  args: { initial: { coins: [BTC], shares: shares({ BTC: '100' }) } },
+  render: (args) => <NoPlanHost initial={args.initial} />,
+  play: async ({ canvas }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Remove Bitcoin' }));
+    await expect(canvas.queryAllByRole('textbox')).toHaveLength(0);
+    await expect(canvas.getByText('Make the shares add up to 100 %.')).toBeVisible();
+    await expect(canvas.getByRole('button', { name: 'Add Bitcoin' })).toHaveFocus();
   },
 };
 
