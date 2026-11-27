@@ -39,3 +39,10 @@ Option 3. The shape of the original decision stands: one route handler with serv
 ## Disagreement
 
 The planning session kept the decision's shape and changed its source. Shipping CoinGecko history in the repository would breach the API terms on every plan, and a public repository would make the breach visible; the owner's intent (no quota dependence, honest long-run charts) is served better by data we are allowed to publish.
+
+## Readings
+
+- 2026-11-27, Kraken's answer: the Consequence "Until an answer, the dataset is published as derived
+  medians with sources named" ended with it. Showing or publishing the reference closes waits for
+  Kraken's yes to the owner's four questions, and until then the history stays in a private store
+  (ADR-0036's Reading of 2026-11-27).
