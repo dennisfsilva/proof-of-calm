@@ -44,8 +44,21 @@ const MIXED = [
 
 export const MixedBases: Story = { args: { falls: MIXED } };
 
+// Before any scroll the caption reads whole: every line box of its text ends inside the region, though the Source
+// column makes the table wider than the box.
+const captionInBox = async (region: HTMLElement) => {
+  const caption = region.querySelector('caption');
+  await expect(caption).not.toBeNull();
+  const text = document.createRange();
+  if (caption) text.selectNodeContents(caption);
+  const edge = region.getBoundingClientRect().right + 0.5;
+  const lines = [...text.getClientRects()];
+  await expect(lines.length).toBeGreaterThan(0);
+  for (const line of lines) await expect(line.right).toBeLessThanOrEqual(edge);
+};
+
 // The narrowest phone at 125 % text: the fall, the main figure after the coin (docs/DESIGN.md §8), reads in the box
-// before any scroll, in the header and in every row, though the Source column takes room after it.
+// before any scroll, in the header and in every row, though the Source column takes room after it; so does the caption.
 export const MixedNarrow: Story = {
   args: { falls: MIXED },
   globals: { textZoom: '125', viewport: { value: 'android-small', isRotated: false } },
@@ -59,5 +72,17 @@ export const MixedNarrow: Story = {
     ];
     await expect(falls).toHaveLength(MIXED.length + 1);
     for (const cell of falls) await expect(cell?.getBoundingClientRect().right).toBeLessThanOrEqual(edge);
+    await captionInBox(region);
+  },
+};
+
+// The narrowest phone at 100 % text: the caption reads whole inside the box before any scroll.
+export const MixedPhone: Story = {
+  args: { falls: MIXED },
+  globals: { textZoom: '100', viewport: { value: 'android-small', isRotated: false } },
+  play: async ({ canvas }) => {
+    const region = canvas.getByRole('region', { name: /^Falls from each high/ });
+    await expect(region.scrollLeft).toBe(0);
+    await captionInBox(region);
   },
 };
