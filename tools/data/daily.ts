@@ -60,10 +60,18 @@ export function line(error: unknown): string {
   return STORE_REFUSAL.test(message(error)) ? message(error) : 'daily refused: unexpected error';
 }
 
+/** The store's closed refusal of one pair, printed as it is; any other error goes on and stops the run. */
+function storeRefusal(error: unknown): string {
+  if (STORE_REFUSAL.test(message(error))) return message(error);
+  throw error;
+}
+
 /**
- * Runs every exchange's pairs into the store, in `ORDER`; false when a pair failed. A store refusal stops
- * the run; `STOP_AFTER` unreachable pairs in a row stop an exchange that `HEALS`, its remaining pairs
- * failed unread, and never stop one that does not.
+ * Runs every exchange's pairs into the store, in `ORDER`; false when a pair failed. A store refusal (a
+ * malformed file, one that cannot be read or written) fails its pair only, so one bad file never costs
+ * a later pair's day, Bitstamp's above all; any other error stops the run. `STOP_AFTER` unreachable
+ * pairs in a row stop an exchange that `HEALS`, its remaining pairs failed unread, and never stop one
+ * that does not.
  */
 export async function runDaily(
   options: DailyOptions,
@@ -105,7 +113,14 @@ export async function runDaily(
           failed += 1;
           continue;
         }
-        const stored = await readStore(options.store, exchange, pair);
+        let stored: Awaited<ReturnType<typeof readStore>>;
+        try {
+          stored = await readStore(options.store, exchange, pair);
+        } catch (error) {
+          print.err(storeRefusal(error));
+          failed += 1;
+          continue;
+        }
         let fresh: Awaited<ReturnType<Source['closes']>>;
         try {
           fresh = await source.closes(symbol, from, to, paced);
@@ -120,9 +135,17 @@ export async function runDaily(
           continue;
         }
         const merged = mergeAppend(stored, fresh);
+        if (!options.dry && merged.added > 0) {
+          try {
+            await writeStore(options.store, exchange, pair, merged.rows);
+          } catch (error) {
+            print.err(storeRefusal(error));
+            failed += 1;
+            continue;
+          }
+        }
         added += merged.added;
         revised += merged.revised;
-        if (!options.dry && merged.added > 0) await writeStore(options.store, exchange, pair, merged.rows);
       }
       const tail = options.dry ? ' (dry: nothing written)' : '';
       print.out(
