@@ -5,9 +5,13 @@
 # store's checkout and commits what it added with the private repository's own GITHUB_TOKEN. The commit
 # step runs after a failed pair too, so the other pairs' closes are kept, and after the daily step's own
 # timeout, which fails that step without cancelling the job; it stages only the store's finished .csv
-# files, never a temporary file a killed write left. A push rejected because the store moved on after the
-# checkout (a backfill or a workflow copy pushed meanwhile) is retried up to 3 times, each 10 s later on
-# top of a pull with rebase; a rebase that conflicts is aborted and the step fails. No cache, no artifact.
+# files, never a temporary file a killed write left, in one commit per exchange, Bitstamp's first and
+# Kraken's last. A push rejected because the store moved on after the checkout (a backfill or a workflow
+# copy pushed meanwhile) is retried up to 3 times, each 10 s later on
+# top of a pull with rebase. A rebase that conflicts only on Kraken files skips Kraken's commit (the next
+# run's 720-day window reads that day again) and goes on, so Bitstamp's day, which cannot be read again,
+# is pushed, and the step fails at the end; a conflict on any other file aborts the rebase and fails the
+# step. No cache, no artifact.
 name: Closes store
 
 on:
@@ -60,12 +64,24 @@ jobs:
           if ! ls closes/*/*.csv > /dev/null 2>&1; then exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add --all -- ':(glob)closes/*/*.csv'
-          if git diff --cached --quiet; then exit 0; fi
-          git commit --quiet --message "data: closes of $(date -u +%F)"
+          day=$(date -u +%F)
+          made=
+          dropped=
+          for exchange in bitstamp kraken; do
+            git add --all -- ":(glob)closes/$exchange/*.csv"
+            if git diff --cached --quiet; then continue; fi
+            git commit --quiet --message "data: $exchange closes of $day"
+            made=1
+          done
+          if [ -z "$made" ]; then exit 0; fi
           for try in 1 2 3 4; do
-            if git push --quiet; then exit 0; fi
+            if git push --quiet; then exit "${dropped:-0}"; fi
             if [ "$try" = 4 ]; then exit 1; fi
             sleep 10
-            if ! git pull --rebase --quiet; then git rebase --abort || true; exit 1; fi
+            if git pull --rebase --quiet; then continue; fi
+            unmerged=$(git diff --name-only --diff-filter=U)
+            others=$(git diff --name-only --diff-filter=U -- ':(exclude)closes/kraken/')
+            if [ -z "$unmerged" ] || [ -n "$others" ]; then git rebase --abort || true; exit 1; fi
+            if ! git rebase --skip; then git rebase --abort || true; exit 1; fi
+            dropped=1
           done
