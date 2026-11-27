@@ -40,11 +40,11 @@ const ROWS: readonly Row[] = [
   row('BTC', '2013-11-30', '2015-01-14', '87'),
   row('BTC', '2017-12-17', '2018-12-15', '84'),
   row('BTC', '2021-11-10', '2022-11-21', '78'),
-  row('ETH', '2018-01-13', '2018-12-14', '94'),
-  row('ETH', '2021-11-10', '2022-06-18', '82'),
+  row('ETH', '2018-01-20', '2018-12-08', '93'),
+  row('ETH', '2021-12-01', '2022-06-30', '81'),
   row('LINK', '2018-01-08', '2018-06-29', '89'),
   row('LINK', '2021-05-10', '2023-06-10', '91'),
-  row('SOL', '2021-11-06', '2022-12-29', '97'),
+  row('SOL', '2021-11-20', '2022-12-20', '98'),
 ];
 const set = (coin: string, high: string, change: Partial<Row>) =>
   ROWS.map((r) => (r.coin === coin && r.high === high ? { ...r, ...change } : r));
@@ -57,13 +57,13 @@ const ONLY_2021 = ROWS.filter((r) => r.coin !== 'BTC' || r.high === '2021-11-10'
 
 // The judge's two sentences (#349) and a plausible pt-PT draft of the section's other sentences.
 const S1 = 'No gráfico, a bitcoin teve 4 quedas de mais de 75 % entre 2011 e 2022.';
-const S2 = 'O ether caiu 94 % e 82 %, a Chainlink 89 % e 91 % e a Solana 97 %.';
+const S2 = 'O ether caiu 93 % e 81 %, a Chainlink 89 % e 91 % e a Solana 98 %.';
 const INTRO =
   'Um plano mensal define o dia de cada compra. Não limita até onde um preço pode cair, e uma moeda pode perder quase\ntodo o seu valor. Cada barra abaixo é uma queda de uma moeda, desde um máximo de ciclo até ao preço mais baixo\ndepois desse máximo.';
 const REST =
   '## Outras formas de perder as moedas\n\nA 10 out. 2025, as liquidações passaram 19 mil milhões de $ num dia.';
 const EN1 = 'In the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022.';
-const EN2 = 'Ether fell 94 % and 82 %, Chainlink 89 % and 91 %, and Solana 97 %.';
+const EN2 = 'Ether fell 93 % and 81 %, Chainlink 89 % and 91 %, and Solana 98 %.';
 const EN_INTRO = 'A monthly plan sets when you buy. Each bar below is one fall of one coin.';
 const nb = (text: string) => text.replaceAll(' %', ' %');
 const pt = (chart = `${S1} ${S2}`, { intro = INTRO, raw = false } = {}) =>
@@ -72,8 +72,8 @@ const en = (chart = `${EN1} ${EN2}`, { raw = false } = {}) =>
   `${EN_INTRO}\n\n<Chart />\n\n${raw ? chart : nb(chart)}\n\n## Other ways\n\nText.\n`;
 const ptPara = (text: string) => pt(`${S1} ${S2}\n\n${text}`);
 const enPara = (text: string) => en(`${EN1} ${EN2}\n\n${text}`);
-const ptE = (tail: string) => pt(`${S1} O ether caiu 94 % e 82 %, a Chainlink 89 % e 91 %${tail}`);
-const enE = (tail: string) => en(`${EN1} Ether fell 94 % and 82 %, Chainlink 89 % and 91 %, ${tail}`);
+const ptE = (tail: string) => pt(`${S1} O ether caiu 93 % e 81 %, a Chainlink 89 % e 91 %${tail}`);
+const enE = (tail: string) => en(`${EN1} Ether fell 93 % and 81 %, Chainlink 89 % and 91 %, ${tail}`);
 
 async function problemsOf(source: string, language = 'pt-PT', rows: FigureContext['rows'] = ROWS) {
   const { problem, page } = await checkModuleBody(source, at);
@@ -106,25 +106,25 @@ describe("pt-PT's chart section", () => {
     ],
     [
       'a BTC row at 54 stated in E',
-      enE('Solana 97 %, and bitcoin 54 %.'),
-      ptE(', a Solana 97 % e a bitcoin 54 %.'),
+      enE('Solana 98 %, and bitcoin 54 %.'),
+      ptE(', a Solana 98 % e a bitcoin 54 %.'),
       [],
       insert('BTC', row('BTC', '2025-10-06', '2026-07-01', '54')),
     ],
     [
       'an ETH row at 63',
-      en(`${EN1} Ether fell 94 %, 82 %, and 63 %, Chainlink 89 % and 91 %, and Solana 97 %.`),
-      pt(`${S1} O ether caiu 94 %, 82 % e 63 %, a Chainlink 89 % e 91 % e a Solana 97 %.`),
+      en(`${EN1} Ether fell 93 %, 81 %, and 63 %, Chainlink 89 % and 91 %, and Solana 98 %.`),
+      pt(`${S1} O ether caiu 93 %, 81 % e 63 %, a Chainlink 89 % e 91 % e a Solana 98 %.`),
       [],
       insert('ETH', row('ETH', '2024-03-12', '2025-04-09', '63')),
     ],
     [
       'a bound on Solana',
       en(
-        `${EN1} In the chart, Solana had 1 fall of more than 95 % between 2021 and 2022. Ether fell 94 % and 82 %, and Chainlink 89 % and 91 %.`,
+        `${EN1} In the chart, Solana had 1 fall of more than 95 % between 2021 and 2022. Ether fell 93 % and 81 %, and Chainlink 89 % and 91 %.`,
       ),
       pt(
-        `${S1} No gráfico, a Solana teve 1 queda de mais de 95 % entre 2021 e 2022. O ether caiu 94 % e 82 % e a Chainlink 89 % e 91 %.`,
+        `${S1} No gráfico, a Solana teve 1 queda de mais de 95 % entre 2021 e 2022. O ether caiu 93 % e 81 % e a Chainlink 89 % e 91 %.`,
       ),
       [],
     ],
@@ -138,8 +138,8 @@ describe("pt-PT's chart section", () => {
     ['E first, as two paragraphs', en(`${EN2}\n\n${EN1}`), pt(`${S2}\n\n${S1}`), []],
     [
       'the order: two figures swapped',
-      en(`${EN1} ${EN2.replace('94 % and 82 %', '82 % and 94 %')}`),
-      pt(`${S1} ${S2.replace('94 % e 82 %', '82 % e 94 %')}`),
+      en(`${EN1} ${EN2.replace('93 % and 81 %', '81 % and 93 %')}`),
+      pt(`${S1} ${S2.replace('93 % e 81 %', '81 % e 93 %')}`),
       [FC, FC],
     ],
     ['a wrong figure', enE('and Solana 96 %.'), ptE(' e a Solana 96 %.'), [FC]],
@@ -148,7 +148,7 @@ describe("pt-PT's chart section", () => {
       enE('and Solana 96 %.'),
       ptE(' e a Solana 96 %.'),
       [],
-      set('SOL', '2021-11-06', { fall: '96' }),
+      set('SOL', '2021-11-20', { fall: '96' }),
     ],
     [
       'a bound too high',
@@ -187,24 +187,24 @@ describe("pt-PT's chart section", () => {
       pt(`No gráfico, a bitcoin teve 4 quedas de mais de 75 % entre 2022 e 2011. ${S2}`),
       [FC, FU],
     ],
-    ['a coin with no row', enE('Solana 97 %, and Cardano 97 %.'), ptE(', a Solana 97 % e a Cardano 97 %.'), [FC]],
+    ['a coin with no row', enE('Solana 98 %, and Cardano 98 %.'), ptE(', a Solana 98 % e a Cardano 98 %.'), [FC]],
     [
       'a missing coin',
-      en(`${EN1} Ether fell 94 % and 82 %, and Chainlink 89 % and 91 %.`),
-      pt(`${S1} O ether caiu 94 % e 82 % e a Chainlink 89 % e 91 %.`),
+      en(`${EN1} Ether fell 93 % and 81 %, and Chainlink 89 % and 91 %.`),
+      pt(`${S1} O ether caiu 93 % e 81 % e a Chainlink 89 % e 91 %.`),
       [FU],
     ],
     [
       'SOL removed',
-      en(`${EN1} Ether fell 94 % and 82 %, and Chainlink 89 % and 91 %.`),
-      pt(`${S1} O ether caiu 94 % e 82 % e a Chainlink 89 % e 91 %.`),
+      en(`${EN1} Ether fell 93 % and 81 %, and Chainlink 89 % and 91 %.`),
+      pt(`${S1} O ether caiu 93 % e 81 % e a Chainlink 89 % e 91 %.`),
       [],
       without('SOL'),
     ],
     ['a code block', enPara('```\nnote\n```'), ptPara('```\nnota\n```'), [FC]],
-    ['emphasis on a figure', enE('and Solana *97* %.'), ptE(' e a Solana *97* %.'), [FC, ...FU4]],
-    ['U+200B before the joiner', enE('and Solana 97​ %.'), ptE(' e a Solana 97​ %.'), [FC, ...FU4]],
-    ['SOL 97 %', enE('and SOL 97 %.'), ptE(' e a SOL 97 %.'), [FC, FU, FU, FU]],
+    ['emphasis on a figure', enE('and Solana *98* %.'), ptE(' e a Solana *98* %.'), [FC, ...FU4]],
+    ['U+200B before the joiner', enE('and Solana 98​ %.'), ptE(' e a Solana 98​ %.'), [FC, ...FU4]],
+    ['SOL 98 %', enE('and SOL 98 %.'), ptE(' e a SOL 98 %.'), [FC, FU, FU, FU]],
   ])('%s', async (_, english, portuguese, expected, rows = ROWS) => {
     expect(await codes(english, 'en', rows)).toEqual(expected);
     expect(await codes(portuguese, 'pt-PT', rows)).toEqual(expected);
@@ -235,25 +235,25 @@ describe("pt-PT's chart section", () => {
     ['U+2007', ' '],
     ['U+3000', '　'],
   ])('2: a join with %s fails by its code point', async (point, gap) => {
-    const [first] = await problemsOf(pt(`${S1} ${S2.replace('97 %', `97${gap}%`)}`, { raw: true }));
+    const [first] = await problemsOf(pt(`${S1} ${S2.replace('98 %', `98${gap}%`)}`, { raw: true }));
     expect(first?.detail).toBe(
-      `body: "97${point} %" in "${S1} ${S2.replace('97 %', `97${point} %`)}" joins a figure to a sign; write the figure, one ordinary or no-break \
+      `body: "98${point} %" in "${S1} ${S2.replace('98 %', `98${point} %`)}" joins a figure to a sign; write the figure, one ordinary or no-break \
 space, and %; R5 (docs/CONTENT-STYLE.md §4)`,
     );
     for (const space of [' ', ' '])
-      expect(await codes(pt(`${S1} ${S2.replace('97 %', `97${space}%`)}`, { raw: true }))).toEqual([]);
+      expect(await codes(pt(`${S1} ${S2.replace('98 %', `98${space}%`)}`, { raw: true }))).toEqual([]);
   });
 
   // 3: the article agrees with the coin and is capitalised only to open E.
   it.each<[string, string, readonly string[]]>([
     ['A ether caiu', pt(`${S1} ${S2.replace('O ether', 'A ether')}`), [FC, FU, FU, FU]],
     ['o Solana', pt(`${S1} ${S2.replace('a Solana', 'o Solana')}`), [FC, FU, FU, FU]],
-    ['a Ether', pt(`${S1} A Chainlink caiu 89 % e 91 %, a Ether 94 % e 82 % e a Solana 97 %.`), [FC, FU, FU, FU]],
+    ['a Ether', pt(`${S1} A Chainlink caiu 89 % e 91 %, a Ether 93 % e 81 % e a Solana 98 %.`), [FC, FU, FU, FU]],
     ['o ether to open E', pt(`${S1} ${S2.replace('O ether', 'o ether')}`), [FC, FU, FU, FU]],
     ['A Solana inside E', pt(`${S1} ${S2.replace('a Solana', 'A Solana')}`), [FC, FU, FU, FU]],
     ['A bitcoin in B', pt(`${S1.replace('a bitcoin', 'A bitcoin')} ${S2}`), [FC, FU]],
     ['A Ethereum opens E', pt(`${S1} ${S2.replace('O ether', 'A Ethereum')}`), []],
-    ['a Ethereum inside E', pt(`${S1} A Chainlink caiu 89 % e 91 %, a Ethereum 94 % e 82 % e a Solana 97 %.`), []],
+    ['a Ethereum inside E', pt(`${S1} A Chainlink caiu 89 % e 91 %, a Ethereum 93 % e 81 % e a Solana 98 %.`), []],
   ])('3: %s', async (_, source, expected) => {
     expect(await codes(source)).toEqual(expected);
   });
@@ -270,7 +270,7 @@ space, and %; R5 (docs/CONTENT-STYLE.md §4)`,
     [
       '1 queda with one matching row',
       pt(
-        'No gráfico, a bitcoin teve 1 queda de mais de 90 % entre 2011 e 2011. O ether caiu 94 % e 82 %, a Chainlink 89 % e 91 %, a Solana 97 % e a bitcoin 87 %, 84 % e 78 %.',
+        'No gráfico, a bitcoin teve 1 queda de mais de 90 % entre 2011 e 2011. O ether caiu 93 % e 81 %, a Chainlink 89 % e 91 %, a Solana 98 % e a bitcoin 87 %, 84 % e 78 %.',
       ),
       [],
     ],
@@ -280,13 +280,13 @@ space, and %; R5 (docs/CONTENT-STYLE.md §4)`,
 
   // 5: no comma before `e` (§9), and clauses joined by `e`, never by a comma alone.
   it.each<[string, string, FigureContext['rows']?]>([
-    [', e a Solana', ptE(', e a Solana 97 %.')],
+    [', e a Solana', ptE(', e a Solana 98 %.')],
     [
-      '94 %, 82 %, e 63 %',
-      pt(`${S1} O ether caiu 94 %, 82 %, e 63 %, a Chainlink 89 % e 91 % e a Solana 97 %.`),
+      '93 %, 81 %, e 63 %',
+      pt(`${S1} O ether caiu 93 %, 81 %, e 63 %, a Chainlink 89 % e 91 % e a Solana 98 %.`),
       insert('ETH', row('ETH', '2024-03-12', '2025-04-09', '63')),
     ],
-    ['two clauses joined by a comma alone', ptE(', a Solana 97 %.')],
+    ['two clauses joined by a comma alone', ptE(', a Solana 98 %.')],
   ])('5: %s', async (_, source, rows = ROWS) => {
     expect(await codes(source, 'pt-PT', rows)).toEqual([FC, FU, FU, FU]);
   });
@@ -296,7 +296,7 @@ space, and %; R5 (docs/CONTENT-STYLE.md §4)`,
   });
 
   it("7: English's shapes fail in a pt-PT module, and pt-PT's in an English one", async () => {
-    expect(await codes(pt(`${S1} Ether fell 94 % and 82 %, Chainlink 89 % and 91 %, and Solana 97 %.`))).toEqual([
+    expect(await codes(pt(`${S1} Ether fell 93 % and 81 %, Chainlink 89 % and 91 %, and Solana 98 %.`))).toEqual([
       FC,
       FU,
       FU,
@@ -306,8 +306,8 @@ space, and %; R5 (docs/CONTENT-STYLE.md §4)`,
   });
 
   it.each<[string, string, readonly string[]]>([
-    ['97%', pt(`${S1} ${S2.replace('97 %', '97%')}`, { raw: true }), [FC, FC, FU, FU, FU]],
-    ['97 and two spaces', pt(`${S1} ${S2.replace('97 %', '97  %')}`, { raw: true }), [FC]],
+    ['98%', pt(`${S1} ${S2.replace('98 %', '98%')}`, { raw: true }), [FC, FC, FU, FU, FU]],
+    ['98 and two spaces', pt(`${S1} ${S2.replace('98 %', '98  %')}`, { raw: true }), [FC]],
     ['U+0020', pt(undefined, { raw: true }), []],
     ['U+00A0', pt(), []],
   ])('8: the joiner %s', async (_, source, expected) => {
@@ -554,7 +554,7 @@ move it out of the section; R5 (docs/CONTENT-STYLE.md §4)`,
 
   it('R3: English still reads a figure in a list item: E there passes, one figure off fails', async () => {
     expect(await codes(en(`${EN1}\n\n1. ${EN2}`), 'en')).toEqual([]);
-    expect(await codes(en(`${EN1}\n\n1. ${EN2.replace('97', '96')}`), 'en')).toEqual([FC]);
+    expect(await codes(en(`${EN1}\n\n1. ${EN2.replace('98', '96')}`), 'en')).toEqual([FC]);
   });
 });
 
