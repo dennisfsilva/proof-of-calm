@@ -62,7 +62,7 @@
   "simulator": {
     "title": "Simulator",
     "unpublished": "Die Kurshistorie, mit der der Simulator rechnet, ist noch nicht veröffentlicht.",
-    "failed": "Die Kurshistorie konnte nicht geladen werden.",
+    "failed": "Die Kurshistorie konnte nicht geladen werden. Prüfen Sie die Verbindung und laden Sie die Seite dann neu.",
     "dataFrom": "Daten ab {date}, dem ersten Tag mit Schlusskursen von zwei Börsen.",
     "credit": "Referenzschlusskurse, abgeleitet aus öffentlichen Daten von Kraken und Bitstamp; Wechselkurse: Referenzkurse der EZB"
   },

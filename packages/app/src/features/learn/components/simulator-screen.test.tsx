@@ -61,6 +61,9 @@ async function mount(load: () => Promise<Loaded>) {
 
 const area = () => screen.getByTestId('simulator-result');
 
+/** The failure line names its fix, in the shell's words (docs/CONTENT-STYLE.md §1 rule 8). */
+const FAILED = 'The price history could not be loaded. Check your connection, then reload the page.';
+
 describe('the simulator screen', () => {
   it('shows its title, and the result area is busy while the closes load', async () => {
     const { load, settle } = deferred();
@@ -89,9 +92,9 @@ describe('the simulator screen', () => {
     expect(area().getAttribute('aria-busy')).toBe('false');
   });
 
-  it.each(['offline', 'invalid'] as const)('a load that fails (%s) says so and offers Reload', async (kind) => {
+  it.each(['offline', 'invalid'] as const)('a load that fails (%s) says so, names the fix and offers Reload', async (kind) => {
     const platform = await mount(async () => ({ ok: false, error: { kind } }));
-    expect(await screen.findByText('The price history could not be loaded.')).toBeTruthy();
+    expect(await screen.findByText(FAILED)).toBeTruthy();
     expect(screen.queryByText(/^Data from/)).toBeNull();
     expect(platform.calls.reloads).toBe(0);
     fireEvent.click(screen.getByRole('button', { name: 'Reload' }));
@@ -100,6 +103,6 @@ describe('the simulator screen', () => {
 
   it('a load that rejects is a failure too, never an unhandled error', async () => {
     await mount(() => Promise.reject(new Error('a programmer error in the loader')));
-    expect(await screen.findByText('The price history could not be loaded.')).toBeTruthy();
+    expect(await screen.findByText(FAILED)).toBeTruthy();
   });
 });
