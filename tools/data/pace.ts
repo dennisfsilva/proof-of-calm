@@ -2,11 +2,16 @@
 // most one request a second per address", backing off when limited). The runner wraps each exchange's
 // io once, so the spacing holds across every pair of a run. A limited answer (HTTP 429, or Kraken's
 // rate-limit error in the body's `error` array) is retried after an exponential wait; the fourth gives
-// up with `RateLimited`, whose message is the closed-set status the reader names.
+// up with `RateLimited`, whose message is the closed-set status the reader names. Each try carries
+// its own request timeout, made through `io.timeout` when that try is sent, so the slot wait and the
+// back-off never count against it; the pacer is the one place every request of a run passes.
 import type { SourceIo } from './sources/source.ts';
 
 /** Requests per call before a limited answer gives up. */
 export const PACE_TRIES = 4;
+
+/** How long one try may take, from the moment it is sent to the end of its body. */
+export const REQUEST_TIMEOUT_MS = 30_000;
 
 /** The pacer gave up: every try was limited. */
 export class RateLimited extends Error {
@@ -43,7 +48,8 @@ export function pace(minMs: number, io: SourceIo): SourceIo {
   const paced: typeof fetch = async (input, init) => {
     for (let attempt = 1; ; attempt += 1) {
       await slot();
-      const response = await io.fetch(input, init);
+      // The try's timeout replaces any signal the caller passed; the readers pass none.
+      const response = await io.fetch(input, { ...init, signal: io.timeout(REQUEST_TIMEOUT_MS) });
       if (!(await limited(response))) return response;
       await response.body?.cancel().catch(() => undefined);
       if (attempt === PACE_TRIES) throw new RateLimited();
