@@ -122,6 +122,7 @@ describe('AppRoutes', () => {
       'WhyLink',
       'coinSplit',
       'loadLearnScreen',
+      'splitValueOf',
     ]);
     expect((await learn.loadLearnScreen()).default).toBeTypeOf('function');
     shell('/learn');
