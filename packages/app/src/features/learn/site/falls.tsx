@@ -32,14 +32,19 @@ export function SiteFalls({ falls }: SiteFallsProps) {
   // scrolls: it is always a region named by the caption that takes a tab stop (WCAG 2.1.1, axe's
   // scrollable-region-focusable), padded and pulled out by the focus ring's extent so its overflow never clips the ring.
   const region = { tabIndex: 0, role: 'region', 'aria-labelledby': caption };
+  // The Source column can make the table wider than the box, and the caption takes the table's width, so with mixed
+  // rows the region is an inline-size container and the caption wraps at its visible width, read whole before any
+  // scroll (docs/DESIGN.md §8). Rows of one basis keep the markup they had.
+  const contained = sourced ? ' @container' : '';
+  const captionWidth = sourced ? ' max-w-[100cqi]' : '';
   return (
     <>
       <div
-        className="relative -m-[calc(var(--focus-offset)+var(--focus-width))] overflow-x-auto p-[calc(var(--focus-offset)+var(--focus-width))]"
+        className={`relative -m-[calc(var(--focus-offset)+var(--focus-width))] overflow-x-auto p-[calc(var(--focus-offset)+var(--focus-width))]${contained}`}
         {...region}
       >
         <table className="w-full border-collapse text-14">
-          <caption id={caption} className="pb-2 text-left text-13 text-ink-2">
+          <caption id={caption} className={`pb-2 text-left text-13 text-ink-2${captionWidth}`}>
             {t('chart.label', { coins, first, last })}
           </caption>
           <thead>
