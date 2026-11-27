@@ -218,6 +218,17 @@ with its dates, the longest time under water, the months in loss and the buy day
 value against money invested, never an annualised return; the caveat above; and behind one disclosure the
 start-date table, 12 rows oldest first. A row that starts before the closes reads as having none, and one line
 above the table says once how many of the 12 rows have none and the day the closes begin.
+**Form** (`packages/app/src/features/learn/components/simulator-form.tsx`, not yet on the route), worded in
+`learn.simulator.form`, in this order: "Fill in from your plan" when there is a plan, described by the plan's own
+line (`plan.reference.monthly`); the coin editor over the whole catalogue by name, opening with no coin chosen;
+the monthly amount in euros; the buy day, 1 to 28; the start and the end, bounded by the window; the fee, at 0.
+The dates follow the default window, and the buy day the start, until the person sets them. The fill copies the
+plan's split in its order and its buy day, and its monthly amount only for a euro plan with one, saying otherwise
+why the amount stays as typed; it never changes the dates and writes nothing. A chosen coin with no closes carries
+the `history-missing` line on its row. Nothing runs until "Run the simulation": a refused run shows each error by
+its field and moves the focus to the first one (a coin's row for its share or its missing closes), and the errors
+then follow what is typed; a change after a run ends the result shown, so a result never stands beside inputs it
+was not run on.
 
 ## 8. Simulator method (implemented in `packages/core/src/simulate`)
 
