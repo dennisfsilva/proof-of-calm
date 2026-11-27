@@ -58,3 +58,15 @@ export const Loading: Story = {
     await expect(canvas.queryByRole('button', { name: 'Reload' })).toBeNull();
   },
 };
+
+export const Unpublished: Story = {
+  args: { load: failed('unpublished') },
+  play: async ({ canvas }) => {
+    await expect(
+      await canvas.findByText('The price history the simulator runs on is not published yet.'),
+    ).toBeVisible();
+    await expect(canvas.getByTestId('simulator-result')).toHaveAttribute('aria-busy', 'false');
+    await expect(canvas.queryByRole('button', { name: 'Reload' })).toBeNull();
+    await expect(canvas.queryByText(CREDIT)).toBeNull();
+  },
+};
