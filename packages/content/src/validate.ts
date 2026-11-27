@@ -20,6 +20,7 @@ import { percentTokenProblems } from './percent-token.ts';
 import { languagePercentProblems, localeProblems } from './percent-validate.ts';
 import { bannedProblems, type Problem, schemaProblems } from './problem.ts';
 import { profileTextProblems, profileTexts, summaryProblems } from './profile-texts.ts';
+import { publisherProblems } from './publisher-validate.ts';
 import { CoinCatalogueSchema, type ContentCoin } from './schema/coin.ts';
 import { CycleDrawdownsSchema } from './schema/cycles.ts';
 import type { ContentDrawdown } from './schema/drawdown.ts';
@@ -189,6 +190,7 @@ function drawdownProblems(
     }
     if (!fallInRange(fall)) problems.push({ path, code: 'drawdown-fall-out-of-range', detail: `${at} fall ${fall}` });
   });
+  problems.push(...publisherProblems(path, rows));
   return problems;
 }
 
