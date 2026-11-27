@@ -176,6 +176,105 @@ Decided:
 - If Kraken refuses before Bitstamp's history is possible, the Consequences' fallback (Bitstamp plus
   Coinbase) has Bitstamp's closes only from the pipeline's first run.
 
+### Reading of 2026-11-27: Kraken allows collection, storage and derived metrics, and reserves publication
+
+The owner resent the letter, updated, on 2026-11-26 to the address Kraken's API documentation names
+for market data licensing (`docs/research/letters/kraken-market-data.md`). It asked whether the
+derived reference close may be shown in the app's charts and simulator, published in the public
+repository's data package and used in a person's own CSV, and it said that the app is free and not
+launched, with a paid tier that may follow. Kraken's support answered for its Market Data Team the
+same day:
+
+- "You may programmatically collect Kraken market data, store it, and perform analytics as long as
+  you are not selling, redistributing, or providing downloads of the underlying data."
+- "Displaying market data and using it internally would be permitted thus this would not require a
+  license or written approval. Additionally, there are no data retention or deletion policies and
+  derived metrics are yours to do with as you please"
+- "Please ensure that the data and any access to it remain for your own benefit and are not sold,
+  redistributed, sub-licensed, published as a data service, or otherwise made available to third
+  parties." The use must also comply with Kraken's Terms of Service, its API documentation, its rate
+  limits and the law.
+- "If your plans change to include a customer-facing product, third-party access, publication or
+  distribution of the data, or any commercial use outside the above mentioned, please contact us
+  before proceeding so we can review the specific use case."
+
+The answer names no licence and no price. Its sentence on changed plans treats as a future change what
+the letter already described (an app anyone can open, a public data package, a paid tier), so it
+neither approves nor refuses those uses. The EEA Terms of Service apply, since the owner lives in
+Portugal (the EEA and Global Terms were both last updated on 2026-11-18). Their §11.1 counts "our
+pricing data" as Kraken's content, permits it "only for approved purposes as permitted by us and for
+your own benefit", sends any other purpose to the market data address, and adds "We can take away
+this permission at any time for any reason". The answer is that approval for the uses it names, not
+the signed agreement §16.7 keeps apart. Three independent readings of the answer and the Terms agreed
+on most of what follows; where they differed (the CSV, the Ticker fallback), the Reading takes the
+more careful choice (`docs/research/kraken-answer-reading.md`).
+
+Decided:
+
+- Kraken's half of session 19's gate (#13) is answered: the session builds now.
+- Covered now: reading Kraken's bulk OHLCVT files and its public OHLC endpoint (spot pairs only, at
+  most one request a second per address, backing off when limited, never spread over several
+  addresses); keeping per-exchange daily closes in a private store; computing the reference closes
+  and their ECB conversions; and figures computed from them on any day (per cent changes, drawdowns,
+  time under water, with their dates). Until the fourth yes below, a figure over days where Kraken's
+  is the only close is published without the closes behind it and never as a daily series or chart,
+  which would give those closes back up to a factor.
+- The private store is private in fact: never the public repository, its Actions logs, artifacts or
+  caches, nor the deployed site. It keeps per-exchange daily closes only, as the Decision's "store
+  daily closes only" says; the bulk files are downloaded again when needed. It lets the reference
+  closes be recomputed without a source, if Kraken withdraws its approval or Bitstamp's agreement is
+  not signed before a paid tier. A new private repository or bucket is a third-party resource, so it
+  waits for the owner's yes.
+- No Kraken figure enters the public repository: no Kraken candle, close, volume or trade in code,
+  fixtures, stories, golden files, documents, logs or artifacts, and tests use synthetic values. The
+  pipeline's per-exchange closes of Bitstamp and Coinbase stay in the private store too. The dated
+  Bitstamp and Coinbase figures already in the Learn facts stay (Bitstamp's as the Reading of
+  2026-11-23 decided), and session 19's reading of Coinbase's terms covers Coinbase's.
+- A day with two closes takes their mean, the median's usual definition, never one of the two; the
+  dataset records how many sources each day used.
+- The owner's reply in the same thread asks four questions, each answerable yes or no, and each use
+  waits for its own yes:
+  1. the reference closes shown to anyone under the credit line, in the free app's charts, its
+     simulator and the value of a person's holdings over time, and on the public history pages
+     (`docs/GROWTH.md`), each coin's series loaded from the site as a file anyone can save: before the
+     production domain serves real values, since anyone can reach it before launch;
+  2. a person's CSV of their own holdings valued at them on a few dates, each row giving that day's
+     close (the French file's `price` column shows it, and value ÷ units gives it in the others), with
+     no price series: before the tax-year files fill their value cells from them;
+  3. the reference closes as a downloadable file in the public repository, for non-commercial reuse
+     that grants no right in any exchange's data: before `packages/data` holds a real value and before
+     `DATA-LICENSE.md` grants reuse;
+  4. days or coins where Kraken's is the only close the pipeline has, so that the reference close is
+     Kraken's own close: before any such day is shown or published.
+- The reply also says that on a day with two closes anyone holding the other exchange's public close
+  can compute Kraken's close from the mean, and that the dataset records each day's source count.
+- Until those answers, the pipeline and ADR-0037's daily append write to the private store behind a
+  publish switch that is off, and real values appear only on protected Vercel previews, which is
+  internal use; no workflow of the public repository runs against a preview that serves them, since
+  its reports and screenshots become public artifacts. ADR-0006's "Until an answer, the dataset is
+  published as derived medians" ended with this answer.
+- Until the fourth yes, each coin's published series starts on its first day with two sources (EUR:
+  BTC 2015-04-23, ETH 2017-05-23, LINK 2020-07-21, SOL 2021-06-17, from the research of 2026-10-16),
+  or later where Coinbase's closes cannot be used; a coin whose EUR pair only Kraken lists has no
+  published series. The start dates already come from the dataset (ADR-0052), and the simulator gives
+  that first day and its reason, not "the first liquid EUR market" of ADR-0006.
+- Coinbase's market-data terms are still unread (Context), and every two-source day before the
+  pipeline's first run rests on Coinbase's closes, so session 19 reads them before relying on them; a
+  letter they call for joins the owner's list.
+- The credit line stands, since Kraken asked for no wording. `DATA-LICENSE.md` names each source's
+  period (Bitstamp's from the pipeline's first run only) and says that the values are reference
+  closes, neither any exchange's data nor tradable prices. If Kraken allows the days where its close
+  is the only one, `DATA-LICENSE.md` lists them as Kraken's own closes and a chart that shows them
+  credits Kraken for them, as the owner's reply offers.
+- The Decision's Kraken Ticker fallback is not built: the answer does not cover live Kraken prices
+  served to users, and the letter did not describe them. Until a separate yes, the last good copy
+  stays the fallback.
+- Before a paid tier launches, Kraken is written to again, beside Bitstamp's agreement (the Reading of
+  2026-11-23), and the reference closes are not used in a paid tier until Kraken has reviewed that
+  use, as the owner's reply promises.
+- The owner keeps the whole thread, with its headers, outside the repository, although its footer
+  asks for it to be deleted: it is the record of the approval.
+
 ## Disagreement
 
 None beyond the source change recorded in ADR-0006.

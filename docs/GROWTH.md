@@ -261,7 +261,9 @@ owner's confirmation and before stage A's trade-mark filing, which is still open
     (`docs/ROADMAP.md`, M2). Filing takes a day, and the filing date protects the name while the
     registration takes months.
   - The data licences. The simulator and the history pages need the answers from Kraken and Bitstamp
-    (ADR-0036). Without them, the app launches without those two and adds them later.
+    (ADR-0036). Both answered by 2026-11-26. Showing or publishing the history still waits for
+    Kraken's yes to the owner's reply (ADR-0036's Reading of 2026-11-27). Without it, the app
+    launches without the simulator and the history pages and adds them later.
   - The stores. A personal Google Play account created after 13 November 2023 must run a closed test
     with at least 12 testers for 14 days in a row before it can publish; the first users from the
     list can be those testers in December. A company account avoids the test but first needs a D-U-N-S

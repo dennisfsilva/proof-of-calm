@@ -197,10 +197,12 @@ your own behaviour are not in this chart."
 
 - Inputs: `split`, `monthlyAmount`, `startDate`, `endDate`, `buyDay`, `feePercent` (default 0),
   `history` per coin from `packages/data` (the Proof of Calm reference close in EUR, converted to USD,
-  GBP and CHF with ECB reference rates, conversion stated in the UI; ADR-0036). Available from the
-  first liquid EUR market and said so on the page: BTC 2013-09 (2011-08 in USD once the Bitstamp
-  licence is signed), ETH 2015-08, LINK 2019-09, SOL 2021-06. No day-of-month optimisation is
-  offered: buy-day sensitivity is negligible in the data (§9 `p`).
+  GBP and CHF with ECB reference rates, conversion stated in the UI; ADR-0036). Available from each
+  coin's first day in the dataset, said so on the page with its date (ADR-0052). Until Kraken allows
+  the days where its close is the only one, that is the first day with two exchanges' closes, and the
+  page gives that reason, not "the first liquid EUR market" (ADR-0036's Reading of 2026-11-27 holds
+  the dates). No day-of-month optimisation is offered: buy-day sensitivity is negligible in the data
+  (§9 `p`).
 - For each slot (same generator as the plan, `docs/DOMAIN.md` §3.1): buy `plannedParts` at the close
   of `due` (or the next available close if the market data has a gap; count and show gaps).
 - Series: `invested(t)`, `value(t) = Σ units × close(t)`, `drawdown(t) = value(t) / max(value ≤ t) − 1`.
