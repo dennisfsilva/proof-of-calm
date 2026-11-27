@@ -288,11 +288,13 @@ using Coinbase Market Data, you agree to be bound by these Market Data Terms of 
 links no terms; its keys come from the Coinbase Developer Platform, whose Terms of Service (read on
 2026-11-27) add "you are strictly prohibited from recording data or content accessed via the CDP
 Tools through the use of any automated programs, software, or any other method of screen scraping".
-The pipeline uses neither API. The session keeps a dated plain-text copy of the market-data terms
-as read, coinbase-market-data-terms-2026-11-27.txt, in its sandbox folder data-letters outside the
-repository, as the Kraken thread is kept outside it; the section numbers below follow the page's
-ordered lists. A Wayback Machine capture of the same page of 2025-12-05 ("Last updated: February 6,
-2023") has the same §2, §3.B and §3.C, word for word, and no §3.E. The governing sentences:
+The pipeline uses neither API. The session keeps dated plain-text copies of both pages as read,
+coinbase-market-data-terms-2026-11-27.txt and coinbase-cdp-terms-2026-11-27.txt, in its sandbox
+folder data-letters outside the repository, as the Kraken thread is kept outside it; the section
+numbers below follow the page's ordered lists. A Wayback Machine capture of the same page,
+https://web.archive.org/web/20251205060112/https://www.coinbase.com/legal/market_data (2025-12-05,
+06:01:12 UTC, "Last updated: February 6, 2023"), has the same §2, §3.B and §3.C, word for word, and
+no §3.E. The governing sentences:
 
 - §2, the licence: "a nonexclusive, nontransferable, non-sublicensable, revocable, limited license,
   solely for you and/or the officers and employees of your entity". "Your use of Market Data is
@@ -333,8 +335,9 @@ ordered lists. A Wayback Machine capture of the same page of 2025-12-05 ("Last u
   subscribe in accordance with any applicable Coinbase fee schedule."
 - §12: "In the event of a conflict between these Terms and any agreement(s) between you and
   Coinbase, these Terms shall control."
-- §13, the only address the terms give: "If you have a question, complaint, or otherwise wish to
-  contact us regarding the Market Data or these Terms, please contact us at: marketdata@coinbase.com."
+- §13, the only address the terms give, under §13's heading "Information for California Residents":
+  "If you have a question, complaint, or otherwise wish to contact us regarding the Market Data or
+  these Terms, please contact us at: marketdata@coinbase.com."
 - The rate limits (https://docs.cdp.coinbase.com/exchange/introduction/rate-limits-overview.md):
   "Requests per second per IP: 10" for the public endpoints.
 
