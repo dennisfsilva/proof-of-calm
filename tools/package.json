@@ -2,7 +2,7 @@
   "name": "@proofofcalm/tools",
   "version": "0.0.0",
   "private": true,
-  "description": "Repository scripts: commit-subject check, golden fixtures, app icons, the Vercel deployments' Lighthouse config and final-URL check, styling lint, message merge, bundle secret scan, Today's application code size, security.txt check, local servers. Tested like code.",
+  "description": "Repository scripts: commit-subject check, golden fixtures, app icons, the Vercel deployments' Lighthouse config and final-URL check, styling lint, message merge, bundle secret scan, Today's application code size, security.txt check, local servers, the private reference-close pipeline. Tested like code.",
   "type": "module",
   "scripts": {
     "messages": "node messages/merge.ts",
@@ -10,6 +10,11 @@
     "typecheck": "tsc --noEmit",
     "lint": "biome check .",
     "test": "vitest run"
+  },
+  "dependencies": {
+    "@proofofcalm/core": "workspace:*",
+    "@proofofcalm/data": "workspace:*",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@proofofcalm/config": "workspace:*",
