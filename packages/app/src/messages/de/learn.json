@@ -64,7 +64,42 @@
     "unpublished": "Die Kurshistorie, mit der der Simulator rechnet, ist noch nicht veröffentlicht.",
     "failed": "Die Kurshistorie konnte nicht geladen werden. Prüfen Sie die Verbindung und laden Sie die Seite dann neu.",
     "dataFrom": "Daten ab {date}, dem ersten Tag mit Schlusskursen von zwei Börsen.",
-    "credit": "Referenzschlusskurse, abgeleitet aus öffentlichen Daten von Kraken und Bitstamp; Wechselkurse: Referenzkurse der EZB"
+    "credit": "Referenzschlusskurse, abgeleitet aus öffentlichen Daten von Kraken und Bitstamp; Wechselkurse: Referenzkurse der EZB",
+    "result": {
+      "legend": {
+        "value": "Wert",
+        "invested": "Investiert",
+        "underwater": "Unter einem früheren Höchststand"
+      },
+      "label": "Simulierter Wert und investierter Betrag, {start} bis {end}: Wert von {from} auf {to}",
+      "description": "{fell, select, yes {Der tiefste Rückgang unter einen früheren Höchststand betrug {depth}, von {peak} bis {trough}.} other {Der Wert fiel nicht unter einen früheren Höchststand.}}",
+      "table": {
+        "summary": "Die Werte als Tabelle anzeigen",
+        "month": "Monat",
+        "value": "Wert",
+        "invested": "Investiert"
+      },
+      "closes": "Referenzschlusskurse, {start} bis {end}.",
+      "drawdown": "Maximaler Rückgang",
+      "drawdownDates": "{recovered, select, yes {Vom Höchststand am {peak} zum Tiefststand am {trough}, wieder auf diesem Höchststand am {recovery}.} other {Vom Höchststand am {peak} zum Tiefststand am {trough}, bis {end} nicht wieder auf diesem Höchststand.}}",
+      "noFall": "Der Wert fiel nicht unter einen früheren Höchststand.",
+      "underwater": "Längste Zeit unter einem Höchststand",
+      "days": "{count, plural, one {{figure} Tag} other {{figure} Tage}}",
+      "underwaterDates": "{recovered, select, yes {{from} bis {to}.} other {{from} bis {to}, bis dahin nicht wieder auf dem Höchststand.}}",
+      "monthsInLoss": "Monate im Verlust",
+      "monthsOf": "{figure} von {months}",
+      "gaps": "Kauftage ohne Schlusskurs",
+      "multiple": "Wert im Verhältnis zum investierten Betrag",
+      "multipleLine": "{value} am {end} für {invested} investiert.",
+      "caveat": "Vergangene Kurse sind Tatsachen; eine Simulation damit ist keine Prognose. Steuern, Gebühren, Slippage und Ihr eigenes Verhalten sind in diesem Diagramm nicht enthalten.",
+      "starts": {
+        "summary": "Den Plan ab 12 Startdaten als Tabelle anzeigen",
+        "start": "Start",
+        "end": "Ende",
+        "none": "Keine Schlusskurse",
+        "refused": "Die Tabelle startet denselben Plan bis zu 11 Monate früher; die Schlusskurse beginnen am {date}, daher {count, plural, one {hat {figure} ihrer 12 Zeilen keine} other {haben {figure} ihrer 12 Zeilen keine}}."
+      }
+    }
   },
   "sheet": {
     "close": "Schließen"

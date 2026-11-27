@@ -64,7 +64,42 @@
     "unpublished": "The price history the simulator runs on is not published yet.",
     "failed": "The price history could not be loaded. Check your connection, then reload the page.",
     "dataFrom": "Data from {date}, the first day with closes from two exchanges.",
-    "credit": "Reference closes derived from Kraken and Bitstamp public data; FX: ECB reference rates"
+    "credit": "Reference closes derived from Kraken and Bitstamp public data; FX: ECB reference rates",
+    "result": {
+      "legend": {
+        "value": "Value",
+        "invested": "Invested",
+        "underwater": "Below an earlier high"
+      },
+      "label": "Simulated value and money invested, {start} to {end}: value from {from} to {to}",
+      "description": "{fell, select, yes {The deepest fall below an earlier high was {depth}, from {peak} to {trough}.} other {The value did not fall below an earlier high.}}",
+      "table": {
+        "summary": "Show the values as a table",
+        "month": "Month",
+        "value": "Value",
+        "invested": "Invested"
+      },
+      "closes": "Reference closes, {start} to {end}.",
+      "drawdown": "Maximum drawdown",
+      "drawdownDates": "{recovered, select, yes {From the high on {peak} to the low on {trough}, back at that high on {recovery}.} other {From the high on {peak} to the low on {trough}, not back at that high by {end}.}}",
+      "noFall": "The value did not fall below an earlier high.",
+      "underwater": "Longest time under water",
+      "days": "{count, plural, one {{figure} day} other {{figure} days}}",
+      "underwaterDates": "{recovered, select, yes {{from} to {to}.} other {{from} to {to}, not back at the high by then.}}",
+      "monthsInLoss": "Months in loss",
+      "monthsOf": "{figure} of {months}",
+      "gaps": "Buy days with no close",
+      "multiple": "Value against money invested",
+      "multipleLine": "{value} on {end} for {invested} invested.",
+      "caveat": "Past prices are facts; a simulation of them is not a forecast. Taxes, fees, slippage and your own behaviour are not in this chart.",
+      "starts": {
+        "summary": "Show the plan from 12 start dates as a table",
+        "start": "Start",
+        "end": "End",
+        "none": "No closes",
+        "refused": "The table starts the same plan up to 11 months earlier; the closes begin on {date}, so {count, plural, one {{figure} of its 12 rows has none} other {{figure} of its 12 rows have none}}."
+      }
+    }
   },
   "sheet": {
     "close": "Close"
