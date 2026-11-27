@@ -1,5 +1,7 @@
 // The store never lives in this repository (ADR-0036), however its path is written: as it is, through a
-// junction or directory symlink, and through Windows' loopback admin share, which realpath leaves as it is.
+// junction or directory symlink, through Windows' loopback admin share, which realpath leaves as it is,
+// and inside any working tree of the repository: the main one or a linked worktree.
+import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, parse } from 'node:path';
@@ -20,6 +22,22 @@ function withFolders(test: (outside: string, inside: string) => void): void {
   } finally {
     rmSync(inside, { recursive: true, force: true });
     rmSync(outside, { recursive: true, force: true });
+  }
+}
+
+// A linked worktree of this repository with no files checked out, outside it, removed afterwards with
+// its record (git runs here, in the test; the guard itself reads the records as files).
+function withWorktree(test: (worktree: string) => void): void {
+  const parent = mkdtempSync(join(tmpdir(), 'daily-guard-wt-'));
+  const worktree = join(parent, 'wt');
+  const git = (...args: string[]) => execFileSync('git', ['-C', root, ...args], { stdio: 'ignore' });
+  git('worktree', 'add', '--no-checkout', '--detach', worktree, 'HEAD');
+  try {
+    test(worktree);
+  } finally {
+    if (existsSync(worktree)) git('worktree', 'remove', '--force', worktree);
+    git('worktree', 'prune');
+    rmSync(parent, { recursive: true, force: true });
   }
 }
 
@@ -60,6 +78,43 @@ describe('refuseInsideRepository', () => {
       const { root: tempDrive } = parse(outside);
       const away = `\\\\localhost\\${tempDrive.slice(0, 1)}$\\${outside.slice(tempDrive.length)}`;
       if (existsSync(away)) expect(() => refuseInsideRepository(away)).not.toThrow();
+    });
+  });
+
+  it('refuses a folder inside another working tree of the repository, from either side', () => {
+    withWorktree((worktree) => {
+      withFolders((outside, inside) => {
+        expect(() => refuseInsideRepository(worktree)).toThrow(INSIDE);
+        expect(() => refuseInsideRepository(join(worktree, 'closes-store'))).toThrow(INSIDE);
+        expect(() => refuseInsideRepository(inside, worktree)).toThrow(INSIDE);
+        expect(() => refuseInsideRepository(root, worktree)).toThrow(INSIDE);
+        expect(() => refuseInsideRepository(outside)).not.toThrow();
+        expect(() => refuseInsideRepository(outside, worktree)).not.toThrow();
+      });
+    });
+  });
+
+  it('lets an outside folder pass while a listed worktree has lost its folder', () => {
+    withWorktree((worktree) => {
+      rmSync(worktree, { recursive: true, force: true });
+      withFolders((outside, inside) => {
+        expect(() => refuseInsideRepository(outside)).not.toThrow();
+        expect(() => refuseInsideRepository(inside)).toThrow(INSIDE);
+      });
+    });
+  });
+
+  it('refuses when the checkout has no readable git records', () => {
+    withFolders((outside) => {
+      expect(() => refuseInsideRepository(join(outside, 'store'), join(outside, 'missing'))).toThrow(INSIDE);
+      const plain = join(outside, 'plain');
+      mkdirSync(plain);
+      const away = mkdtempSync(join(tmpdir(), 'daily-guard-away-'));
+      try {
+        expect(() => refuseInsideRepository(away, plain)).toThrow(INSIDE);
+      } finally {
+        rmSync(away, { recursive: true, force: true });
+      }
     });
   });
 
