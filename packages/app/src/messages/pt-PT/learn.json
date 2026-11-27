@@ -104,7 +104,7 @@
       "gaps": "Dias de compra sem fecho",
       "multiple": "Valor face ao montante investido",
       "multipleLine": "Valor simulado de {value} em {end} para {invested} investidos.",
-      "caveat": "Os preços passados são factos; uma simulação feita com eles não é uma previsão. Impostos, comissões, derrapagem e o seu próprio comportamento não estão neste gráfico.",
+      "caveat": "Os preços passados são factos; uma simulação feita com eles não é uma previsão. {fee, select, flat {Impostos, derrapagem e o seu próprio comportamento não estão neste gráfico; as comissões só entram como a percentagem fixa de {percent} que definiu.} other {Impostos, comissões, derrapagem e o seu próprio comportamento não estão neste gráfico.}}",
       "starts": {
         "summary": "Mostrar o plano a partir de 12 datas de início numa tabela",
         "start": "Início",

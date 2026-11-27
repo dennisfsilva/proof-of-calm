@@ -44,6 +44,7 @@ function props(history: PriceHistory): SimulationViewProps {
     sensitivity: startDateSensitivity(input),
     currency: 'EUR',
     closesFrom: window.first,
+    feePercent: '0' as Percent,
   };
 }
 
