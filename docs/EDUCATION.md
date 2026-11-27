@@ -198,27 +198,36 @@ set.", the fee as typed (one `learn.simulator.result.caveat` message with a sele
 **Facts needed**: data sources and licensing from ADR-0036; the method in §8.
 **Screen**: `/learn/simulator` (`packages/app/src/features/learn/components/simulator-screen.tsx`), its own
 chunk under Learn's, reached only by its address while `PUBLISH.display` is false (`packages/data/README.md`).
-It reads the coin's dataset file through `packages/app/src/features/learn/lib/reference-closes.ts` and shows one
-state, worded in `learn.simulator`: the result area busy while the file loads; a 404 says the price history is not
-published yet; a network failure, an error status, or a file that is not that coin's dataset says it could not be
-loaded, names the fix (check the connection, then reload) and offers Reload; a dataset gives its first day with
-the reason §8 names (the first day with two exchanges' closes) and, at text-14, the credit line ADR-0036 sets
-while Coinbase is off. A dataset of that coin with no day yet reads as a 404 does, as a coin with no closes yet,
-not as a broken file. The inputs build on this route (planned: M2).
+It reads the dataset files through `packages/app/src/features/learn/lib/reference-closes.ts`, BTC's first, and
+shows one state, worded in `learn.simulator`: the result area busy while BTC's file loads; a 404, or a dataset with
+no day yet, says the price history is not published yet and shows no form; a network failure, an error status, or
+a file that is not that coin's dataset says it could not be loaded, names the fix (check the connection, then
+reload) and offers Reload, the line and the button at the gap of the app's other failure states; otherwise the
+form. Each coin the person adds is asked for once: while its file loads its closes are unknown, a 404 or an empty
+dataset marks its row as a coin with no closes yet (the run refuses it and focuses its share), and its network
+failure, error status or invalid file shows the failed state with Reload in place of the form. The window is the
+default one over the chosen coins' closes (Default dates below). The data's first day, with the reason §8 names
+(the first day with two exchanges' closes), is the start field's description, the window's first day or BTC's
+while no coin is chosen. A run calls the core's `simulate` and `startDateSensitivity` and shows the Result below
+the form under an h2 "Result", which takes the focus after each run; the credit line ADR-0036 sets while Coinbase
+is off stands once, in the Result. After a fill from the plan, "Your own purchases and their value are on
+Portfolio." stands under the result. Decided in #608: BTC is loaded first, its 404 or empty dataset shows not
+published yet with no form and its offline or invalid file the failed state; the split opens empty; an explicit
+Run button; and any change after a run removes the result and the Portfolio line.
 **Default dates** (`packages/app/src/features/learn/lib/simulator-dates.ts`): the window is the days every chosen
 coin has closes for, from the latest first close to the earliest last one. The start is the first day 11 months
 after the window's first day whose start-date table keeps every row inside the closes, when a 12-month plan from
 it still ends by the window's last day; otherwise the window's first day. The end is the window's last day, and the
 buy day is the start's day of the month, at most the 28th.
-**Result** (`packages/app/src/features/learn/components/simulation-view.tsx`, not yet on the route), worded in
+**Result** (`packages/app/src/features/learn/components/simulation-view.tsx`), worded in
 `learn.simulator.result`, in this order: the chart of value and money invested with the falls below an earlier
 high shaded, and its table by month; under it the closes' first and last day with the past-performance sentence
-and the Risk link of a Learn module, then the credit line at text-14, the one on the screen; the maximum drawdown
+and the Risk link of a Learn module, then the credit line at text-14, the screen's only one; the maximum drawdown
 with its dates, the longest time under water, the months in loss and the buy days with no close; the multiple of
 value against money invested, never an annualised return; the caveat above; and behind one disclosure the
 start-date table, 12 rows oldest first. A row that starts before the closes reads as having none, and one line
 above the table says once how many of the 12 rows have none and the day the closes begin.
-**Form** (`packages/app/src/features/learn/components/simulator-form.tsx`, not yet on the route), worded in
+**Form** (`packages/app/src/features/learn/components/simulator-form.tsx`), worded in
 `learn.simulator.form`, in this order: "Fill in from your plan" when there is a plan, described by the plan's own
 line (`plan.reference.monthly`); the coin editor over the whole catalogue by name, opening with no coin chosen;
 the monthly amount in euros; the buy day, 1 to 28; the start and the end, bounded by the window; the fee, at 0.
