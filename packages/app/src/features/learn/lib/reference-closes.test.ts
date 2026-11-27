@@ -93,13 +93,25 @@ describe('loadReferenceCloses', () => {
     ['a close as a number', { ...DATASET, days: [{ date: '2026-01-01', close: 100, sources: 2 }] }],
     ['another currency', { ...DATASET, currency: 'USD' }],
     ['dates out of order', { ...DATASET, days: [...DATASET.days].reverse() }],
-    ['no day at all', { ...DATASET, days: [] }],
   ])('a file with %s is invalid', async (_, body) => {
     const result = await loadReferenceCloses(
       BTC,
       answering(() => json(body)),
     );
     expect(result).toEqual({ ok: false, error: { kind: 'invalid' } });
+  });
+
+  it('a dataset with no day reads as a 404 does: no closes yet, not a broken file', async () => {
+    const empty = await loadReferenceCloses(
+      BTC,
+      answering(() => json({ ...DATASET, days: [] })),
+    );
+    const missing = await loadReferenceCloses(
+      BTC,
+      answering(() => new Response('', { status: 404 })),
+    );
+    expect(empty).toEqual({ ok: false, error: { kind: 'unpublished' } });
+    expect(empty).toEqual(missing);
   });
 
   it('a body that is not JSON is invalid', async () => {
