@@ -370,9 +370,10 @@ Decided:
 
 - Coinbase stays off until it consents in writing: the pipeline reads no Coinbase candle at all, not
   only none shown, since §3.C reaches internal use; the private store holds none; and no agent
-  session reads Coinbase market data, since §3.E forbids its use "for any other purpose related to
-  the research, development, or operation of artificial intelligence technologies" (sessions read
-  Coinbase's terms pages only). The reference closes take Kraken's and Bitstamp's closes only, and a
+  session reads Coinbase market data unless a written consent names §3.E, since §3.E forbids its use
+  "for any other purpose related to the research, development, or operation of artificial
+  intelligence technologies" and the letter asks for consent under §2 and §3.B to §3.D only, so a
+  consent to its uses alone does not lift this (sessions read Coinbase's terms pages only). The reference closes take Kraken's and Bitstamp's closes only, and a
   day with both takes their mean (Kraken's Reading of 2026-11-27 above). ADR-0037's cross-check uses
   Bitstamp alone.
 - The Decision's Coinbase Exchange ticker fallback is not built, like Kraken's: the last good copy
@@ -400,12 +401,15 @@ Decided:
 - The next content change of the repository takes those figures down or re-sources them from
   Kraken's daily closes, not from Bitstamp's past candles, which the Reading of 2026-11-23 leaves
   unread; the Kraken Reading allows figures computed from Kraken's closes (per cent changes,
-  drawdowns, with their dates) published without the closes behind them. So the per cent falls with
-  their high and low dates, and the purchase-result ratios, counts and day counts, are recomputed
-  from Kraken's daily closes, with Kraken named as their source; the dollar prices and any close
-  shown (for example the "$2,420" close the ETH result is valued at) are removed, since they would
-  give Kraken's closes back; and any figure Kraken's days cannot carry is removed with the copy that
-  depends on it. Counsel and brand read the change. The letter asks whether Coinbase-derived figures
+  drawdowns, time under water, with their dates) published without the closes behind them. So the
+  per cent falls with their high and low dates are recomputed from Kraken's daily closes, with
+  Kraken named as their source. The purchase-result ratios, counts and day counts are recomputed
+  from them only where they fit those covered figures and the Kraken Reading's limit until its
+  fourth yes (a figure over days where Kraken's is the only close is published without the closes
+  behind it and never as a daily series or chart); otherwise they are removed with their copy. The
+  dollar prices and any close shown (for example the "$2,420" close the ETH result is valued at) are
+  removed, since they would give Kraken's closes back; and any figure Kraken's days cannot carry is
+  removed with the copy that depends on it. Counsel and brand read the change. The letter asks whether Coinbase-derived figures
   may be shown; a yes may bring them back.
 - If Coinbase consents, the pipeline reads its public candles at most once a second per address,
   well inside the stated 10, and the conditions of the consent are recorded here.
