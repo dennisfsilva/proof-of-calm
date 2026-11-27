@@ -121,10 +121,10 @@ describe("pt-PT's chart section", () => {
     [
       'a bound on Solana',
       en(
-        `${EN1} In the chart, Solana had 1 fall of more than 95 % between 2021 and 2022. Ether fell 93 % and 81 %, and Chainlink 89 % and 91 %.`,
+        `${EN1} In the chart, Solana had 1 fall of more than 96 % between 2021 and 2022. Ether fell 93 % and 81 %, and Chainlink 89 % and 91 %.`,
       ),
       pt(
-        `${S1} No gráfico, a Solana teve 1 queda de mais de 95 % entre 2021 e 2022. O ether caiu 93 % e 81 % e a Chainlink 89 % e 91 %.`,
+        `${S1} No gráfico, a Solana teve 1 queda de mais de 96 % entre 2021 e 2022. O ether caiu 93 % e 81 % e a Chainlink 89 % e 91 %.`,
       ),
       [],
     ],
@@ -142,7 +142,7 @@ describe("pt-PT's chart section", () => {
       pt(`${S1} ${S2.replace('93 % e 81 %', '81 % e 93 %')}`),
       [FC, FC],
     ],
-    ['a wrong figure', enE('and Solana 96 %.'), ptE(' e a Solana 96 %.'), [FC]],
+    ['a wrong figure', enE('and Solana 97 %.'), ptE(' e a Solana 97 %.'), [FC]],
     [
       'the same figure on a row at 96',
       enE('and Solana 96 %.'),
@@ -554,7 +554,7 @@ move it out of the section; R5 (docs/CONTENT-STYLE.md §4)`,
 
   it('R3: English still reads a figure in a list item: E there passes, one figure off fails', async () => {
     expect(await codes(en(`${EN1}\n\n1. ${EN2}`), 'en')).toEqual([]);
-    expect(await codes(en(`${EN1}\n\n1. ${EN2.replace('98', '96')}`), 'en')).toEqual([FC]);
+    expect(await codes(en(`${EN1}\n\n1. ${EN2.replace('98', '97')}`), 'en')).toEqual([FC]);
   });
 });
 
