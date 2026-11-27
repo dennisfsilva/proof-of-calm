@@ -79,7 +79,10 @@ unknown pair" for a symbol outside the listings' shape, sent before any request.
 
 ## Daily job
 
-- `tools/data/daily.ts` and `tools/data/daily.md` (planned: M2)
+`daily.ts` appends each exchange's closes of every pair to the store once a day; it runs in the
+private repository from a byte-for-byte copy of `closes-store.yml`, and `.github/workflows/data-dry.yml`
+runs it dry on a branch. `guard.ts` refuses a store inside this repository. Its windows, output lines,
+exit codes and the copy rule: `daily.md`.
 
 ## Backfill
 
