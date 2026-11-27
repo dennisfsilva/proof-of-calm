@@ -227,6 +227,8 @@
         "run": "Run the simulation"
       },
       "result": {
+        "heading": "Result",
+        "portfolio": "Your own purchases and their value are on Portfolio.",
         "legend": {
           "value": "Simulated value",
           "invested": "Invested",

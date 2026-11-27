@@ -90,6 +90,8 @@
       "run": "Simulation starten"
     },
     "result": {
+      "heading": "Ergebnis",
+      "portfolio": "Ihre eigenen Käufe und ihr Wert stehen im Portfolio.",
       "legend": {
         "value": "Simulierter Wert",
         "invested": "Investiert",

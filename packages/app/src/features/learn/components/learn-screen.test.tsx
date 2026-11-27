@@ -201,4 +201,31 @@ describe('/learn/simulator', () => {
     expect(screen.getByTestId('path').textContent).toBe('/learn/simulator');
     expect(screen.getByRole('link', { name: 'Back to Learn' }).getAttribute('href')).toBe('/learn');
   });
+
+  it("loads the plan words the form reuses with the screen's chunk, none of them passed in", async () => {
+    const days = [{ date: '2026-03-02', close: '100', sources: 2 }];
+    vi.stubGlobal('fetch', async () => Response.json({ coin: 'BTC', currency: 'EUR', days }));
+    onTestFinished(() => {
+      vi.unstubAllGlobals();
+    });
+    const services = createTestServices();
+    await services.start();
+    await act(async () => {
+      render(
+        <NavigationProvider location="memory" initialPath="/learn/simulator">
+          <ServicesProvider services={services}>
+            <I18nProvider messages={{ countries, learn, shell }}>
+              <Suspense fallback={<p>pending</p>}>
+                <Route path="/learn" nest>
+                  <LearnScreen />
+                </Route>
+              </Suspense>
+            </I18nProvider>
+          </ServicesProvider>
+        </NavigationProvider>,
+      );
+    });
+    expect(await screen.findByRole('textbox', { name: 'Monthly amount (EUR)' })).toBeTruthy();
+    expect(screen.getByRole('combobox', { name: 'Buy day' })).toBeTruthy();
+  });
 });

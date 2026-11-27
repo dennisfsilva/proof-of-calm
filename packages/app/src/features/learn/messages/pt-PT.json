@@ -90,6 +90,8 @@
       "run": "Executar a simulação"
     },
     "result": {
+      "heading": "Resultado",
+      "portfolio": "As compras que fez e o valor delas estão no Portefólio.",
       "legend": {
         "value": "Valor simulado",
         "invested": "Investido",

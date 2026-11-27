@@ -1,5 +1,6 @@
 import { lazy, type ReactNode } from 'react';
 import { useTranslations } from 'use-intl';
+import { loadNamespace } from '../../../lib/i18n';
 import { Link, Redirect, Route, Switch } from '../../../lib/navigation';
 import { useServices } from '../../../lib/services';
 import { useModuleBody, useModuleIndex } from '../lib/bodies';
@@ -14,8 +15,11 @@ const PAGE = 'mx-auto flex w-full max-w-reading flex-col gap-stack-lg px-gutter 
 const INDEX = '~/learn';
 
 // Its own chunk, which holds the dataset's schema: the Learn chunk stays as it was, and the screen suspends to the
-// route table's empty fallback until it arrives (ADR-0045 §9). Its words are in the learn namespace already loaded.
-const SimulatorScreen = lazy(() => import('./simulator-screen').then((m) => ({ default: m.SimulatorScreen })));
+// route table's empty fallback until it arrives (ADR-0045 §9). Its words are in the learn namespace already loaded,
+// and the form's coin editor, amount and buy day reuse the plan namespace's, loaded with the chunk.
+const SimulatorScreen = lazy(() =>
+  Promise.all([import('./simulator-screen'), loadNamespace('plan')]).then(([m]) => ({ default: m.SimulatorScreen })),
+);
 
 const fallLink = (chunks: ReactNode) => (
   <Link href="/fall-under-way" className="text-ink underline underline-offset-4 hover:text-ink-2">
