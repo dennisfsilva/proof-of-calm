@@ -60,6 +60,36 @@ function run(history: PriceHistory, feePercent = '0') {
   return { simulation: simulation.value, sensitivity: startDateSensitivity(input), first: window.first };
 }
 
+const ETH = 'ETH' as CoinId;
+
+/**
+ * A year of 100 a month on the 1st from 1 Jan 2024 over constant closes, split evenly over `coins`; each coin's
+ * closes leave out the days `missing` names for it, so a buy due on one of them is a gap of that coin.
+ */
+function runWithout(missing: Readonly<Partial<Record<CoinId, readonly string[]>>>, coins = [BTC, ETH]) {
+  const year = closes('2024-01-01', 366, () => '100');
+  const input: SimulationInput = {
+    split: Object.fromEntries(coins.map((coin) => [coin, String(100 / coins.length) as Percent])),
+    monthlyAmount: '100' as Money,
+    startDate: '2024-01-01' as CalendarDate,
+    endDate: '2024-12-31' as CalendarDate,
+    buyDay: 1,
+    histories: {
+      currency: 'EUR',
+      coins: Object.fromEntries(
+        coins.map((coin) => [coin, year.filter(([date]) => !(missing[coin] ?? []).includes(date))]),
+      ),
+    },
+  };
+  const simulation = simulate(input);
+  if (!simulation.ok) throw new Error(simulation.error.code);
+  return {
+    simulation: simulation.value,
+    sensitivity: startDateSensitivity(input),
+    first: '2024-01-01' as CalendarDate,
+  };
+}
+
 async function mount(result: ReturnType<typeof run>) {
   const services = createTestServices();
   await services.start();
@@ -131,6 +161,24 @@ describe('the simulation view', () => {
     expect(screen.getByText(/^From the high on .+ to the low on .+, back at that high on .+\.$/)).toBeTruthy();
     // 7 units worth 700 on 30 June 2025, then 9 worth 450 after the buy at 50: a fall of 35.7 %.
     expect(figureOf('Maximum drawdown')).toMatch(/^\D35\.7\s?%$/);
+  });
+
+  // The core keeps a gap per coin and due date (docs/EDUCATION.md §8); the figure counts the buy days, its label's words.
+  it('counts a buy day both coins miss once', async () => {
+    const result = runWithout({ [BTC]: ['2024-03-01'], [ETH]: ['2024-03-01'] });
+    expect(result.simulation.gaps).toHaveLength(2);
+    await mount(result);
+    expect(figureOf('Buy days with no close')).toBe('1');
+  });
+
+  it('counts a buy day one of two coins misses once', async () => {
+    await mount(runWithout({ [ETH]: ['2024-03-01'] }));
+    expect(figureOf('Buy days with no close')).toBe('1');
+  });
+
+  it('counts two missing buy days as 2', async () => {
+    await mount(runWithout({ [BTC]: ['2024-03-01', '2024-06-01'], [ETH]: ['2024-06-01'] }));
+    expect(figureOf('Buy days with no close')).toBe('2');
   });
 
   it('opens the start-date table on one tap, 12 rows oldest first', async () => {
