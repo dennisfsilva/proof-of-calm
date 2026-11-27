@@ -408,7 +408,9 @@ styling hooks.
 Built so far (M0): Button, Input (text, numeric, date) in a Field, Select, Segmented control, Coin
 chip, Tabs, Dialog, Sheet, Toast, Table with expandable rows and group headers, Banner, Empty state,
 Card, and the charts `ProgressStrip`, `LineChart`, `AllocationBar`, `Sparkline`; `BarChart`, one
-labelled bar per row with its table, on 2026-11-09 (#62). Notes: the sheet
+labelled bar per row with its table, on 2026-11-09 (#62); `SimulatorChart`, the value as the ink line and
+the money invested as the dashed `ink-2` level, the drawdown under the running maximum shaded in `surface-3` as
+one path from the core's `underwaterPath`, a legend naming each mark drawn and the table, on 2026-11-27. Notes: the sheet
 floats 8 px off the screen edges so its four corners keep one radius; one toast shows at a time; the
 banner is a polite status, not an alert; labels are props, never strings inside `packages/ui`. A
 table wider than its column scrolls inside its wrapper, which only then takes a tab stop, so the
