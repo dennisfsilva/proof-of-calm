@@ -77,6 +77,13 @@ export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
   // Rows of both bases name each row's publisher, so a fall between closes reads apart from an intraday one
   // (docs/CONTENT-STYLE.md §1 rules 1 and 2); rows of one basis leave the source to the line below.
   const sourced = span.basis === 'mixed';
+  const columns = [
+    t('columns.coin'),
+    t('columns.high'),
+    t('columns.low'),
+    t('columns.fall'),
+    ...(sourced ? [t('columns.source')] : []),
+  ];
   return (
     <div lang={lang} className="flex flex-col gap-stack-xs">
       <BarChart
@@ -90,13 +97,7 @@ export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
         description={t('description')}
         table={{
           summary: t('summary'),
-          columns: [
-            t('columns.coin'),
-            t('columns.high'),
-            t('columns.low'),
-            t('columns.fall'),
-            ...(sourced ? [t('columns.source')] : []),
-          ],
+          columns,
           rows: falls.map((row) => [
             row.coin,
             f.date(row.high),
@@ -105,6 +106,8 @@ export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
             ...(sourced ? [rowPublisher(row, f)] : []),
           ]),
           numericColumns: [3],
+          // Stacked, each publisher shows "Source" above it, so it never reads as a fifth date or a figure.
+          labelledColumns: sourced ? [columns.length - 1] : [],
         }}
       />
       <p className="text-16">

@@ -14,10 +14,20 @@ type ChartTableProps = {
   rows: readonly (readonly string[])[];
   /** Indexes of the columns that hold numbers: right-aligned, tabular. */
   numericColumns?: readonly number[];
+  /** Indexes of the columns whose cells, stacked, show the column's name above the value (docs/DESIGN.md §8). */
+  labelledColumns?: readonly number[];
   className?: string;
 };
 
-function ChartTable({ summary, caption, columns, rows, numericColumns = [], className }: ChartTableProps) {
+function ChartTable({
+  summary,
+  caption,
+  columns,
+  rows,
+  numericColumns = [],
+  labelledColumns = [],
+  className,
+}: ChartTableProps) {
   const numeric = (index: number) => numericColumns.includes(index);
   const { probe, table } = useStack(true);
   return (
@@ -53,6 +63,7 @@ function ChartTable({ summary, caption, columns, rows, numericColumns = [], clas
                 {row.map((cell, index) => (
                   <td
                     key={columns[index] ?? index}
+                    data-label={labelledColumns.includes(index) ? columns[index] : undefined}
                     className={cn(
                       'px-2 py-2 text-ink in-data-stacked:block in-data-stacked:empty:p-0',
                       numeric(index) && 'nums text-right in-data-stacked:text-left',
