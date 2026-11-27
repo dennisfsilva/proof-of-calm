@@ -15,7 +15,8 @@ is written (as it is, through a junction or symlink, or through a loopback share
 ancestors with the repository root's. `--today` names the UTC day the windows count from; without
 it the job reads the clock once, at its start, for the windows. The readers read the real clock only
 to bound a window: Kraken's drops the running candle, and Bitstamp's refuses a window whose day is not
-yesterday or the day before (Windows), so a `--today` in the past fails every Bitstamp pair.
+yesterday, or the day before yesterday in the first 8 minutes after 00:00 UTC (Windows). So a
+`--today` in the past fails every Bitstamp pair, except a `--today` of yesterday in those 8 minutes.
 
 ## Where it runs
 
@@ -41,7 +42,7 @@ Decision 2), since the job fails while the two differ and that day's closes beco
 | Exchange | From | To | Why |
 |---|---|---|---|
 | Kraken | today minus 720 days | yesterday | every complete day of the endpoint's latest 720 candles, so the first run fills Kraken's last two years and a missed day heals on the next run |
-| Bitstamp | yesterday | yesterday | yesterday's close only, with no catch-up (ADR-0036, Reading of 2026-11-23), so its store starts from the job's first run; the reader reads the window's day only when the real clock puts it at yesterday or the day before (a run that passed midnight after it started), and refuses any other window as a failure |
+| Bitstamp | yesterday | yesterday | yesterday's close only, with no catch-up (ADR-0036, Reading of 2026-11-23), so its store starts from the day before the job's first run, and nothing older is read (ADR-0036, Reading of 2026-11-27 on Bitstamp's first run); the reader reads the window's day only when the real clock puts it at yesterday, or at the day before yesterday while that clock is less than the daily step's 8-minute timeout past 00:00 UTC (`MIDNIGHT_ALLOWANCE_MINUTES` in `sources/bitstamp.ts`, pinned to the step by `workflow.test.ts`), the longest a step started before midnight can still be reading, and refuses any other window as a failure |
 | Coinbase | none | none | off until it consents in writing (ADR-0036); no request |
 
 The exchanges run in a fixed order, `ORDER` in `daily.ts`: Bitstamp first, since its day cannot be
@@ -49,9 +50,23 @@ read again, then Kraken, whose window heals a missed day, then Coinbase (off). F
 each quote, EUR then USD, the job reads each pair's stored rows, asks the reader for the window,
 merges with `mergeAppend` and writes the file only when it gained rows, never under `--dry`. Each
 exchange's requests go through one pacer for the whole run (`pace.ts`): one request a second, each
-with its own 30-second timeout. After 3 pairs in a row refused as `unreachable`, across both quotes,
-the job stops that exchange: its remaining pairs count as failed, unread, so an outage costs about
-90 seconds instead of one timeout per pair, and the next exchange still runs.
+with its own 30-second timeout; a try that times out is not retried (the pacer retries only a
+rate-limited answer). Whether 3 pairs in a row refused as `unreachable` stop an exchange is `HEALS`
+in `daily.ts`, beside the windows. Kraken heals: after its third, across both quotes, the job stops
+it, its remaining pairs count as failed, unread, so an outage costs about 90 seconds instead of one
+timeout per pair, and the missed day returns with the next run's window. Bitstamp does not: its day
+cannot be read again, so each unreachable pair fails on its own and its remaining pairs are still
+read, and a short network blip costs only the pairs it hit.
+
+The worst case is a whole-day Bitstamp outage. A timed-out try takes its 30 seconds and the next
+slot has already passed, so each pair costs about 30 seconds, and Bitstamp's 50 pairs (25 coins, EUR
+and USD) take about 50 × 30 s = 25 minutes, more than the step's 8. The step then times out about
+16 pairs in, before Kraken runs; the commit step still commits the files already finished, and
+Kraken's missed day returns with the next run's 720-day window. A partial outage costs 30 seconds
+for each unreachable pair instead of about one: with Kraken's 52 pairs, 13 unreachable Bitstamp
+pairs still fit (13 × 30 s + 89 × 1 s ≈ 8 minutes); more cut Kraken short, and its day heals. The step and job timeouts stay at 8 and 15 minutes: a longer step would
+only let a down Bitstamp finish failing before Kraken, whose day heals anyway, and it would widen
+Bitstamp's midnight allowance, which is the step's timeout.
 
 ## Output
 
@@ -64,7 +79,7 @@ close, a price or an exchange's response:
 | `coinbase: off` | stdout | the exchange with no reader |
 | `refused: <exchange> <symbol> <status>` | stderr | a reader's refusal (`README.md`, Output), and the pair counts as failed |
 | `refused: <exchange> <symbol> unexpected error` | stderr | any other error of a reader, and the pair counts as failed |
-| `<exchange>: stopped after 3 unreachable` | stderr | after the third pair in a row refused as `unreachable`: the exchange's remaining pairs count as failed, unread |
+| `kraken: stopped after 3 unreachable` | stderr | after Kraken's third pair in a row refused as `unreachable`: its remaining pairs count as failed, unread; Bitstamp never stops |
 | `refused: closes/<exchange>/<COIN>-<QUOTE>.csv <reason>` | stderr | a store file that is malformed or cannot be read or written: the run stops |
 | `daily refused: usage` | stderr | a missing `--store`, an unknown flag or argument, a `--today` that is not a date |
 | `daily refused: --store is inside this repository` | stderr | the guard's refusal, before any request |

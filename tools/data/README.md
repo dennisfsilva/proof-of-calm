@@ -53,7 +53,7 @@ agent reads its endpoints, `pairs.json` has no Coinbase entry, and its reader st
 | Reader | Endpoint | What it returns |
 |---|---|---|
 | `sources/kraken.ts` | `https://api.kraken.com/0/public/OHLC`, `interval=1440`, `since` the day before `from` | every complete day from `from` to `to` among the endpoint's latest 720 candles, the last (running) candle dropped and nothing dated today (UTC) |
-| `sources/bitstamp.ts` | `https://www.bitstamp.net/api/v2/ohlc/<url_symbol>/`, `step=86400`, `limit=1`, `start` the window's day, `exclude_current_candle=true` | the close of the window's one day (UTC), which must be yesterday or, for a run that passed midnight after it started, the day before, by the real clock; any other window is refused unread as `out of window`, so there is no catch-up (ADR-0036, Reading of 2026-11-23) |
+| `sources/bitstamp.ts` | `https://www.bitstamp.net/api/v2/ohlc/<url_symbol>/`, `step=86400`, `limit=1`, `start` the window's day, `exclude_current_candle=true` | the close of the window's one day (UTC), which must be yesterday by the real clock, or the day before only while that clock is less than `MIDNIGHT_ALLOWANCE_MINUTES`, the daily step's timeout (`daily.md`, Where it runs), past 00:00 UTC, for a step that passed midnight after it started; any other window is refused unread as `out of window`, so there is no catch-up (ADR-0036, Reading of 2026-11-23) and the first run reads the previous day's candle and nothing older (its Reading of 2026-11-27 on Bitstamp's first run) |
 
 A close is kept as the exact decimal string the exchange sent; exponent notation is converted by
 moving its digits, and a JSON number, which has already become a float, is refused. `pace.ts` wraps
