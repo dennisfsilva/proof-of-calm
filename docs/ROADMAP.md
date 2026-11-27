@@ -188,6 +188,8 @@ external links and the Risk link in the mobile export (M3).
   The pipeline's daily job and its Kraken backfill built on 2026-11-27 (#580, #581,
   `tools/data/README.md`); the job's first run in the private repository and the backfill into the
   private store (Kraken EUR and USD, 26 pairs each) on 2026-11-27, with a second run of the job after it.
+  Reworked the same day so a bad store file fails only its pair and the job commits each exchange's
+  closes on its own, Bitstamp's first, retrying a rejected push (#585, `tools/data/daily.md`).
 - Attribution text under every price and chart per ADR-0036, shipped with the simulator.
 - Annual review prompt in-app. The review page at `/plan/review` built on 2026-11-11 (#114) with its
   units per venue (#117, 2026-11-11), and Today's prompt at the foot with `Later`'s 30-day snooze on
