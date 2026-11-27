@@ -281,7 +281,7 @@ For each profile in `packages/content/jurisdictions/`:
      A template's `of` counts every URL it cites; the cycles file's, every `source` and `lowSource`
      of its rows; the facts file's, every URL its entries cite and the `source` and `lowSource` of
      each row §4 step 3 checks a clause against (29 on 2026-11-17: 26 cited, 3 of the BTC 2011 and
-     LINK 2018 rows), and each window a check moves fact a's or b's request to (§4 step 3); a
+     LINK 2018 rows), and each window a check moves fact a's request to (§4 step 3); a
      module's, the URLs of the facts its front matter names and the `source` and
      `lowSource` of every cycles row whose figure its chart draws or its text quotes, directly or
      through a fact's clause (Cycles: 8 on 2026-11-17, its facts' 3 and the four BTC rows' 5). A URL
@@ -371,6 +371,28 @@ For each profile in `packages/content/jurisdictions/`:
    template, cycle row or module sentence needs a quoted allow-listed passage and the event's date,
    both in the draft. A row's `fall` is the nearest whole percent of (high − low) / high: 96.923 %
    is 97, never 96.
+   - Request no URL on a `coinbase.com` or `kraken.com` host or any of their subdomains
+     (`api.exchange.coinbase.com` included), whatever the item, and compute no window for one:
+     Coinbase's market-data terms bar an agent session from its data (their §3.E), and Kraken's
+     closes are read from a private store (ADR-0036's Readings of 2026-11-27). A fact, a cycles
+     row or a template's `drawdowns` row whose `publisher` names Coinbase (`Coinbase`,
+     `Coinbase Exchange`) or whose `source` or `lowSource` is on a Coinbase host is not fetched and
+     takes the note `not fetched, left to the session PR of #577: <item> <field>`. One whose
+     `publisher` names Kraken, or whose `source` or `lowSource` is on a Kraken host, is not fetched
+     either and takes
+     `not fetched, recompute for the owner (docs/CONTENT-OPS.md §7): <item> <field>`. `<item>` is
+     the data file as a `changes` row names it, `<field>` the entry's or row's path in the bracket
+     form (`[1]`, `drawdowns[4]`) and, in parentheses, its key or its coin and high:
+     `facts/education.json [1] (b.alt-drawdowns)`,
+     `cycles/drawdowns.json drawdowns[4] (ETH 2018-01-13)`,
+     `templates/accumulate.json drawdowns[2] (SOL 2021-11-06)`. Write one note per entry or row in
+     the draft's `notes` (§7 step 2), which the body lists under `Notes for the owner`, and in your
+     closing report. Change nothing in such an entry or row except a copy that another row's change
+     reaches (the next item: fact b's `LINK 2018` clause when the CoinMarketCap row changes), and
+     move no row to Coinbase or Kraken. Its URLs count in every `of` that counts them and in no
+     `read`, so each such file's review is partial (the `accessed` item below). The first note asks
+     the owner nothing and takes no mark (§6); the second asks for a recomputation and takes §6's
+     mark when the run would otherwise stage nothing.
    - When you change a row of `packages/content/cycles/drawdowns.json`, change every template's
      `drawdowns` row of that coin and high to the same high, low and fall, each with its own
      `changes` row, and fact a's or b's clause of that coin and high to the row's dates, prices and
@@ -403,13 +425,11 @@ For each profile in `packages/content/jurisdictions/`:
      the flip needs the whole file read.
 2. Check a date like a figure: the passage holds the day, month and year you write.
 3. Trim no fact a module quotes. Check it against its `source` at every window its request moves
-   to, not only the one its URL names: a Coinbase Exchange request's as `docs/CONTENT-OPS.md` §7
-   moves it (`b.alt-drawdowns`), a Bitstamp OHLC request's by its `start` as §8 step 1 there does
-   (`a.btc-drawdowns`). Check each clause whose fall comes from a source other than its
-   request's series, `a.btc-drawdowns`' 2011 clause (Mt. Gox and CoinMarketCap),
-   `b.alt-drawdowns`' `LINK 2018 (CoinMarketCap series only)` and a clause a review moved off
-   Coinbase with its row (`ETH 2022 (Bitstamp)`: fact b's `source` stays its Coinbase window,
-   `docs/CONTENT-OPS.md` §7), against the cycles row of their coin
+   to, not only the one its URL names: a Bitstamp OHLC request's by its `start` as
+   `docs/CONTENT-OPS.md` §8 step 1 does (`a.btc-drawdowns`); a fact step 1 leaves unfetched is
+   checked at no window. Check each clause whose fall comes from a source other than its
+   request's series, `a.btc-drawdowns`' 2011 clause (Mt. Gox and CoinMarketCap) and
+   `b.alt-drawdowns`' `LINK 2018 (CoinMarketCap series only)`, against the cycles row of their coin
    and high, which `packages/content/src/cycles.test.ts` ties each to, and that row's `source` and
    `lowSource`; check `i.diminishing`'s 2011 figures (Mt. Gox's high, CoinMarketCap's low, −94 %),
    which its Bitstamp request starting 30 Nov 2013 cannot hold, against the same BTC 2011 row.
@@ -452,7 +472,8 @@ Set `reviewedBy: agent-draft` on every file you change and on every fact entry y
 translation has no `reviewedBy`: set none on it. A file or entry left with no change but its mark,
 after a revert or a fix that puts back HEAD's text, takes HEAD's `reviewedBy` back. Every note
 goes into the draft's `notes` and your closing report. A `put back as at HEAD, no change asked`
-note is the only note that takes no mark, since it asks the owner nothing (a chart row note that
+note and a `not fetched, left to the session PR of #577` note (§4 step 1) are the only notes that
+take no mark, since they ask the owner nothing (a chart row note that
 ends `keeps its series, unregained` asks for a reading in the log, so it takes one): a run whose only notes are such stages nothing, and
 §7 step 5's finish refuses it, `nothing staged: the review changed no content data` among its
 lines; show the owner that output word for word, give your closing report with each note, and stop.
@@ -515,9 +536,9 @@ The finish refuses a changed entry at any other value.
    `[.,]` as the decimal point; when a high moves to another year, its coin and old year,
    `\bBTC\W{1,3}2011\b`, as a chart's label writes them; when a new high comes before the file's
    first high, or a new low after its last low, that first high or last low too, which a chart's
-   span writes; and `toHaveScreenshot`. For ETH's low moved off `2022-06-18` and its clause off
-   `$880` and `−81.9 %` that is
-   `2022-06-18|(?:\b|\d{4}|\\u[0-9a-fA-F]{4})0?18\b(?:\D|\\u[0-9a-fA-F]{4}|\b0?6\b){1,30}2022|(?:\b|\\u[0-9a-fA-F]{4})880\b|(?:\b|\\u[0-9a-fA-F]{4})81[.,]9\b|toHaveScreenshot`.
+   span writes; and `toHaveScreenshot`. For BTC's low moved off `2022-11-21` and its clause off
+   `$15,479` and `−77.6 %` that is
+   `2022-11-21|(?:\b|\d{4}|\\u[0-9a-fA-F]{4})0?21\b(?:\D|\\u[0-9a-fA-F]{4}|\b0?11\b){1,30}2022|(?:\b|\\u[0-9a-fA-F]{4})15(?:[ ,.\x{00A0}\x{202F}]|\p{Cf}|\\u[0-9a-fA-F]{4}|\$\{[^}]{1,40}\}){0,2}479\b|(?:\b|\\u[0-9a-fA-F]{4})77[.,]6\b|toHaveScreenshot`.
    Read each hit's test from its imports to its assertion. A hit pins the value when an assertion
    compares it, directly or through a constant or helper the test defines or imports, with what
    the live data gives: a data file the test imports or reads, a copy of those files, a loader, a
@@ -537,9 +558,8 @@ The finish refuses a changed entry at any other value.
    such hit when an assertion reads it for your row (`BITSTAMP` in
    `packages/content/src/cycles.test.ts`, when the moved row's `FALLS` literal reads it). Name
    each pinning assertion outside `packages/content` as one only CI runs. A content test that
-   reads a live data file, names the old value and passes
-   (`packages/content/src/fact-windows.test.ts` names fact b's old low in its window) takes a note
-   for the log pull request: that line and both values.
+   reads a live data file, names the old value and passes takes a note for the log pull request:
+   that line and both values.
    A `FALLS` literal or a key of `UNREGAINED_KEYS` takes the note below. Name each other pinning
    assertion in the draft's notes and your closing report as
    `test pin for the owner: <path>:<line> pins <item> <field>: <old> to <new>`: the path from the
@@ -557,28 +577,25 @@ The finish refuses a changed entry at any other value.
    copy the literal as the test writes it and write the note
    `FALLS entry for the owner: packages/content/src/cycles.test.ts:<line>; was <literal>; now <entry>`,
    `<entry>` the same literal with your values, for example
-   `was { row: ['ETH', '2021-11-10', COINBASE], fact: [B, 'ETH 2022', '−81.9 %', COINBASE] }; now { row: ['ETH', '2021-11-10', COINBASE], fact: [B, 'ETH 2022', '−82.5 %', COINBASE] }`.
+   `was { row: ['BTC', '2017-12-17', BITSTAMP], fact: [A, '2017 to 2018,', '−84.1 %', BITSTAMP] }; now { row: ['BTC', '2017-12-17', BITSTAMP], fact: [A, '2017 to 2018,', '−84.3 %', BITSTAMP] }`.
    Say in the notes and your closing report that the owner's pull request to main adds the entry
-   to `unloggedFalls` in that test, keyed `<coin> <high>` of the literal (`ETH 2021-11-10`), and
+   to `unloggedFalls` in that test, keyed `<coin> <high>` of the literal (`BTC 2017-12-17`), and
    removes it when this one closes unmerged or no longer holds the new values
    (`docs/CONTENT-OPS.md` §8 step 4). The test's `UNREGAINED_KEYS` reads a moved high's key
    through the entry only while it stays: when your change moves a high, say in the notes that
    the log pull request writes the new `<coin> <high>` in place of the old one there when it
-   removes the entry (`docs/CONTENT-OPS.md` §8 step 5). A changed publisher takes no such note:
-   the test reads its Coinbase rows from the held falls, `FALLS` read through any entry. A change
-   §1 reverted takes no such note: its `tests:` list names the literal. A row you move to Coinbase
-   must also pass that test's windows, which your run shows only after the entry: give it a
-   `source` and, when one request cannot hold both ends, a `lowSource`, each one request of
-   Coinbase's daily candles with `start` and `end` at `T00:00:00Z` fewer than 300 days apart
-   (`docs/CONTENT-OPS.md` §7) holding its date. A coin of `UNREGAINED_KEYS` keeps its series,
-   since that test wants its low window to run from its low to the row's `accessed`, which no such
-   request does: leave the row and write `chart row for the owner: …` with
-   `; keeps its series, unregained` after the row's copies. That note asks no data change but asks
-   the owner to record its reading in the log (`docs/CONTENT-OPS.md` §8 steps 4 and 5), so it
-   takes §6's mark on the cycles file when the run would otherwise stage nothing. When a row moves to a publisher fact b's opening does not name
+   removes the entry (`docs/CONTENT-OPS.md` §8 step 5). A changed publisher takes no such note. A
+   change §1 reverted takes no such note: its `tests:` list names the literal. Move no row to
+   Coinbase or Kraken (§4 step 1). A row of a coin of `UNREGAINED_KEYS` that your review would move
+   to another publisher keeps its series, since that test reads its low window, from its low to
+   the row's `accessed`, only from a Bitstamp request: leave the row and write
+   `chart row for the owner: …` with `; keeps its series, unregained` after the row's copies. That
+   note asks no data change but asks the owner to record its reading in the log
+   (`docs/CONTENT-OPS.md` §8 steps 4 and 5), so it takes §6's mark on the cycles file when the run
+   would otherwise stage nothing. When a row moves to a publisher fact b's opening does not name
    (`b.alt-drawdowns`, `(Coinbase Exchange and CoinMarketCap …)`), add it there in the order the
-   clauses first name each publisher, with a serial comma from three on
-   (`Coinbase Exchange, Bitstamp, and CoinMarketCap`), and remove a publisher no clause names any
+   clauses first name each publisher, with a serial comma from three on (as fact a's opening
+   writes `Mt. Gox, CoinMarketCap, and Bitstamp`), and remove a publisher no clause names any
    more; the log pull request writes the same opening into its §9 row (`docs/CONTENT-OPS.md` §8
    step 5). For the tie
    of a fact's value to its `docs/EDUCATION.md` §9 row (`packages/content/src/facts.test.ts`), say
