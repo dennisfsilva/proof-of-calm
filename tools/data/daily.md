@@ -48,7 +48,9 @@ no cache and uploads no artifact.
 
 The copy rule: when a merged pull request changes `tools/data/closes-store.yml`, the session copies
 it into the private repository the same day, with git from a clone under `P:\dev\sandbox` (ADR-0058,
-Decision 2), since the job fails while the two differ and that day's closes become a gap.
+Decision 2), since the job fails while the two differ and that day's closes become a gap. It writes the
+merged blob from `git show`, never a working-tree file whose line endings `core.autocrlf` may have
+changed, and checks before the push that the private commit's blob id for the file equals main's.
 
 ## Windows
 
