@@ -8,8 +8,8 @@ sets every warn to error, and keeps `errors-in-console` on the four seeded scree
 origin `https://proofofcalm.com` only, where no deployment protection is in the way), the styling
 lint (`lint/styles.ts`), message merging (`messages/merge.ts`), the secret scan of client bundles
 (`scan/secrets.ts`), Today's application code (`size/today.ts`), the `security.txt` check (`security-txt/check.ts`) and the local servers
-(`serve/`). Content validation is `packages/content/scripts/validate.ts`; the reference-close data
-pipeline (`tools/data/`, ADR-0036) arrives in M2.
+(`serve/`). Content validation is `packages/content/scripts/validate.ts`. The private reference-close
+pipeline (`tools/data/`, ADR-0036): its store, pairs and readers, `tools/data/README.md`.
 
 `messages/merge.ts` reads every feature's and lib module's `messages/<locale>.json` for the locales
 in its `LOCALES` list (`en`, `pt-PT`, `de`) and writes, into `packages/app/src/messages`, one
