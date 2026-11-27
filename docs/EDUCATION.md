@@ -65,7 +65,8 @@ labelled, from `packages/content/cycles`). Directly under the chart sits the fir
 historic data of `docs/LEGAL.md` §4 in its intraday form, since the bars are falls from intraday highs to
 intraday lows: "[Source] intraday highs and lows in US dollars, [first date] to [last date]; the falls are
 Proof of Calm's own computation. Past performance is not a reliable indicator of future results.", as §6
-says for the Red day page. The publisher shows as
+says for the Red day page; a row with `basis: 'close'` in the cycles file, a fall from the highest to the lowest
+daily close, names its source under "daily closes" instead (§4's forms). The publisher shows as
 attribution text, never as a link to the exchange's domain (`docs/LEGAL.md` §3.4).
 **Caveat**: "The deepest falls so far are not a limit: a coin can fall further, to zero."
 **Facts needed**: §9 a, b, d, f, m and the e rows of the signs (c stays out: the module quotes no
@@ -258,7 +259,7 @@ paper's cover does, `date` stays the document's own and the value names the revi
 BIS's page of 14 Nov 2022, "revised Jul 2023" in the value); or 2026-10-16 for live data and undated pages. Rows a and b (the falls), h, i and o to q are Proof of Calm's own computation: the value opens with "Proof of Calm's
 own computation" and its series, so a module quoting it says who computed it, and the publisher is
 the exchange whose daily candles it used, so the first-view line opens with the publisher
-("Bitstamp closes, …"; for the falls, Cycles' own line and Risk honestly's chart line "{publishers} intraday highs and lows in US dollars, {first} to {last}; the falls are Proof of Calm's own computation.") (`docs/LEGAL.md` §4). An ETH figure is a fact of its own, sourced to the ETH candles it came from.
+("Bitstamp closes, …"; for the falls, Cycles' own line and Risk honestly's chart line "{intraday} intraday highs and lows in US dollars, {first} to {last}; the falls are Proof of Calm's own computation.", with "{closes} daily closes" for rows on daily closes) (`docs/LEGAL.md` §4). An ETH figure is a fact of its own, sourced to the ETH candles it came from.
 The cycles file's rows read the series rows a and b name, bitcoin's from row a and the other coins' from row b, except LINK 2021: it stays on Bitstamp,
 because only Bitstamp's 3-day candles give a low window that runs to today in one request, while row
 b quotes LINK from Coinbase; both give 91 %.
@@ -326,8 +327,8 @@ caveat, and body. A body holds two elements. `<PastPerformance />` sets the past
 and the link `Risk disclosure` as one, after the line's source and dates (`docs/LEGAL.md` §4). The content
 test refuses those words anywhere in a module's own text. `<Chart />`, on a line of its own, draws the
 chart the front matter names where it stands, followed by its source's publishers as unlinked text, the
-span of its data and the past-performance line, all inside the element (for `drawdowns-bar`, the intraday form
-of `docs/LEGAL.md` §4's line, which also says the falls are Proof of Calm's own computation); a module holds it exactly once when
+span of its data and the past-performance line, all inside the element (for `drawdowns-bar`, the falls' form
+of `docs/LEGAL.md` §4's line, intraday or on daily closes as the rows say, which also says the falls are Proof of Calm's own computation); a module holds it exactly once when
 `chart` is not `none`, and never otherwise (`pnpm validate:content`). A module writes its `N %` with a
 no-break space, or an ordinary one, and the page sets it with its joiner where the module shows figures
 the app formats: a chart, or the tax module's country card (`docs/CONTENT-STYLE.md` §4); any other module
