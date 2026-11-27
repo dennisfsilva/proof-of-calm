@@ -45,4 +45,30 @@ describe('the way to the simulator while PUBLISH.display is false', () => {
     expect(productFiles(SOURCE).length).toBeGreaterThan(100);
     expect(PUBLISH.display ? [] : found).toEqual([]);
   });
+
+  // Learn's index links each module at its slug (components/module-index.tsx), and the module schema allows the
+  // slug `simulator`: a module of that slug would be a row leading to the screen with no string literal to find.
+  // The files are read as the Learn plugin reads them (packages/config/vite/learn-plugin.ts), not through
+  // `virtual:learn-modules`, whose transform the test cache can keep after a module is added.
+  it('finds the slug simulator in a module’s front matter, and only there', () => {
+    expect(isSimulatorModule('---\nslug: simulator\ntitle: Simulator\n---\n\nBody.')).toBe(true);
+    expect(isSimulatorModule('---\r\nslug:  simulator \r\n---\r\n')).toBe(true);
+    expect(isSimulatorModule('---\nslug: noise\n---\n\nslug: simulator')).toBe(false);
+    expect(isSimulatorModule('---\nslug: simulator-notes\n---\n')).toBe(false);
+  });
+
+  it('no Learn module has the slug simulator', () => {
+    const found = learnModules().filter((file) => isSimulatorModule(readFileSync(join(LEARN, file), 'utf8')));
+    expect(learnModules().length).toBeGreaterThan(0);
+    expect(PUBLISH.display ? [] : found).toEqual([]);
+  });
 });
+
+const LEARN = resolve(SOURCE, '../../content/learn');
+
+const learnModules = () => readdirSync(LEARN).filter((name) => name.endsWith('.mdx'));
+
+function isSimulatorModule(text: string): boolean {
+  const frontMatter = /^---\r?\n([\s\S]*?)\r?\n---/.exec(text)?.[1] ?? '';
+  return /^slug:\s*simulator\s*$/m.test(frontMatter);
+}
