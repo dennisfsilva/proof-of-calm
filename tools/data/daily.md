@@ -30,7 +30,8 @@ copies differ (`cmp`), installs the tools package, runs the daily job with `--st
 then commits the store's files, `closes/<exchange>/*.csv` and never the `.tmp` file a killed write
 leaves (`store.ts`), as `github-actions[bot]`, in one commit per exchange that changed, Bitstamp's
 first with the message `data: bitstamp closes of <UTC date>`, then Kraken's (`data: kraken closes of
-<UTC date>`). The daily step has its own 8-minute timeout inside the job's 15: a step timeout
+<UTC date>`). An exchange with no such file, tracked or new (a fresh store, or a first run in which
+every one of its pairs failed), gets no commit and does not stop the other exchange's. The daily step has its own 8-minute timeout inside the job's 15: a step timeout
 fails that step without cancelling the job (GitHub's runner marks the step failed), so the commit
 step, which runs unless the run was cancelled, keeps what a slow or failed run wrote. The commit step
 runs after a failed pair too, so the other pairs' closes are kept. A push to the private repository
