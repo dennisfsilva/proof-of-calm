@@ -65,6 +65,19 @@
     "failed": "Die Kurshistorie konnte nicht geladen werden. Prüfen Sie die Verbindung und laden Sie die Seite dann neu.",
     "dataFrom": "Daten ab {date}, dem ersten Tag mit Schlusskursen von zwei Börsen.",
     "credit": "Referenzschlusskurse, abgeleitet aus öffentlichen Daten von Kraken und Bitstamp; Wechselkurse: Referenzkurse der EZB",
+    "form": {
+      "errors": {
+        "invalid-split": "Wählen Sie Anteile, die zusammen 100\u00a0% ergeben, jeder mit höchstens 4 Nachkommastellen.",
+        "invalid-amount": "Geben Sie einen Betrag über 0 mit höchstens 2 Nachkommastellen ein.",
+        "invalid-fee": "Geben Sie eine Gebühr unter 100\u00a0% mit höchstens 4 Nachkommastellen ein.",
+        "invalid-buy-day": "Wählen Sie einen Kauftag von 1 bis 28.",
+        "invalid-dates": "Wählen Sie ein Ende am oder nach dem Start.",
+        "history-missing": "Für {coin} gibt es noch keine Referenzschlusskurse.",
+        "history-starts-later": "Die Referenzschlusskurse für {coin} beginnen am {date}. Wählen Sie einen Start an diesem Tag oder später.",
+        "history-ends-earlier": "Die Referenzschlusskurse für {coin} enden am {date}. Wählen Sie ein Ende an diesem Tag oder früher.",
+        "date-required": "Wählen Sie ein vollständiges Datum: Tag, Monat und Jahr."
+      }
+    },
     "result": {
       "legend": {
         "value": "Simulierter Wert",
