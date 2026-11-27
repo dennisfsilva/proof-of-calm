@@ -79,6 +79,9 @@ export const Years: Story = {
     await expect(canvas.getByRole('img', { name: /^Simulated value and money invested, / })).toBeVisible();
     await expect(canvas.getByText(CAVEAT)).toBeVisible();
     await expect(canvas.getByRole('link', { name: 'Risk disclosure' })).toHaveAttribute('href', '/risk');
+    // A figure's term, value and line stand apart by a stack token (docs/DESIGN.md §6), not flush.
+    const figure = canvas.getByText('Maximum drawdown', { selector: 'dt' }).parentElement as HTMLElement;
+    await expect(Number(getComputedStyle(figure).rowGap.replace(/px$/, ''))).toBeGreaterThan(0);
     await userEvent.click(canvas.getByText('Show the plan from 12 start dates as a table'));
     await expect(canvas.getAllByRole('table').at(-1)?.querySelectorAll('tbody tr')).toHaveLength(12);
   },
