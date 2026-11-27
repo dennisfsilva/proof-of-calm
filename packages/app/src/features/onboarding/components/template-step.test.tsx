@@ -153,17 +153,17 @@ describe('TemplateStep', () => {
     });
     literalRows.byId = {
       'btc-only-hold': [row('BTC', '2021-09-07', '2022-11-21', '77.6')],
-      'two-coins': [row('BTC', '2021-11-10', '2022-06-18', '74.4'), row('ETH', '2021-09-03', '2022-12-30', '81.6')],
+      'two-coins': [row('BTC', '2021-11-10', '2022-06-14', '74.4'), row('ETH', '2021-09-03', '2022-12-30', '81.6')],
       'cycle-plan': [
         row('BTC', '2021-11-10', '2022-11-21', '77.2'),
-        row('ETH', '2021-11-10', '2022-06-18', '81.8'),
-        row('SOL', '2021-11-06', '2022-12-29', '96.4'),
+        row('ETH', '2021-11-10', '2022-06-30', '82.7'),
+        row('SOL', '2021-11-12', '2022-12-23', '98.3'),
         row('LINK', '2021-05-10', '2023-06-10', '90.6'),
       ],
       accumulate: [
         row('BTC', '2021-11-10', '2022-11-21', '78'),
-        row('ETH', '2021-11-16', '2022-06-18', '82'),
-        row('SOL', '2021-11-06', '2022-12-29', '97'),
+        row('ETH', '2021-11-16', '2022-06-30', '83'),
+        row('SOL', '2021-11-04', '2022-12-27', '98'),
       ],
     };
     mount(null, createFormatters('de-DE', 'en-GB'));
@@ -174,8 +174,8 @@ describe('TemplateStep', () => {
     const bands = {
       'btc-only-hold': `${fall('BTC', 78)}, high to low between ${day('7 Sept 2021')} and ${day('21 Nov 2022')}`,
       'two-coins': `${fall('BTC', 74)} and ${fall('ETH', 82)}, each high to low between ${day('3 Sept 2021')} and ${day('30 Dec 2022')}`,
-      'cycle-plan': `${fall('BTC', 77)}, ${fall('ETH', 82)}, ${fall('SOL', 96)}, and ${fall('LINK', 91)}, each high to low between ${day('10 May 2021')} and ${day('10 Jun 2023')}`,
-      accumulate: `${fall('BTC', 78)}, ${fall('ETH', 82)}, and ${fall('SOL', 97)}, each high to low between ${day('6 Nov 2021')} and ${day('29 Dec 2022')}`,
+      'cycle-plan': `${fall('BTC', 77)}, ${fall('ETH', 83)}, ${fall('SOL', 98)}, and ${fall('LINK', 91)}, each high to low between ${day('10 May 2021')} and ${day('10 Jun 2023')}`,
+      accumulate: `${fall('BTC', 78)}, ${fall('ETH', 83)}, and ${fall('SOL', 98)}, each high to low between ${day('4 Nov 2021')} and ${day('27 Dec 2022')}`,
     };
     expect(TEMPLATES.map((template) => template.id).sort()).toEqual(Object.keys(bands).sort());
     for (const template of TEMPLATES) {
