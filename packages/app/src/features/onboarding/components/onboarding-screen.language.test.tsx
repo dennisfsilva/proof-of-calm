@@ -83,7 +83,7 @@ const cardNames = () =>
     .slice(0, -1)
     .map((title) => title.textContent ?? '');
 
-// Load (2026-11-27): worst 1,116 ms in six forced pnpm check runs; seen past 5 s on busier ones, so 3 × 5 s.
+// Load (2026-11-27): worst 1,464 ms in nine forced pnpm check runs; seen past 5 s on busier ones, so 3 × 5 s.
 const LOADED = { timeout: 15_000 };
 
 describe('OnboardingScreen: the template texts in the UI language (ADR-0057)', LOADED, () => {

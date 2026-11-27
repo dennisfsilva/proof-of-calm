@@ -64,7 +64,7 @@ function fill(sent: string, to = 'Ledger') {
   type('Units sent', sent);
 }
 
-// Load (2026-11-27): worst 2,307 ms in six forced pnpm check runs; seen past 5 s on busier ones, so 3 × 5 s.
+// Load (2026-11-27): worst 2,307 ms in nine forced pnpm check runs; seen past 5 s on busier ones, so 3 × 5 s.
 describe('MoveForm', { timeout: 15_000 }, () => {
   it('the date opens blank', async () => {
     await open(lots);

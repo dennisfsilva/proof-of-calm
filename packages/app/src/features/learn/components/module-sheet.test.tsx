@@ -87,7 +87,7 @@ const mount = (props?: Partial<ComponentProps<typeof ModuleSheet>>) => render(tr
 // (lib/services/testing-modules.ts). The preload above spares the transform, not that round trip, and under the whole
 // suite's load it outlasted the 1 s a findBy waits: the first test to show the tax module found no dialog (#520). One
 // render of each sheet before the tests resolves them, so a test's findBy waits on React's renders only.
-// Load (2026-11-27): worst 1,823 ms a priming hook, 491 ms a test, in six forced pnpm check runs; tests get 3 × 5 s.
+// Load (2026-11-27): worst 1,823 ms a priming hook, 811 ms a test, in nine forced pnpm check runs; tests get 3 × 5 s.
 const PRIMING = { timeout: 10_000 };
 const PRIMING_HOOK = 30_000;
 const LOADED = { timeout: 15_000 };
