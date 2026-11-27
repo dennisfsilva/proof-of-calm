@@ -79,7 +79,7 @@ module.exports = {
     {
       name: 'data-imports-nothing',
       comment:
-        "packages/data imports only zod and packages/core, whose schemas type the dataset, so no type is written twice (docs/ARCHITECTURE.md).",
+        'packages/data imports only zod and packages/core, whose schemas type the dataset, so no type is written twice (docs/ARCHITECTURE.md).',
       severity: 'error',
       from: { path: '^packages/data/' },
       to: { path: '^(apps/|packages/(?!(data|core)/))' },
