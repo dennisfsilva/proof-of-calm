@@ -92,6 +92,14 @@ describe('closes-store.yml', () => {
     expect(adds).toEqual([`git add --all -- ":(glob)closes/$exchange/*.csv"`]);
     // One commit per exchange, Kraken's last, so a rebase that skips Kraken's commit has nothing left to apply.
     expect(commit).toContain('\n          for exchange in bitstamp kraken; do\n');
+    // An exchange with no csv file, tracked or new, is skipped before its add, whose pathspec would match nothing.
+    expect(commit).toContain(
+      [
+        '            files=$(git ls-files --cached --others --exclude-standard -- ":(glob)closes/$exchange/*.csv")',
+        '            if [ -z "$files" ]; then continue; fi',
+        '            git add --all -- ":(glob)closes/$exchange/*.csv"\n',
+      ].join('\n'),
+    );
     // Nothing is staged otherwise, and the step ends quietly when there is no store file yet.
     expect(commit).not.toMatch(/git (commit|stage) .*(-a\b|--all)/);
     expect(commit).toContain(`if ! ls closes/*/*.csv > /dev/null 2>&1; then exit 0; fi`);
