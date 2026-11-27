@@ -1216,6 +1216,20 @@ verdicts. This file holds only the repository's inputs. Commands and conventions
   guarded parser reads whole, with a case one step from each clause and a mutation pass that weakens
   each clause in turn, its table in the PR. The falls publisher guard's third round, on such a
   grammar, found nothing (#598; 2026-11-27).
+- A design note that sizes a screen counts the copy it adds in all three hand-written languages, in
+  full: the simulator's result branch was noted without its copy and built at 424 lines, so it
+  opened as two pull requests, split by commits, the second of which rebased clean once the first
+  merged (#606, #607; 2026-11-27).
+- A builder checks each spacing class against the tokens `packages/ui/src/styles/theme.css`
+  defines: `gap-stack-2xs` matched none, so the simulator's figures had no gap and no lint caught
+  it; brand found it, and a story step that reads the computed gap proves the fix (#607; 2026-11-27).
+- The pre-PR hook's check fails on load-sensitive tests while builders run suites on this machine,
+  so a session opens pull requests between builder runs and retries once after the load drops: #605
+  sized the daily job's cases, and the app's and two more tools files are a carry-over (#605;
+  2026-11-27).
+- The pre-PR hook reads its command literally, so a body file named through a shell variable, or a
+  branch switch that fails in the same command, fails it: one `gh pr create` per call with the
+  literal body path, after the switch in its own call (#604; 2026-11-27).
 
 ## Known gaps
 
