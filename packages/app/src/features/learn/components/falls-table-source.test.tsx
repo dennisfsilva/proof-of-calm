@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 
 import { cleanup, render } from '@testing-library/react';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createFormatters } from '../../../lib/format';
 import { I18nProvider } from '../../../lib/i18n';
@@ -87,22 +88,39 @@ describe('DrawdownBars: the Source column', () => {
     expect(body.map((row) => row.at(-1))).toEqual(['Bitstamp', 'Kraken', compound]);
   });
 
-  // Stacked, each Source cell shows the column's name above the publisher, from an attribute the stylesheet reads
-  // (docs/DESIGN.md §8), so the cell's text stays the publisher alone.
+  // Stacked, each Source cell shows the column's name above the publisher from a custom property the chart's wrapper
+  // carries, which the stylesheet draws (docs/DESIGN.md §8), so the cell's text stays the publisher alone.
   it.each([
-    ['en', 'Source'],
-    ['pt-PT', 'Fonte'],
-    ['de', 'Quelle'],
-  ] as const)('a mixed set labels each Source cell in %s, and only those', (language, source) => {
-    const { container } = table(falls(BITSTAMP, KRAKEN), language);
-    const labelled = [...container.querySelectorAll('[data-label]')];
-    expect(labelled.map((cell) => cell.getAttribute('data-label'))).toEqual([source, source]);
-    expect(labelled.map((cell) => cell.textContent)).toEqual(['Bitstamp', 'Kraken']);
-    expect(labelled.every((cell) => cell.tagName === 'TD' && cell === cell.parentElement?.lastElementChild)).toBe(true);
+    ['en', '"Source"'],
+    ['pt-PT', '"Fonte"'],
+    ['de', '"Quelle"'],
+  ] as const)('a mixed set gives the chart the Source label in %s, and no cell an attribute', (language, label) => {
+    const { container, body } = table(falls(BITSTAMP, KRAKEN), language);
+    const wrapper = container.firstElementChild as HTMLElement;
+    expect(wrapper.querySelector('details table')).not.toBeNull();
+    expect(wrapper.style.getPropertyValue('--source-label')).toBe(label);
+    expect(container.querySelector('[data-label]')).toBeNull();
+    expect(body.map((row) => row.at(-1))).toEqual(['Bitstamp', 'Kraken']);
   });
 
-  it('rows of one basis label no cell', () => {
+  it('rows of one basis set no Source label', () => {
     const { container } = table(falls(BITSTAMP, BITCOINITY));
+    const elements = [...container.querySelectorAll<HTMLElement>('*')];
+    expect(elements.filter((element) => element.style.getPropertyValue('--source-label') !== '')).toEqual([]);
     expect(container.querySelector('[data-label]')).toBeNull();
+  });
+
+  // The public Learn page prerenders the chart and never hydrates it, so a style attribute there would meet the
+  // hashed style-src (apps/web/vercel.json); the label is set after mount, never in the markup.
+  it('the prerendered markup of a mixed set holds no style attribute', () => {
+    const locales = localesFor('en', null);
+    const f = createFormatters(locales.numbers, locales.ui);
+    const html = renderToStaticMarkup(
+      <I18nProvider locale="en" messages={{ learn }}>
+        <DrawdownBars falls={falls(BITSTAMP, KRAKEN)} f={f} />
+      </I18nProvider>,
+    );
+    expect(html).toContain('Kraken');
+    expect(html).not.toContain('style=');
   });
 });
