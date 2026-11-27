@@ -92,14 +92,17 @@ describe('the simulator screen', () => {
     expect(area().getAttribute('aria-busy')).toBe('false');
   });
 
-  it.each(['offline', 'invalid'] as const)('a load that fails (%s) says so, names the fix and offers Reload', async (kind) => {
-    const platform = await mount(async () => ({ ok: false, error: { kind } }));
-    expect(await screen.findByText(FAILED)).toBeTruthy();
-    expect(screen.queryByText(/^Data from/)).toBeNull();
-    expect(platform.calls.reloads).toBe(0);
-    fireEvent.click(screen.getByRole('button', { name: 'Reload' }));
-    expect(platform.calls.reloads).toBe(1);
-  });
+  it.each(['offline', 'invalid'] as const)(
+    'a load that fails (%s) says so, names the fix and offers Reload',
+    async (kind) => {
+      const platform = await mount(async () => ({ ok: false, error: { kind } }));
+      expect(await screen.findByText(FAILED)).toBeTruthy();
+      expect(screen.queryByText(/^Data from/)).toBeNull();
+      expect(platform.calls.reloads).toBe(0);
+      fireEvent.click(screen.getByRole('button', { name: 'Reload' }));
+      expect(platform.calls.reloads).toBe(1);
+    },
+  );
 
   it('a load that rejects is a failure too, never an unhandled error', async () => {
     await mount(() => Promise.reject(new Error('a programmer error in the loader')));
