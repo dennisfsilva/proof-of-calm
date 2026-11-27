@@ -42,7 +42,7 @@ function Figure({
   readonly children?: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-stack-2xs">
+    <div className="flex flex-col gap-stack-xs">
       <dt className="text-14 text-ink-2">{term}</dt>
       <dd className="nums text-20">{value}</dd>
       {children !== undefined && <dd className="text-14 text-ink-2">{children}</dd>}
