@@ -259,8 +259,8 @@ year, on a page last updated later), but when the update names only its month, a
 paper's cover does, `date` stays the document's own and the value names the revision (`r.app-user-losses`:
 BIS's page of 14 Nov 2022, "revised Jul 2023" in the value); or 2026-10-16 for live data and undated pages. Rows a and b (the falls), h, i and o to q are Proof of Calm's own computation: the value opens with "Proof of Calm's
 own computation" and its series, so a module quoting it says who computed it, and the publisher is
-the exchange whose daily candles or closes it used (for row b, whose series are several, Kraken's,
-the source of its own closes), so the first-view line opens with the publisher
+the exchange whose daily candles or closes it used (row b uses several series; its publisher is Kraken,
+the source of the closes it computes), so the first-view line opens with the publisher
 ("Bitstamp closes, …"; for the falls, Cycles' own line and Risk honestly's chart line "{intraday} intraday highs and lows in US dollars, {first} to {last}; the falls are Proof of Calm's own computation.", with "{closes} daily closes" for rows on daily closes) (`docs/LEGAL.md` §4). An ETH figure is a fact of its own, sourced to the ETH series it came from.
 The cycles file's rows read the series rows a and b name, bitcoin's from row a and the other coins' from row b, each row's publisher the series its clause names.
 A Kraken figure is derived from Kraken's daily closes and cites its OHLCVT archive article; no Kraken close or price is quoted, so the Kraken clauses give dates and falls only.
