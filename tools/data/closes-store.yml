@@ -6,7 +6,8 @@
 # step runs after a failed pair too, so the other pairs' closes are kept, and after the daily step's own
 # timeout, which fails that step without cancelling the job; it stages only the store's finished .csv
 # files, never a temporary file a killed write left, in one commit per exchange, Bitstamp's first and
-# Kraken's last. A push rejected because the store moved on after the checkout (a backfill or a workflow
+# Kraken's last; an exchange with no such file, tracked or new (a fresh store, or a first run whose pairs
+# all failed), is skipped and does not stop the other's commit. A push rejected because the store moved on after the checkout (a backfill or a workflow
 # copy pushed meanwhile) is retried up to 3 times, each 10 s later on
 # top of a pull with rebase. A rebase that conflicts only on Kraken files skips Kraken's commit (the next
 # run's 720-day window reads that day again) and goes on, so Bitstamp's day, which cannot be read again,
@@ -68,6 +69,8 @@ jobs:
           made=
           dropped=
           for exchange in bitstamp kraken; do
+            files=$(git ls-files --cached --others --exclude-standard -- ":(glob)closes/$exchange/*.csv")
+            if [ -z "$files" ]; then continue; fi
             git add --all -- ":(glob)closes/$exchange/*.csv"
             if git diff --cached --quiet; then continue; fi
             git commit --quiet --message "data: $exchange closes of $day"
