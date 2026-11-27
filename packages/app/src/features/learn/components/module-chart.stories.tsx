@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect } from 'storybook/test';
-import { ModuleChart } from './module-chart';
+import { useFormatters } from '../../../lib/services';
+import type { PastFall } from '../../../lib/services/red-day-types';
+import { DrawdownBars, ModuleChart } from './module-chart';
 
 // The risk module's chart from the cycles file through the red-day port, in the page's measure; the test projects
 // of vitest.config.ts render it at 360 and 1280 px, light and dark, with axe.
@@ -30,5 +32,28 @@ export const DrawdownsBar: Story = {
     await expect(canvasElement.querySelectorAll('[data-slot="bar-chart-bar"]')).toHaveLength(9);
     await expect(canvas.getByText(/intraday highs and lows/)).toBeVisible();
     await expect(canvas.getByRole('link', { name: 'Risk disclosure' })).toBeVisible();
+  },
+};
+
+// Synthetic rows that mix the bases, dates no row of the cycles file holds: an intraday fall and one between daily
+// closes, so the table names each row's publisher in its Source column.
+const MIXED = [
+  { coin: 'BTC', high: '2017-12-18', low: '2018-12-16', fall: '83', publisher: 'Bitstamp' },
+  { coin: 'ETH', high: '2018-01-20', low: '2018-12-08', fall: '93', publisher: 'Kraken', basis: 'close' },
+] as unknown as readonly PastFall[];
+
+export const MixedBases: Story = {
+  render: function Render() {
+    return <DrawdownBars falls={MIXED} f={useFormatters()} />;
+  },
+  play: async ({ canvas, userEvent }) => {
+    await userEvent.click(canvas.getByText('Show the falls as a table'));
+    await expect(canvas.getByRole('columnheader', { name: 'Source' })).toBeVisible();
+    const cells = canvas
+      .getAllByRole('row')
+      .slice(1)
+      .map((row) => row.lastElementChild?.textContent);
+    await expect(cells).toEqual(['Bitstamp', 'Kraken']);
+    await expect(canvas.getByText(/intraday highs and lows, and Kraken daily closes/)).toBeVisible();
   },
 };
