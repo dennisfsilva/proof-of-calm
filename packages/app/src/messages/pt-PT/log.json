@@ -96,6 +96,7 @@
     "sold": "Unidades de {coin} vendidas",
     "received": "Valor de venda de {coin}, antes de comissões ({currency})",
     "price": "Preço de {coin} ({currency})",
+    "priceCredit": "Dados de preços da CoinGecko",
     "cost": "Custo de {coin} ({currency}, se conhecido)",
     "costHint": "Deixe vazio se não souber o custo: o Investido, o custo médio e o resultado deixam então estas unidades de fora. Introduza 0 se não pagou nada.",
     "heldDate": "O dia em que as comprou ou recebeu.{rule, select, none {} other { Em caso de dúvida, o dia mais tardio possível nunca inicia uma regra de detenção cedo demais.}} O gráfico do valor conta as moedas a partir desse dia.",

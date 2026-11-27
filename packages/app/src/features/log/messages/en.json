@@ -96,6 +96,7 @@
     "sold": "{coin} sold (units)",
     "received": "{coin} sold for, before fees ({currency})",
     "price": "{coin} price ({currency})",
+    "priceCredit": "Price data by CoinGecko",
     "cost": "{coin} cost ({currency}, if known)",
     "costHint": "Leave it empty if you do not know the cost: Invested, the average cost, and the P/L then leave these units out. Type 0 if you paid nothing.",
     "heldDate": "The day you bought or received them.{rule, select, none {} other { If you are not sure, the latest possible day never starts a holding rule too early.}} The value chart counts the coins from that day.",

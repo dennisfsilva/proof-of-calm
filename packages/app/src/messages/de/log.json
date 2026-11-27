@@ -96,6 +96,7 @@
     "sold": "Einheiten von {coin} in diesem Verkauf",
     "received": "Erlös aus {coin} vor Gebühren ({currency})",
     "price": "Preis von {coin} ({currency})",
+    "priceCredit": "Kursdaten von CoinGecko",
     "cost": "Kosten für {coin} ({currency}, falls bekannt)",
     "costHint": "Lassen Sie das Feld leer, wenn Sie die Kosten nicht kennen: „Investiert“, der durchschnittliche Kaufpreis und das Ergebnis lassen diese Einheiten dann aus. Geben Sie 0 ein, wenn Sie nichts bezahlt haben.",
     "heldDate": "Der Tag, an dem Sie sie gekauft oder erhalten haben.{rule, select, none {} other { Im Zweifel wählen Sie den spätestmöglichen Tag: Mit ihm beginnt eine Haltefrist nie zu früh.}} Das Wertdiagramm zählt die Coins ab diesem Tag.",
