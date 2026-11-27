@@ -3,6 +3,7 @@ import { useTranslations } from 'use-intl';
 import { BRAND } from '../../../lib/brand';
 import type { PastFall } from '../../../lib/services/red-day-types';
 import { fallPercent, fallsSpan } from '../components/module-chart';
+import { rowPublisher } from '../lib/falls-basis';
 import { useSiteFormatters } from './static';
 
 // The Risk page's dated falls (docs/LEGAL.md §5, its volatility and drawdowns with dated ranges): the cycles file's
@@ -71,7 +72,7 @@ export function SiteFalls({ falls }: SiteFallsProps) {
                 <td className={`${CELL} nums text-right`}>{fallPercent(f, row.fall)}</td>
                 <td className={CELL}>{f.date(row.high)}</td>
                 <td className={CELL}>{f.date(row.low)}</td>
-                {sourced && <td className={CELL}>{row.publisher}</td>}
+                {sourced && <td className={CELL}>{rowPublisher(row, f)}</td>}
               </tr>
             ))}
           </tbody>

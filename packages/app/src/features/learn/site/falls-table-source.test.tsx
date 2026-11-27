@@ -1,12 +1,32 @@
 import type { CalendarDate } from '@proofofcalm/core';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it } from 'vitest';
+import { IntlProvider } from 'use-intl';
+import { describe, expect, it, vi } from 'vitest';
+import { createFormatters } from '../../../lib/format';
+import { localesFor, type UiLanguage } from '../../../lib/i18n/locale';
 import type { PastFall } from '../../../lib/services/red-day-types';
+import learnDe from '../../../messages/de/learn.json';
 import learn from '../../../messages/en/learn.json';
+import learnPt from '../../../messages/pt-PT/learn.json';
 import { SiteFalls, StaticLearn } from './index';
 
 // The Risk page's falls table names each row's publisher in a Source column once the rows mix intraday falls with
 // falls between daily closes (docs/CONTENT-STYLE.md §1 rules 1 and 2), and stays as it was with rows of one basis.
+
+// The site renders in English (`StaticLearn`, ADR-0048 Deviations of 2026-11-15); a render in another language swaps
+// in that language's formatters, as a translated site page would get them.
+const site = vi.hoisted(() => ({ language: null as UiLanguage | null }));
+vi.mock('./static', async (original) => {
+  const actual = await original<typeof import('./static')>();
+  return {
+    ...actual,
+    useSiteFormatters: () => {
+      if (site.language === null) return actual.useSiteFormatters();
+      const locales = localesFor(site.language, null);
+      return createFormatters(locales.numbers, locales.ui);
+    },
+  };
+});
 
 const TODAY = '2026-11-15' as CalendarDate;
 
@@ -16,6 +36,19 @@ const html = (falls: readonly PastFall[]) =>
       <SiteFalls falls={falls} />
     </StaticLearn>,
   );
+
+const translated = (falls: readonly PastFall[], language: 'pt-PT' | 'de') => {
+  site.language = language;
+  try {
+    return renderToStaticMarkup(
+      <IntlProvider locale={language} messages={{ learn: language === 'de' ? learnDe : learnPt }} timeZone="UTC">
+        <SiteFalls falls={falls} />
+      </IntlProvider>,
+    );
+  } finally {
+    site.language = null;
+  }
+};
 
 // Synthetic rows: dates no row of the cycles file holds.
 const BITCOINITY = {
@@ -66,5 +99,20 @@ describe('SiteFalls: the Source column', () => {
       ).toBe(true);
       expect(markup).not.toContain(columns.source);
     }
+  });
+
+  // A row drawn from two series names both, joined in the page's language (docs/CONTENT-STYLE.md §1 rule 9, §3):
+  // English keeps its "and", pt-PT and German their own word.
+  it.each([
+    ['pt-PT', 'Fonte', 'Bitcoinity (Mt. Gox) e CoinMarketCap'],
+    ['de', 'Quelle', 'Bitcoinity (Mt. Gox) und CoinMarketCap'],
+  ] as const)('a compound publisher in %s joins its names in that language', (language, source, compound) => {
+    const markup = translated(falls(BITSTAMP, KRAKEN, BITCOINITY), language);
+    expect(cells(header(markup)).at(-1)).toBe(source);
+    expect(
+      rows(markup)
+        .map(cells)
+        .map((row) => row.at(-1)),
+    ).toEqual(['Bitstamp', 'Kraken', compound]);
   });
 });

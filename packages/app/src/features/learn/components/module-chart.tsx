@@ -9,7 +9,7 @@ import { uiLang } from '../../../lib/i18n/text-lang';
 import { useFormatters, useServices } from '../../../lib/services';
 import type { PastFall } from '../../../lib/services/red-day-types';
 import { MODULE_ELEMENTS } from '../lib/body-elements';
-import { fallsSources } from '../lib/falls-basis';
+import { fallsSources, rowPublisher } from '../lib/falls-basis';
 
 // A module's `<Chart />` (docs/EDUCATION.md §2 and §10): the chart its front matter names, then, inside the
 // element, its source as text and the past-performance line (docs/LEGAL.md §3.4 and §4). The rows come through
@@ -102,7 +102,7 @@ export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
             f.date(row.high),
             f.date(row.low),
             percent(row.fall),
-            ...(sourced ? [row.publisher] : []),
+            ...(sourced ? [rowPublisher(row, f)] : []),
           ]),
           numericColumns: [3],
         }}

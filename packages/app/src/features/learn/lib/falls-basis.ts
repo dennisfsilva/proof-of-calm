@@ -23,6 +23,14 @@ const publisherNames = (publishers: readonly string[]) =>
   );
 
 /**
+ * A row's publisher as the page shows it, in the falls tables' Source column and the fall page's line: a compound
+ * value's names joined by the page's list (docs/CONTENT-STYLE.md §1 rule 9), so pt-PT reads "Bitcoinity (Mt. Gox) e
+ * CoinMarketCap" where English keeps the cycles file's "and".
+ */
+export const rowPublisher = ({ publisher }: Pick<PastFall, 'publisher'>, f: Formatters) =>
+  f.list(publisher.split(JOINED_PUBLISHERS));
+
+/**
  * The rows' basis and each publisher once under the basis of its rows: `intraday` the publishers of intraday rows,
  * `closes` those of rows on daily closes, '' for none.
  */
