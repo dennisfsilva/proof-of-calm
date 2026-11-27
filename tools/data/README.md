@@ -7,6 +7,17 @@ lives in the private repository dennisfsilva/proof-of-calm-closes, never in this
 publish switch is off (`packages/data/README.md`), and no exchange's close enters this repository:
 the tests use synthetic values.
 
+## Running
+
+A `tools/data` entry runs under plain Node with the resolve hook loaded first, from the repository
+root: `node --import ./tools/data/hooks.ts tools/data/<entry>.ts`. `packages/core` and
+`packages/data` import their own files without an extension (`./constants`), which Node's type
+stripping does not resolve; `hooks.ts` maps such a specifier, from an importer under `packages/` or
+`tools/data/`, to its `.ts` file or a folder's `index.ts` when that file exists there, and leaves
+every other specifier to Node. It uses Node's `module.registerHooks` (synchronous, in-thread,
+release candidate since Node 24.13.1), so no dependency is added. `hooks.test.ts` runs
+`hooks.fixture.ts` through it.
+
 ## The store
 
 `store.ts` reads and writes one CSV per exchange and pair under the store's folder,
