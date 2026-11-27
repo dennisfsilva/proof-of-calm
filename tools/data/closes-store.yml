@@ -3,7 +3,9 @@
 # .github/workflows/closes-store.yml, and the job fails at the cmp step while the two differ. It checks out
 # this repository's main only, with no ref input and no credential kept, runs the daily job into the
 # store's checkout and commits what it added with the private repository's own GITHUB_TOKEN. The commit
-# step runs after a failed pair too, so the other pairs' closes are kept. No cache, no artifact.
+# step runs after a failed pair too, so the other pairs' closes are kept, and after the daily step's own
+# timeout, which fails that step without cancelling the job; it stages only the store's finished .csv
+# files, never a temporary file a killed write left. No cache, no artifact.
 name: Closes store
 
 on:
@@ -47,15 +49,16 @@ jobs:
         run: pnpm install --frozen-lockfile --filter @proofofcalm/tools...
       - name: Append the closes
         working-directory: app
+        timeout-minutes: 8
         run: node --import ./tools/data/hooks.ts tools/data/daily.ts --store ../store
       - name: Commit the closes
         if: ${{ !cancelled() }}
         working-directory: store
         run: |
-          if [ ! -d closes ]; then exit 0; fi
+          if ! ls closes/*/*.csv > /dev/null 2>&1; then exit 0; fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add --all -- closes
+          git add --all -- ':(glob)closes/*/*.csv'
           if git diff --cached --quiet; then exit 0; fi
           git commit --quiet --message "data: closes of $(date -u +%F)"
           git push --quiet

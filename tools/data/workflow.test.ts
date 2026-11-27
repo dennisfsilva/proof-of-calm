@@ -69,6 +69,24 @@ describe('closes-store.yml', () => {
     expect(commit).toContain('git commit --quiet --message "data: closes of $(date -u +%F)"');
     expect(commit).toContain('git diff --cached --quiet');
   });
+
+  it('gives the daily step its own timeout, well under the job’s, so a slow run still reaches the commit', () => {
+    const daily = /- name: Append the closes\n((?: {8}.*\n)+)/.exec(store)?.[1] ?? '';
+    const step = Number(/^ {8}timeout-minutes: (\d+)$/m.exec(daily)?.[1]);
+    const job = Number(/^ {4}timeout-minutes: (\d+)$/m.exec(store)?.[1]);
+    expect(step).toBeGreaterThan(0);
+    // The commit step needs the rest: install before the daily step, the commit and push after it.
+    expect(step).toBeLessThanOrEqual(job - 5);
+  });
+
+  it('stages only finished store files, never the temporary file a killed write leaves', () => {
+    const commit = /- name: Commit the closes\n((?: {8}.*\n)+)/.exec(store)?.[1] ?? '';
+    const adds = commit.match(/git add .*/g) ?? [];
+    expect(adds).toEqual([`git add --all -- ':(glob)closes/*/*.csv'`]);
+    // Nothing is staged otherwise, and the step ends quietly when there is no store file yet.
+    expect(commit).not.toMatch(/git (commit|stage) .*(-a\b|--all)/);
+    expect(commit).toContain(`if ! ls closes/*/*.csv > /dev/null 2>&1; then exit 0; fi`);
+  });
 });
 
 describe('data-dry.yml', () => {
