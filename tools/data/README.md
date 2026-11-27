@@ -55,8 +55,9 @@ builds it.
 
 Every line a `tools/data` command prints, on stdout and stderr and on every error path, comes from a
 closed set holding names, dates, statuses and whole-number counts only: never a close, a price or an
-exchange's response. The store's errors name the file and nothing else, as in "refused:
-closes/kraken/BTC-EUR.csv is malformed".
+exchange's response. The store's errors name the store-relative file and, when the file system
+fails, its error code, and nothing else: "refused: closes/kraken/BTC-EUR.csv is malformed",
+"refused: closes/kraken/BTC-EUR.csv cannot be written (ENOTDIR)".
 
 ## Daily job
 

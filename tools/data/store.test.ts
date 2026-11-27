@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { StoreRow } from '@proofofcalm/data';
@@ -81,6 +81,47 @@ describe('the store file', () => {
       writeStore(dir, 'kraken', 'BTC-EUR', [row('2020-01-02', '1'), row('2020-01-01', '1')]),
     ).rejects.toThrow('refused: closes/kraken/BTC-EUR.csv rows are malformed');
     expect(await readStore(dir, 'kraken', 'BTC-EUR')).toEqual([]);
+  });
+});
+
+// A file-system failure names the store-relative file and the error's code, never the store's
+// location or Node's own text, and carries no cause a later script could print.
+async function refusal(promise: Promise<unknown>): Promise<Error> {
+  const error = await promise.then(
+    () => undefined,
+    (caught: unknown) => caught,
+  );
+  expect(error).toBeInstanceOf(Error);
+  const { message, cause } = error as Error;
+  expect(message).not.toContain(dir);
+  expect(message).not.toMatch(/illegal operation|not a directory|operation not permitted/i);
+  expect(cause).toBeUndefined();
+  return error as Error;
+}
+
+describe('the store on a failing file system', () => {
+  it('refuses to write under a closes that is a file, naming the file and the code only', async () => {
+    writeFileSync(join(dir, 'closes'), 'not a folder\n');
+    const error = await refusal(writeStore(dir, 'kraken', 'BTC-EUR', [row('2020-01-01', '1')]));
+    expect(error.message).toMatch(/^refused: closes\/kraken\/BTC-EUR\.csv cannot be written \([A-Z]+\)$/);
+  });
+
+  it('refuses to read a store file that is a folder, naming the file and the code only', async () => {
+    mkdirSync(storePath(dir, 'kraken', 'BTC-EUR'), { recursive: true });
+    const error = await refusal(readStore(dir, 'kraken', 'BTC-EUR'));
+    expect(error.message).toMatch(/^refused: closes\/kraken\/BTC-EUR\.csv cannot be read \([A-Z]+\)$/);
+  });
+
+  it('removes the temporary file when the rename fails, leaving the folder as it was', async () => {
+    const path = storePath(dir, 'kraken', 'BTC-EUR');
+    mkdirSync(join(path, 'held'), { recursive: true });
+    const error = await refusal(writeStore(dir, 'kraken', 'BTC-EUR', [row('2020-01-01', '1')]));
+    expect(error.message).toMatch(/^refused: closes\/kraken\/BTC-EUR\.csv cannot be written \([A-Z]+\)$/);
+    expect(readdirSync(join(dir, 'closes', 'kraken'))).toEqual(['BTC-EUR.csv']);
+  });
+
+  it('keeps the store refusals of an unknown pair ahead of the file system', async () => {
+    await expect(readStore(dir, 'kraken', '../BTC-EUR')).rejects.toThrow(/^refused: unknown pair$/);
   });
 });
 
