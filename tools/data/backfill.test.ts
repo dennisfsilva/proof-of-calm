@@ -131,7 +131,8 @@ it('fails a malformed file whole, names the pair and a reason, and keeps the oth
 });
 
 it('refuses a usage it does not know with one closed line', { timeout: 30_000 }, () => {
-  const result = run('--source', 'kraken-bulk', '--dir', root, '--store', join(root, 'tools'), '--extra', CLOSES[0]);
+  const args = ['--source', 'kraken-bulk', '--dir', root, '--store', join(root, 'tools'), '--dry'];
+  const result = run(...args, '--extra', CLOSES[0]);
   expect(result.status).toBe(1);
   expect(result.stdout).toBe('');
   expect(result.stderr).toBe(
@@ -153,7 +154,8 @@ it('stops on a malformed store file with the store refusal only', { timeout: 30_
 
 it('refuses a store inside this repository', { timeout: 30_000 }, async () => {
   const full = await archive('full', { XBTEUR: daily([[DAY[0], CLOSES[0]]]) });
-  const result = run('--source', 'kraken-bulk', '--dir', full, '--store', join(root, 'packages', 'data'));
+  // --dry, so a broken guard would print counts instead of writing into packages/data.
+  const result = run('--source', 'kraken-bulk', '--dir', full, '--store', join(root, 'packages', 'data'), '--dry');
   expect(result.status).toBe(1);
   expect(result.stdout).toBe('');
   expect(result.stderr).toBe('kraken-bulk refused: --store is inside this repository\n');
@@ -211,11 +213,14 @@ it.runIf(process.platform === 'win32')(
 );
 
 // A folder named like the repository with a suffix, beside it: the guard lets it through, so the next
-// check speaks. It is left unmade, so the test writes nothing beside the repository.
+// check speaks. The suffix is one no clone could carry (a store's clone sits beside the repository as
+// <name>-closes), the folder must be absent before the run, and --dry writes nothing even if it
+// appeared in between, so the test can never merge into a real folder.
 it('lets a store beside the repository past the guard', { timeout: 30_000 }, async () => {
   const full = await archive('full', { XBTEUR: daily([[DAY[0], CLOSES[0]]]) });
-  const beside = `${root.replace(/[\\/]+$/, '')}-closes`;
-  const result = run('--source', 'kraken-bulk', '--dir', full, '--store', beside);
+  const beside = `${root.replace(/[\\/]+$/, '')}-backfill-guard-probe`;
+  expect(existsSync(beside), `${beside} exists; remove it before running this test`).toBe(false);
+  const result = run('--source', 'kraken-bulk', '--dir', full, '--store', beside, '--dry');
   expect(result.status).toBe(1);
   expect(result.stdout).toBe('');
   expect(result.stderr).toBe('kraken-bulk refused: --store is not a folder\n');
