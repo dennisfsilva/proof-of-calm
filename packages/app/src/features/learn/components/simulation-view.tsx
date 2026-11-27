@@ -66,6 +66,8 @@ export function SimulationView({ simulation, sensitivity, currency, closesFrom }
   const under = summary.longestUnderwater;
   const zero = '0' as Percent;
   const refused = sensitivity.filter((row) => !row.result.ok).length;
+  // The core keeps a gap per coin and due date (docs/EDUCATION.md §8); the figure counts the buy days.
+  const gapDays = new Set(simulation.gaps.map((gap) => gap.due)).size;
 
   return (
     <div className="flex flex-col gap-stack-md">
@@ -144,7 +146,7 @@ export function SimulationView({ simulation, sensitivity, currency, closesFrom }
             months: figure(summary.months),
           })}
         />
-        <Figure term={t('simulator.result.gaps')} value={figure(summary.gaps)} />
+        <Figure term={t('simulator.result.gaps')} value={figure(gapDays)} />
       </dl>
       {summary.multiple !== null && (
         <dl>
