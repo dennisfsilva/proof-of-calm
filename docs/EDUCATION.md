@@ -194,6 +194,14 @@ the sensitivity view.
 **Caveat**: "Past prices are facts; a simulation of them is not a forecast. Taxes, fees, slippage and
 your own behaviour are not in this chart."
 **Facts needed**: data sources and licensing from ADR-0036; the method in §8.
+**Screen**: `/learn/simulator` (`packages/app/src/features/learn/components/simulator-screen.tsx`), its own
+chunk under Learn's, reached only by its address while `PUBLISH.display` is false (`packages/data/README.md`).
+It reads the coin's dataset file through `packages/app/src/features/learn/lib/reference-closes.ts` and shows one
+state, worded in `learn.simulator`: the result area busy while the file loads; a 404 says the price history is not
+published yet; a network failure, an error status, or a file that is not that coin's dataset says it could not be
+loaded and offers Reload; a dataset gives its first day with the reason §8 names (the first day with two
+exchanges' closes) and, at text-14, the credit line ADR-0036 sets while Coinbase is off. The inputs and the
+result build on this route (planned: M2).
 
 ## 8. Simulator method (implemented in `packages/core/src/simulate`)
 

@@ -35,7 +35,10 @@ exchange's close enters this repository, in code, fixtures, documents or logs.
 | `krakenOnly` | days or coins where Kraken's is the only close, so the reference close is Kraken's own |
 
 A flag changes only by a pull request that cites the answer it rests on, and `src/publish.test.ts`
-changes with it. While `repository` is `false`, nothing writes into this package.
+changes with it. While `repository` is `false`, nothing writes into this package. While `display` is
+`false`, nothing in the app links to the simulator at `/learn/simulator`
+(`packages/app/src/features/learn/simulator-links.test.ts`); before it flips, the simulator screen and its
+Learn module are translated and their visual baselines reviewed.
 
 ## Collected and computed
 
@@ -63,3 +66,9 @@ Once the switch allows it: `prices/<COIN>-EUR.json` per coin, `{ coin, currency:
 each day `{ date, close, sources }`; `fx/` with the ECB reference rates; `DATA-LICENSE.md` naming
 each source's period and saying the values are reference closes, neither any exchange's data nor
 tradable prices. Never raw exchange files.
+
+The app's side of that file is built: the simulator asks the site for `/data/prices/<COIN>-EUR.json`, a
+path relative to the site's origin, and parses it with `DatasetSchema`
+(`packages/app/src/features/learn/lib/reference-closes.ts`). A 404 reads as not published yet, a network
+failure or an error status as offline, and a body that is not JSON, fails the schema, names another coin or
+holds no day as invalid. Whatever publishes the files serves them at that path.
