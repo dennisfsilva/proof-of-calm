@@ -201,7 +201,8 @@ state, worded in `learn.simulator`: the result area busy while the file loads; a
 published yet; a network failure, an error status, or a file that is not that coin's dataset says it could not be
 loaded, names the fix (check the connection, then reload) and offers Reload; a dataset gives its first day with
 the reason §8 names (the first day with two exchanges' closes) and, at text-14, the credit line ADR-0036 sets
-while Coinbase is off. The inputs build on this route (planned: M2).
+while Coinbase is off. A dataset of that coin with no day yet reads as a 404 does, as a coin with no closes yet,
+not as a broken file. The inputs build on this route (planned: M2).
 **Default dates** (`packages/app/src/features/learn/lib/simulator-dates.ts`): the window is the days every chosen
 coin has closes for, from the latest first close to the earliest last one. The start is the first day 11 months
 after the window's first day whose start-date table keeps every row inside the closes, when a 12-month plan from
