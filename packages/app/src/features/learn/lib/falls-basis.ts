@@ -14,8 +14,8 @@ function fallsBasis(falls: readonly PastFall[]): 'intraday' | 'close' | 'mixed' 
 
 // A row whose high and low come from two series names both, "Bitcoinity (Mt. Gox) and CoinMarketCap": the word
 // "and" between two names joins them. Content's drawdown-publisher-joined (packages/content/src/publisher-validate.ts)
-// refuses a value this split would not read as one or two whole names; the pattern stays here, as the lazy chunk
-// takes no value from content (module-chart.tsx's header).
+// holds each value to a closed grammar of one name or two, so this split always gives whole names; the pattern stays
+// here, as the lazy chunk takes no value from content (module-chart.tsx's header).
 const JOINED_PUBLISHERS = / and /;
 
 /** Each publisher once, by name, compound values split into their names, for the source sentence. */
