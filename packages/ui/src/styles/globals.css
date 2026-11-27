@@ -77,6 +77,21 @@
     text-underline-offset: 0.2em;
   }
 
+  /*
+   * A stacked table's labelled cell shows its column's name above the value (docs/DESIGN.md §8). The
+   * second `content` gives that name empty alt text, so assistive technology reads the table it read
+   * side by side; a browser that rejects the alt syntax keeps the first.
+   */
+  [data-stacked] td[data-label]::before {
+    content: attr(data-label);
+    /* biome-ignore lint/suspicious/noDuplicateProperties: the first declaration is the fallback for the alt syntax */
+    content: attr(data-label) / "";
+    display: block;
+    color: var(--ink-2);
+    font-size: var(--type-13);
+    line-height: var(--type-13-leading);
+  }
+
   /* The one focus style: never removed, radius inherited, offset off any fill (docs/DESIGN.md §6). */
   :focus-visible {
     outline: var(--focus-width) solid var(--focus);
