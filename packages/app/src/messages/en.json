@@ -202,6 +202,19 @@
       "failed": "The price history could not be loaded. Check your connection, then reload the page.",
       "dataFrom": "Data from {date}, the first day with closes from two exchanges.",
       "credit": "Reference closes derived from Kraken and Bitstamp public data; FX: ECB reference rates",
+      "form": {
+        "errors": {
+          "invalid-split": "Make the shares add up to 100 %, each with at most 4 decimal places.",
+          "invalid-amount": "Enter an amount above 0 with at most 2 decimal places.",
+          "invalid-fee": "Enter a fee below 100 % with at most 4 decimal places.",
+          "invalid-buy-day": "Choose a buy day from 1 to 28.",
+          "invalid-dates": "Choose an end on or after the start.",
+          "history-missing": "No reference closes for {coin} yet.",
+          "history-starts-later": "The reference closes for {coin} begin on {date}. Choose a start on or after that day.",
+          "history-ends-earlier": "The reference closes for {coin} end on {date}. Choose an end on or before that day.",
+          "date-required": "Choose a full date: day, month, and year."
+        }
+      },
       "result": {
         "legend": {
           "value": "Simulated value",

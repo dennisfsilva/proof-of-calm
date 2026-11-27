@@ -12,6 +12,9 @@ import {
 } from '@proofofcalm/core';
 import { describe, expect, it } from 'vitest';
 import { createNumberInput } from '../../../lib/format';
+import de from '../messages/de.json';
+import en from '../messages/en.json';
+import pt from '../messages/pt-PT.json';
 import { type ClosesByCoin, type FieldError, fieldOf, readForm, type SimulatorFields } from './simulator-form';
 
 // The simulator's form (docs/EDUCATION.md §7, the verdicts V1 to V3 of #14): what the person typed, read in the
@@ -317,5 +320,33 @@ describe('fieldOf', () => {
     expect(core.ok).toBe(false);
     if (core.ok) return;
     expect([fieldOf(core.error)]).toEqual(errorsOf(readForm(early, closes, english)));
+  });
+});
+
+describe('the messages', () => {
+  const codes: FieldError['code'][] = [
+    'invalid-split',
+    'invalid-amount',
+    'invalid-fee',
+    'invalid-buy-day',
+    'invalid-dates',
+    'history-missing',
+    'history-starts-later',
+    'history-ends-earlier',
+    'date-required',
+  ];
+
+  it.each([
+    ['en', en],
+    ['pt-PT', pt],
+    ['de', de],
+  ])('%s words every refusal of the core and every date left empty, each once', (_, messages) => {
+    const errors: Record<string, string> = messages.simulator.form.errors;
+    expect(Object.keys(errors).sort()).toEqual([...codes].sort());
+    expect(errors['history-missing']).toContain('{coin}');
+    for (const code of ['history-starts-later', 'history-ends-earlier']) {
+      expect(errors[code]).toContain('{coin}');
+      expect(errors[code]).toContain('{date}');
+    }
   });
 });

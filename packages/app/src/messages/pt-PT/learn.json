@@ -65,6 +65,19 @@
     "failed": "Não foi possível carregar o histórico de preços. Verifique a ligação e depois recarregue a página.",
     "dataFrom": "Dados desde {date}, o primeiro dia com fechos de duas plataformas de negociação.",
     "credit": "Fechos de referência derivados de dados públicos da Kraken e da Bitstamp; câmbio: taxas de referência do BCE",
+    "form": {
+      "errors": {
+        "invalid-split": "Ajuste os pesos para que somem 100%, cada um com no máximo 4 casas decimais.",
+        "invalid-amount": "Introduza um montante acima de 0 com no máximo 2 casas decimais.",
+        "invalid-fee": "Introduza uma comissão abaixo de 100% com no máximo 4 casas decimais.",
+        "invalid-buy-day": "Escolha um dia de compra de 1 a 28.",
+        "invalid-dates": "Escolha um fim a partir do início.",
+        "history-missing": "Ainda não há fechos de referência para {coin}.",
+        "history-starts-later": "Os fechos de referência de {coin} começam em {date}. Escolha um início a partir desse dia.",
+        "history-ends-earlier": "Os fechos de referência de {coin} terminam em {date}. Escolha um fim até esse dia.",
+        "date-required": "Escolha uma data completa: dia, mês e ano."
+      }
+    },
     "result": {
       "legend": {
         "value": "Valor simulado",
