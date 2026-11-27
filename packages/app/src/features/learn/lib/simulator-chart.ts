@@ -25,7 +25,7 @@ export const SIMULATOR_CHART_POINTS = 180;
 const GRIDLINES = 3;
 
 /** A table row: a month and the value and the money invested at its last day simulated. */
-export type SimulatorMonth = { readonly month: MonthKey; readonly value: Money; readonly invested: Money };
+type SimulatorMonth = { readonly month: MonthKey; readonly value: Money; readonly invested: Money };
 
 export type SimulatorGeometry = {
   readonly value: string;
