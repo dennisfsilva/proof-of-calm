@@ -89,7 +89,9 @@ export const SeveralCoins: Story = {
     await expect(canvas.getByRole('button', { name: 'Why? The fall under way' })).toBeVisible();
     await expect(canvas.getByText(/^Kaspa is not in these figures/)).toBeVisible();
     await expect(canvas.getByText(/^Earlier falls of Ethereum, .* daily closes in US dollars:$/)).toBeVisible();
-    await expect(canvas.getByText(/^Earlier falls of Bitcoin, .* intraday highs and lows in US dollars:$/)).toBeVisible();
+    await expect(
+      canvas.getByText(/^Earlier falls of Bitcoin, .* intraday highs and lows in US dollars:$/),
+    ).toBeVisible();
     await expect(canvas.getByText(/no dated earlier fall for Kaspa/)).toBeVisible();
   },
 };
