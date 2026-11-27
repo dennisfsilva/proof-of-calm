@@ -26,7 +26,7 @@ const FALLS = [
     publisher: 'Bitcoinity (Mt. Gox) and CoinMarketCap',
   },
   { coin: 'BTC', high: '2013-11-30', low: '2015-01-14', fall: '87', publisher: 'Bitstamp' },
-  { coin: 'ETH', high: '2018-01-13', low: '2018-12-14', fall: '94', publisher: 'Coinbase' },
+  { coin: 'ETH', high: '2018-01-20', low: '2018-12-08', fall: '93', publisher: 'CoinGecko' },
   { coin: 'LINK', high: '2021-05-10', low: '2023-06-10', fall: '91', publisher: 'Bitstamp' },
 ] as unknown as readonly PastFall[];
 
@@ -72,9 +72,9 @@ describe('SiteFalls', () => {
   it('names each publisher once, from the first high to the last low', () => {
     const markup = html(FALLS).replaceAll('&#x27;', "'");
     const line = markup.match(/<\/table><\/div><p[^>]*>(.*?)<\/p>/)?.[1] ?? '';
-    expect(line).toContain('Bitcoinity (Mt. Gox), Bitstamp, Coinbase, and CoinMarketCap intraday highs and lows');
+    expect(line).toContain('Bitcoinity (Mt. Gox), Bitstamp, CoinGecko, and CoinMarketCap intraday highs and lows');
     expect(line).toContain('8 Jun 2011 to 10 Jun 2023');
-    for (const publisher of ['Bitstamp', 'Coinbase', 'CoinMarketCap']) {
+    for (const publisher of ['Bitstamp', 'CoinGecko', 'CoinMarketCap']) {
       expect(line.split(publisher).length - 1, publisher).toBe(1);
     }
     expect(line.endsWith(learn.module.pastPerformance)).toBe(true);
