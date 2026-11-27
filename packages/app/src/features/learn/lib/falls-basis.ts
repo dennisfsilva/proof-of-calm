@@ -6,7 +6,7 @@ import type { PastFall } from '../../../lib/services/red-day-types';
 // line and the fall page's line over each coin's falls both name the publishers from here.
 
 /** The rows' basis for a message's select: every row intraday, every row on closes, or both kinds. */
-export function fallsBasis(falls: readonly PastFall[]): 'intraday' | 'close' | 'mixed' {
+function fallsBasis(falls: readonly PastFall[]): 'intraday' | 'close' | 'mixed' {
   const closes = falls.filter(({ basis }) => basis === 'close').length;
   if (closes === 0) return 'intraday';
   return closes === falls.length ? 'close' : 'mixed';
