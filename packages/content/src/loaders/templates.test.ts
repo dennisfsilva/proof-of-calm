@@ -119,13 +119,13 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
     expect(template('cycle-plan').oneLine).toMatch(/\. The plan rests on a forecast that may not come true\.$/);
   });
 
-  it('carry each coin’s dated fall from the intraday high to the intraday low (LEGAL §4, ADR-0009)', () => {
-    const BTC = ['BTC', '2021-11-10', '2022-11-21', '78'];
-    const ETH = ['ETH', '2021-11-10', '2022-06-18', '82'];
-    const SOL = ['SOL', '2021-11-06', '2022-12-29', '97'];
-    const LINK = ['LINK', '2021-05-10', '2023-06-10', '91'];
+  it('carry each coin’s dated fall, intraday or close to close as its basis says (LEGAL §4, ADR-0009)', () => {
+    const BTC = ['BTC', '2021-11-10', '2022-11-21', '78', undefined];
+    const ETH = ['ETH', '2021-11-10', '2022-06-18', '82', undefined];
+    const SOL = ['SOL', '2021-11-06', '2022-12-29', '96', 'close'];
+    const LINK = ['LINK', '2021-05-10', '2023-06-10', '91', undefined];
     const falls = (templateId: string) =>
-      template(templateId).drawdowns.map(({ coin, high, low, fall }) => [coin, high, low, fall]);
+      template(templateId).drawdowns.map(({ coin, high, low, fall, basis }) => [coin, high, low, fall, basis]);
     expect(falls('btc-only-hold')).toEqual([BTC]);
     expect(falls('two-coins')).toEqual([BTC, ETH]);
     expect(falls('cycle-plan')).toEqual([BTC, ETH, SOL, LINK]);
@@ -222,18 +222,16 @@ describe('TEMPLATES (docs/DOMAIN.md §5, ADR-0009)', () => {
   it('cite for each fall a series that holds its high and its low (ADR-0009)', () => {
     const cited = (templateId: string) =>
       template(templateId).drawdowns.map(({ coin, source, lowSource }) => [coin, source, lowSource]);
-    const coinbase = 'https://api.exchange.coinbase.com/products/SOL-USD/candles?granularity=86400';
-    expect(cited('accumulate')[2]).toEqual([
-      'SOL',
-      `${coinbase}&start=2021-10-01T00:00:00Z&end=2022-07-27T00:00:00Z`,
-      `${coinbase}&start=2022-07-27T00:00:00Z&end=2023-01-31T00:00:00Z`,
-    ]);
+    // Kraken's daily closes come from its OHLCVT archive, one download that holds the high and the low.
+    const kraken = 'https://support.kraken.com/articles/360047124832';
+    expect(cited('accumulate')[2]).toEqual(['SOL', kraken, undefined]);
     for (const each of WRITTEN) {
       for (const { coin, source, lowSource } of each.drawdowns) {
         // LINK has not regained its high, so its low can still move: a 3-day response runs to today.
         if (coin === 'LINK') expect(lowSource, source).toContain('step=259200');
         else if (source.includes('bitstamp'))
           expect([source, lowSource]).toEqual([expect.stringContaining('&start='), undefined]);
+        else if (source === kraken) expect(lowSource, source).toBeUndefined();
         else expect(lowSource, source).toBeDefined();
       }
     }

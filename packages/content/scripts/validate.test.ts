@@ -49,13 +49,13 @@ describe('scripts/validate.ts on a copy of the files it reads', () => {
     const file = at('packages/content/cycles/drawdowns.json');
     const before = readFileSync(file, 'utf8');
     const chart = JSON.parse(before);
-    for (const row of chart.drawdowns) if (row.coin === 'SOL') row.fall = '96';
+    for (const row of chart.drawdowns) if (row.coin === 'SOL') row.fall = '97';
     writeFileSync(file, JSON.stringify(chart));
     try {
       const { status, lines } = run();
-      const sentence = 'Ether fell 94 % and 82 %, Chainlink 89 % and 91 %, and Solana 97 %.';
+      const sentence = 'Ether fell 94 % and 82 %, Chainlink 89 % and 91 %, and Solana 96 %.';
       expect(lines).toContain(
-        `${MODULE}: figure-chart: body: "97 %" in "${sentence}" is not Solana's fall at that place in the chart's order; R5 (docs/CONTENT-STYLE.md §4)`,
+        `${MODULE}: figure-chart: body: "96 %" in "${sentence}" is not Solana's fall at that place in the chart's order; R5 (docs/CONTENT-STYLE.md §4)`,
       );
       expect(status).toBe(1);
     } finally {
@@ -81,11 +81,11 @@ describe('scripts/validate.ts on a copy of the files it reads', () => {
       `---\n${kept}\n---\n<Chart />\n\nNo gráfico, a bitcoin teve 4 quedas de mais de 75 % entre 2011 e 2022. O ether caiu 94 % e 82 %,\na Chainlink 89 % e 91 % e a Solana ${solana} %.${after}\n`;
     writeFileSync(
       at(MODULE),
-      `---\n${front}---\nA monthly plan sets when you buy. It does not limit how far a price can fall.\n\n<Chart />\n\nIn the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022. Ether fell 94 % and 82 %,\nChainlink 89 % and 91 %, and Solana 97 %.\n${more}`,
+      `---\n${front}---\nA monthly plan sets when you buy. It does not limit how far a price can fall.\n\n<Chart />\n\nIn the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022. Ether fell 94 % and 82 %,\nChainlink 89 % and 91 %, and Solana 96 %.\n${more}`,
     );
     writeFileSync(
       at(deutsch),
-      `---\n${kept}\n---\n<Chart />\n\nVon 2011 bis 2022 hatte Bitcoin im Diagramm 4 Rückgänge um mehr als 75 %.\nEthereum fiel um 94 % und 82 %, Chainlink um 89 % und 91 % und Solana um 97 %.\n${german}`,
+      `---\n${kept}\n---\n<Chart />\n\nVon 2011 bis 2022 hatte Bitcoin im Diagramm 4 Rückgänge um mehr als 75 %.\nEthereum fiel um 94 % und 82 %, Chainlink um 89 % und 91 % und Solana um 96 %.\n${german}`,
     );
     const restore = () => {
       writeFileSync(at(MODULE), english);
@@ -100,17 +100,17 @@ describe('scripts/validate.ts on a copy of the files it reads', () => {
   it("3: reads a pt-PT chart section in pt-PT's shapes and list, and refuses one figure off", () => {
     const { pt, restore } = fixedBodies();
     try {
-      writeFileSync(at(translated), pt('97'));
+      writeFileSync(at(translated), pt('96'));
       const passed = run();
       expect(passed.lines).toEqual([]);
       expect(passed.status).toBe(0);
       // One figure off, and a sentence pt-PT does not list: exactly two figure lines (the number tie adds its own).
-      writeFileSync(at(translated), pt('96', ' A queda durou três anos.'));
+      writeFileSync(at(translated), pt('97', ' A queda durou três anos.'));
       const { status, lines } = run();
-      const sentence = 'O ether caiu 94 % e 82 %, a Chainlink 89 % e 91 % e a Solana 96 %.';
+      const sentence = 'O ether caiu 94 % e 82 %, a Chainlink 89 % e 91 % e a Solana 97 %.';
       expect(lines.filter((line) => line.includes(': figure-'))).toEqual([
         `${translated}: figure-chart: body: "A queda durou três anos." is not a sentence pt-PT's list holds and matches neither shape of a chart's section; write it as B or E (docs/CONTENT-STYLE.md §9), or list it in LISTED in packages/content/src/module-figures.ts in a reviewed pull request; R5 (docs/CONTENT-STYLE.md §4)`,
-        `${translated}: figure-chart: body: "96 %" in "${sentence}" is not Solana's fall at that place in the chart's order; R5 (docs/CONTENT-STYLE.md §4)`,
+        `${translated}: figure-chart: body: "97 %" in "${sentence}" is not Solana's fall at that place in the chart's order; R5 (docs/CONTENT-STYLE.md §4)`,
       ]);
       expect(status).toBe(1);
     } finally {
@@ -126,14 +126,14 @@ describe('scripts/validate.ts on a copy of the files it reads', () => {
     );
     const steps = (n: number) => `\n## Passos\n\n${n}. Compre num dia fixo.`;
     try {
-      writeFileSync(at(translated), pt('97', steps(1)));
+      writeFileSync(at(translated), pt('96', steps(1)));
       const same = run();
       expect(same.lines).toEqual([]);
       expect(same.status).toBe(0);
-      writeFileSync(at(translated), pt('97', steps(1975)));
+      writeFileSync(at(translated), pt('96', steps(1975)));
       const { status, lines } = run();
       expect(lines).toEqual([
-        `${translated}: overlay-number-mismatch: body: 1975 2011 2022 4 75 82 89 91 94 97, English 1 2011 2022 4 75 82 89 91 94 97`,
+        `${translated}: overlay-number-mismatch: body: 1975 2011 2022 4 75 82 89 91 94 96, English 1 2011 2022 4 75 82 89 91 94 96`,
       ]);
       expect(status).toBe(1);
     } finally {
