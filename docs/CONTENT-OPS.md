@@ -317,27 +317,35 @@ content test fails when a module cites a key that does not exist or whose `lastR
 than twelve months; the owner's manual review (§3) re-reads the sources and proposes updates.
 Templates carry `lastReviewed` too (the Cycle plan's dates age). The chart rows of the risk module
 and the Red day page live in `packages/content/cycles/drawdowns.json`. `docs/EDUCATION.md` §9 a and b
-quote the same falls to one decimal, each on the series it names; the file rounds them to the
+quote the same falls to one decimal, each on the series it names (fact b's two Bitstamp clauses,
+ETH 2021 to 2022 and LINK 2021 to 2023, quote their rows' whole percent); the file rounds them to the
 nearest whole percent (96.923 % is 97, never 96), and a template's own `drawdowns` copy of a row
 holds the same high, low and fall, tied only by `packages/content/src/cycles.test.ts`. A fall runs to the lowest low before the coin regains its high; a coin that has not regained it, as LINK on 2 Nov 2026,
 is read again at every review, because its low can still move.
 The review fetches no request on a Coinbase or Kraken host and computes no window for one:
 Coinbase's market-data terms bar an agent session from its data (their §3.E), and Kraken's closes
 are read from a private store (`docs/ADR/0036-market-data-providers.md`, the Readings of
-2026-11-27). Until the session PR of #577 merges, three facts cite Coinbase Exchange's daily
-candles (`b.alt-drawdowns`, `o.dca-windows-eth` and `p.simulator-examples-eth`, each by the one
-request `packages/content/src/fact-windows.test.ts` holds), as do the cycles file's ETH rows and
-the SOL rows of the cycles file and the templates, and the review changes none of them: each
-takes the note `not fetched, left to the session PR of #577`, since that PR re-sources or removes
-each figure (ETH 2018 and SOL from Kraken's daily closes, the ETH 2021–22 row onto the templates'
-Bitstamp row, §6).
+2026-11-27). No fact, cycles row or template row cites Coinbase: the session PR of #577
+(2026-11-27) re-sourced ETH 2018, SOL and the ETH facts (`b.alt-drawdowns`, `o.dca-windows-eth`,
+`p.simulator-examples-eth`) from Kraken's daily closes without a price, and put the cycles file's
+ETH 2021–22 row on the templates' Bitstamp row (§6). `packages/content/src/cycles.test.ts` fails on
+a Coinbase host or publisher in any of them, and on a Kraken row or fact that cites anything but
+the archive article below or a Kraken row not on closes (`basis: 'close'`).
 An item that cites Kraken takes `not fetched, recompute for the owner (docs/CONTENT-OPS.md §7)`, and
 the owner recomputes it by the method below (§8 step 4; the skill's §4 step 1).
 
-A fall from Kraken's daily closes takes the highest close within 45 days of the row's high date and
-the lowest close after it, before the first close at or above that high; fall = 1 − low ÷ high,
-which a fact quotes to one decimal and a row rounds to the nearest whole percent (96.923 % is 97,
-never 96). A Kraken figure cites Kraken's OHLCVT archive article, support article 360047124832
+A Kraken figure reads Kraken's daily closes on the USD pair, the series every row and fact names
+(ETH/USD, SOL/USD). A fall's high is the highest close from 45 days before to 45 days after the
+row's `high` date (calendar days, both ends included; a day without a close is skipped, since
+Kraken's archive leaves out a day without trades, `tools/data/backfill.md`). Its low is the lowest
+close after the high's day, up to the day before the first close at or above the high, or up to the
+latest close for a coin that has not regained it. The row's and the fact's dates are those two
+closes' days. Fall = 1 − low ÷ high, rounded half up from the exact decimal: a fact to one decimal
+and a row to the nearest whole percent (96.923 % is 97, never 96). Fact b's line at a dated close
+gives 1 − that day's close ÷ the coin's highest close in the calendar year the line names (UTC
+days), rounded half up to the nearest whole percent; `o.dca-windows-eth` and
+`p.simulator-examples-eth` are computed by `docs/EDUCATION.md` §8's method on the same closes. A
+Kraken figure cites Kraken's OHLCVT archive article, support article 360047124832
 (`https://support.kraken.com/articles/360047124832`, `tools/data/backfill.md` step 1); a day after
 2026-09-30 is checked at Kraken's public OHLC endpoint (`interval=1440`, its latest 720 days) until
 the archive's next quarterly file is published. The private store is never cited.
