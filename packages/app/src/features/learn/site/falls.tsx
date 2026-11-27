@@ -25,6 +25,8 @@ export function SiteFalls({ falls }: SiteFallsProps) {
   const span = fallsSpan(falls, f);
   const { first, last } = span;
   const coins = f.list([...new Set(falls.map(({ coin }) => coin))]);
+  // Rows of both bases name each row's publisher, as Learn's table does (docs/CONTENT-STYLE.md §1 rules 1 and 2).
+  const sourced = span.basis === 'mixed';
   // The page runs no React on the client, so unlike the UI kit's Table the wrapper cannot wait to measure that it
   // scrolls: it is always a region named by the caption that takes a tab stop (WCAG 2.1.1, axe's
   // scrollable-region-focusable), padded and pulled out by the focus ring's extent so its overflow never clips the ring.
@@ -53,6 +55,11 @@ export function SiteFalls({ falls }: SiteFallsProps) {
               <th scope="col" className={`${HEAD} text-left`}>
                 {t('chart.columns.low')}
               </th>
+              {sourced && (
+                <th scope="col" className={`${HEAD} text-left`}>
+                  {t('chart.columns.source')}
+                </th>
+              )}
             </tr>
           </thead>
           <tbody>
@@ -64,6 +71,7 @@ export function SiteFalls({ falls }: SiteFallsProps) {
                 <td className={`${CELL} nums text-right`}>{fallPercent(f, row.fall)}</td>
                 <td className={CELL}>{f.date(row.high)}</td>
                 <td className={CELL}>{f.date(row.low)}</td>
+                {sourced && <td className={CELL}>{row.publisher}</td>}
               </tr>
             ))}
           </tbody>

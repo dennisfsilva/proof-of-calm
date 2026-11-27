@@ -74,6 +74,9 @@ export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
   const { first, last } = span;
   const percent = (fall: PastFall['fall']) => fallPercent(f, fall);
   const coins = [...new Set(falls.map(({ coin }) => coin))];
+  // Rows of both bases name each row's publisher, so a fall between closes reads apart from an intraday one
+  // (docs/CONTENT-STYLE.md §1 rules 1 and 2); rows of one basis leave the source to the line below.
+  const sourced = span.basis === 'mixed';
   return (
     <div lang={lang} className="flex flex-col gap-stack-xs">
       <BarChart
@@ -87,8 +90,20 @@ export function DrawdownBars({ falls, f }: DrawdownBarsProps) {
         description={t('description')}
         table={{
           summary: t('summary'),
-          columns: [t('columns.coin'), t('columns.high'), t('columns.low'), t('columns.fall')],
-          rows: falls.map((row) => [row.coin, f.date(row.high), f.date(row.low), percent(row.fall)]),
+          columns: [
+            t('columns.coin'),
+            t('columns.high'),
+            t('columns.low'),
+            t('columns.fall'),
+            ...(sourced ? [t('columns.source')] : []),
+          ],
+          rows: falls.map((row) => [
+            row.coin,
+            f.date(row.high),
+            f.date(row.low),
+            percent(row.fall),
+            ...(sourced ? [row.publisher] : []),
+          ]),
           numericColumns: [3],
         }}
       />

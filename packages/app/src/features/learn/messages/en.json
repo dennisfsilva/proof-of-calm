@@ -106,7 +106,8 @@
       "coin": "Coin",
       "high": "Date of high",
       "low": "Date of low",
-      "fall": "Fall"
+      "fall": "Fall",
+      "source": "Source"
     },
     "source": "{basis, select, intraday {{intraday} intraday highs and lows} close {{closes} daily closes} other {{intraday} intraday highs and lows, and {closes} daily closes,}} in US dollars, {first} to {last}; the falls are {product}'s own computation.",
     "failed": "The earlier falls could not be loaded. Open this page again to retry."
