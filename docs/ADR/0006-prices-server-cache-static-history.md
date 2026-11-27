@@ -46,3 +46,6 @@ The planning session kept the decision's shape and changed its source. Shipping 
   medians with sources named" ended with it. Showing or publishing the reference closes waits for
   Kraken's yes to the owner's four questions, and until then the history stays in a private store
   (ADR-0036's Reading of 2026-11-27).
+- 2026-11-27, the credit line: the Decision's history attribution names Coinbase only for closes that
+  use Coinbase's, and while Coinbase is off the simulator's line omits it; the wording is ADR-0036's
+  Reading of 2026-11-27 on Coinbase's terms (#602, #603).
