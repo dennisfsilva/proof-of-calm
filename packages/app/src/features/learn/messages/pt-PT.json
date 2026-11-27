@@ -50,7 +50,7 @@
     "missing": "{coin} não está nestes valores: a {product} não tem histórico de preços desta moeda.",
     "data": "Fechos diários em {currency}, {first} a {last} · Dados de preços da CoinGecko",
     "failed": "Não foi possível carregar o histórico de preços, por isso os valores de hoje não são mostrados. Volte a abrir esta página para tentar de novo.",
-    "fallsOf": "Quedas anteriores de {coin}, calculadas pela {product} a partir {basis, select, intraday {dos máximos e mínimos intradiários} close {dos fechos diários} other {dos máximos e mínimos intradiários ou dos fechos diários}} de cada fonte, em dólares americanos:",
+    "fallsOf": "Quedas anteriores de {coin}, calculadas pela {product} a partir {basis, select, intraday {dos máximos e mínimos intradiários de cada fonte} close {dos fechos diários de cada fonte} other {dos máximos e mínimos intradiários de {intraday} e dos fechos diários de {closes}}}, em dólares americanos:",
     "fall": "{fall} de {high} a {low} · {publisher}",
     "noFalls": "A {product} não tem nenhuma queda anterior datada de {coin}.",
     "fallsFailed": "Não foi possível carregar as quedas anteriores. Volte a abrir esta página para tentar de novo.",
