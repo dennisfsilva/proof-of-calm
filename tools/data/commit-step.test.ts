@@ -76,6 +76,23 @@ function repositories() {
   return { bare, other, job };
 }
 
+// A fresh store, its seed commit empty, and the job's depth-1 checkout: no exchange's file is tracked yet.
+function freshStore() {
+  const bare = join(scratch, 'store.git');
+  git(scratch, 'init', '--quiet', '--bare', '--initial-branch=main', bare);
+  const url = pathToFileURL(bare).href;
+  const seed = join(scratch, 'seed');
+  git(scratch, 'init', '--quiet', '--initial-branch=main', seed);
+  git(seed, 'commit', '--quiet', '--allow-empty', '--message', 'seed');
+  git(seed, 'push', '--quiet', url, 'main');
+  const job = join(scratch, 'job');
+  git(scratch, 'init', '--quiet', job);
+  git(job, 'remote', 'add', 'origin', url);
+  git(job, 'fetch', '--quiet', '--no-tags', '--depth=1', 'origin', '+refs/heads/main:refs/remotes/origin/main');
+  git(job, 'checkout', '--quiet', '--force', '-B', 'main', 'refs/remotes/origin/main');
+  return { bare, job };
+}
+
 const step = (job: string) =>
   spawnSync(bash, ['--noprofile', '--norc', '-eo', 'pipefail', '-c', script], { cwd: job, env, encoding: 'utf8' });
 const subjects = (bare: string) => git(bare, 'log', '--format=%s', 'main').split('\n');
@@ -143,5 +160,31 @@ describe('the commit step', { timeout: 30_000 }, () => {
     // The first push and three retries, each after a pull with rebase.
     expect(readFileSync(join(bare, 'tries'), 'utf8')).toBe('try\n'.repeat(4));
     expect(subjects(bare)).toEqual(['seed']);
+  });
+
+  it('pushes Bitstamp’s day from a store that holds no Kraken file, tracked or new', () => {
+    const { bare, job } = freshStore();
+    put(job, 'closes/bitstamp/BTC-EUR.csv', 'date,close\n2026-11-26,1.5\n');
+    const result = step(job);
+    expect(result.status, result.stderr).toBe(0);
+    expect(subjects(bare)).toEqual([day('bitstamp'), 'seed']);
+    expect(git(bare, 'show', 'main:closes/bitstamp/BTC-EUR.csv')).toBe('date,close\n2026-11-26,1.5');
+  });
+
+  it('pushes Kraken’s day from a store that holds no Bitstamp file, tracked or new', () => {
+    const { bare, job } = freshStore();
+    put(job, 'closes/kraken/BTC-EUR.csv', 'date,close\n2026-11-26,1.5\n');
+    const result = step(job);
+    expect(result.status, result.stderr).toBe(0);
+    expect(subjects(bare)).toEqual([day('kraken'), 'seed']);
+    expect(git(bare, 'show', 'main:closes/kraken/BTC-EUR.csv')).toBe('date,close\n2026-11-26,1.5');
+  });
+
+  it('adds no commit for a tracked exchange whose files did not change', () => {
+    const { bare, job } = repositories();
+    put(job, 'closes/bitstamp/BTC-EUR.csv', 'date,close\n2026-11-26,1.5\n');
+    const result = step(job);
+    expect(result.status, result.stderr).toBe(0);
+    expect(subjects(bare)).toEqual([day('bitstamp'), 'seed']);
   });
 });
