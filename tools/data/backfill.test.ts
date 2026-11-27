@@ -184,27 +184,31 @@ it('refuses a store reached through a link into this repository', { timeout: 60_
 });
 
 // realpath leaves a loopback UNC path as it is, so only the shared guard's identity check refuses it.
-it.runIf(process.platform === 'win32')('refuses a store reached through the loopback admin share', {
-  timeout: 60_000,
-}, async (context) => {
-  const { root: drive } = parse(root);
-  const share = `\\\\localhost\\${drive.slice(0, 1)}$\\`;
-  if (!existsSync(share)) context.skip();
-  const target = await mkdtemp(join(root, 'node_modules', '.backfill-'));
-  try {
-    const full = await archive('full', { XBTEUR: daily([[DAY[0], CLOSES[0]]]) });
-    const unc = share + target.slice(drive.length);
-    for (const below of [unc, join(unc, 'not', 'yet')]) {
-      const result = run('--source', 'kraken-bulk', '--dir', full, '--store', below);
-      expect(result.status).toBe(1);
-      expect(result.stdout).toBe('');
-      expect(result.stderr).toBe('kraken-bulk refused: --store is inside this repository\n');
+it.runIf(process.platform === 'win32')(
+  'refuses a store reached through the loopback admin share',
+  {
+    timeout: 60_000,
+  },
+  async (context) => {
+    const { root: drive } = parse(root);
+    const share = `\\\\localhost\\${drive.slice(0, 1)}$\\`;
+    if (!existsSync(share)) context.skip();
+    const target = await mkdtemp(join(root, 'node_modules', '.backfill-'));
+    try {
+      const full = await archive('full', { XBTEUR: daily([[DAY[0], CLOSES[0]]]) });
+      const unc = share + target.slice(drive.length);
+      for (const below of [unc, join(unc, 'not', 'yet')]) {
+        const result = run('--source', 'kraken-bulk', '--dir', full, '--store', below);
+        expect(result.status).toBe(1);
+        expect(result.stdout).toBe('');
+        expect(result.stderr).toBe('kraken-bulk refused: --store is inside this repository\n');
+      }
+      expect(await readdir(target)).toEqual([]);
+    } finally {
+      await rm(target, { recursive: true, force: true });
     }
-    expect(await readdir(target)).toEqual([]);
-  } finally {
-    await rm(target, { recursive: true, force: true });
-  }
-});
+  },
+);
 
 // A folder named like the repository with a suffix, beside it: the guard lets it through, so the next
 // check speaks. It is left unmade, so the test writes nothing beside the repository.
