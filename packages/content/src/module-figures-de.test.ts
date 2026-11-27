@@ -34,6 +34,9 @@ const ROWS: readonly Row[] = [
   row('LINK', '2021-05-10', '2023-06-10', '91'),
   row('SOL', '2021-11-20', '2022-12-20', '98'),
 ];
+// The near misses' data, read from ROWS, so a moved row takes its near misses along (docs/BUILD-PROMPT.md).
+const ETH_2018 = Number(ROWS.find(({ coin, high }) => coin === 'ETH' && high.startsWith('2018'))?.fall);
+const BTC_LOWEST = Math.min(...ROWS.filter(({ coin }) => coin === 'BTC').map(({ fall }) => Number(fall)));
 // The verdict's list, character for character.
 const LISTED = [
   'Ein monatlicher Plan legt den Tag jedes Kaufs fest.',
@@ -117,6 +120,7 @@ describe("German's chart section passes", () => {
         `${BR} ${B('Ethereum', 2, 79, '2018 bis 2022')}\n\nChainlink fiel um ${p(89)} und ${p(91)} und Solana um ${p(98)}.`,
       ),
     ],
+    ['a bound one below the lowest BTC row, counting all four', page(`${B('Bitcoin', 4, BTC_LOWEST - 1)} ${ER}`)],
   ])('%s: []', async (_, source) => {
     expect(await codes(source)).toEqual([]);
   });
@@ -261,6 +265,9 @@ describe("German's chart section refuses", () => {
     ["§10's own example with a year", ET(`Ethereum fiel 2018 um ${p(93)} und ${p(81)}`), [FC, FU, FU, FU]],
     ['a wrong count', bWith(B('Bitcoin', 3)), [FC]],
     ['a reversed order', ET(`Ethereum fiel um ${p(81)} und ${p(93)}`), [FC, FC]],
+    ['a figure one below its row', ET(`Ethereum fiel um ${p(ETH_2018 - 1)} und ${p(81)}`), [FC]],
+    ['a figure one above its row', ET(`Ethereum fiel um ${p(ETH_2018 + 1)} und ${p(81)}`), [FC]],
+    ['a bound equal to the lowest BTC row', bWith(B('Bitcoin', 4, BTC_LOWEST)), [FC, FC, FU]],
     [
       'an unlisted first sentence',
       page(`${BR} ${ER}`, `Ein monatlicher Plan legt den Zeitpunkt der Käufe fest. ${LISTED[1]} ${LISTED[2]}`),

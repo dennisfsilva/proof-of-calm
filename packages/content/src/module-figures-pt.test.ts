@@ -46,6 +46,9 @@ const ROWS: readonly Row[] = [
   row('LINK', '2021-05-10', '2023-06-10', '91'),
   row('SOL', '2021-11-20', '2022-12-20', '98'),
 ];
+// The near misses' data, read from ROWS, so a moved row takes its near misses along (docs/BUILD-PROMPT.md).
+const SOL = Number(ROWS.find(({ coin }) => coin === 'SOL')?.fall);
+const BTC_LOWEST = Math.min(...ROWS.filter(({ coin }) => coin === 'BTC').map(({ fall }) => Number(fall)));
 const set = (coin: string, high: string, change: Partial<Row>) =>
   ROWS.map((r) => (r.coin === coin && r.high === high ? { ...r, ...change } : r));
 const insert = (coin: string, extra: Row) => {
@@ -143,6 +146,7 @@ describe("pt-PT's chart section", () => {
       [FC, FC],
     ],
     ['a wrong figure', enE('and Solana 97 %.'), ptE(' e a Solana 97 %.'), [FC]],
+    ['a figure one above its row', enE(`and Solana ${SOL + 1} %.`), ptE(` e a Solana ${SOL + 1} %.`), [FC]],
     [
       'the same figure on a row at 96',
       enE('and Solana 96 %.'),
@@ -161,6 +165,12 @@ describe("pt-PT's chart section", () => {
       en(`In the chart, bitcoin had 4 falls of more than 78 % between 2011 and 2022. ${EN2}`),
       pt(`No gráfico, a bitcoin teve 4 quedas de mais de 78 % entre 2011 e 2022. ${S2}`),
       [FC, FC, FU],
+    ],
+    [
+      'a bound one below the lowest BTC row, counting all four',
+      en(`In the chart, bitcoin had 4 falls of more than ${BTC_LOWEST - 1} % between 2011 and 2022. ${EN2}`),
+      pt(`No gráfico, a bitcoin teve 4 quedas de mais de ${BTC_LOWEST - 1} % entre 2011 e 2022. ${S2}`),
+      [],
     ],
     [
       'a bound too low to count a new row',
