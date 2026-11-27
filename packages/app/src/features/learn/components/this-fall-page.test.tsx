@@ -219,8 +219,8 @@ describe('ThisFallPage, a fall under way', () => {
     // ETH left the plan in Settings; its entries stay, so the portfolio still holds it. Its rows are synthetic ones
     // computed from daily closes, so the coin's line names closes, and Bitcoin's keeps intraday highs and lows.
     const eth = [
-      { coin: 'ETH', high: '2018-01-13', low: '2018-12-14', fall: '93', publisher: 'Kraken', basis: 'close' },
-      { coin: 'ETH', high: '2021-11-10', low: '2022-06-18', fall: '80', publisher: 'Kraken', basis: 'close' },
+      { coin: 'ETH', high: '2018-01-20', low: '2018-12-08', fall: '93', publisher: 'Kraken', basis: 'close' },
+      { coin: 'ETH', high: '2021-12-01', low: '2022-06-30', fall: '80', publisher: 'Kraken', basis: 'close' },
     ] as unknown as readonly PastFall[];
     await mount({
       model: Promise.resolve(
@@ -240,7 +240,7 @@ describe('ThisFallPage, a fall under way', () => {
     expect(screen.getByText(/^Earlier falls of Bitcoin/).textContent).toContain('intraday highs and lows');
     const btc = ROWS.filter((row) => row.coin === 'BTC');
     expect(screen.getAllByRole('listitem')).toHaveLength(btc.length + eth.length);
-    expect(text()).toContain('−93% from 13 Jan 2018 to 14 Dec 2018 · Kraken');
+    expect(text()).toContain('−93% from 20 Jan 2018 to 8 Dec 2018 · Kraken');
   });
 
   it('says a held coin has no dated earlier fall, by the name the falls use', async () => {
