@@ -48,7 +48,8 @@ zero), `order` (a day out of order or twice) and `unreadable` (the file cannot b
 
 ## Run it
 
-From the repository root, the full archive first and each quarterly update after it:
+Pull the store's clone first, so it holds the daily job's latest days. Then, from the repository root,
+the full archive first and each quarterly update after it:
 
 `node --import ./tools/data/hooks.ts tools/data/backfill.ts --source kraken-bulk --dir <full> --dir <2026Q3> --store <clone> [--dry]`
 
@@ -60,7 +61,9 @@ From the repository root, the full archive first and each quarterly update after
 - The exit code is 1 when a file failed or the run was refused, 0 otherwise; a missing file does not
   fail the run, since a quarterly update can lack a pair without trades.
 
-Then commit and push the store's clone, which belongs to the private repository.
+Then commit and push the store's clone, which belongs to the private repository, right after the run,
+so the daily job's push meets as few new commits as can be (`daily.md`, Where it runs). A rejected
+push means the job pushed meanwhile: pull with rebase and push again.
 
 ## Output
 

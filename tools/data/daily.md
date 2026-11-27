@@ -32,8 +32,12 @@ leaves (`store.ts`), as `github-actions[bot]` with the message `data: closes of 
 anything changed. The daily step has its own 8-minute timeout inside the job's 15: a step timeout
 fails that step without cancelling the job (GitHub's runner marks the step failed), so the commit
 step, which runs unless the run was cancelled, keeps what a slow or failed run wrote. The commit step
-runs after a failed pair too, so the other pairs' closes are kept. It keeps no cache and uploads no
-artifact.
+runs after a failed pair too, so the other pairs' closes are kept. A push to the private repository
+after the job's checkout (a backfill, `backfill.md`, or the copy of a changed workflow) makes the job's
+push rejected; the commit step then pulls with rebase and pushes again, up to 3 times 10 seconds
+apart, and fails after the last try, or at once with the rebase aborted when it conflicts, so the run
+is red for the owner and the day's closes, committed only on the runner, are not lost unseen. It keeps
+no cache and uploads no artifact.
 
 The copy rule: when a merged pull request changes `tools/data/closes-store.yml`, the session copies
 it into the private repository the same day, with git from a clone under `P:\dev\sandbox` (ADR-0058,
