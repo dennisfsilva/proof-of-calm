@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import catalogue from '../coins.json' with { type: 'json' };
 import { type FigureContext, moduleContext, moduleFigureProblems } from './module-figures.ts';
 
-// docs/CONTENT-STYLE.md §4 and §10: German's two shapes of a chart's section (design check D5, #494), its spellings,
+// docs/CONTENT-STYLE.md §4 and §10: German's two shapes of a chart's section (design check D5, #493), its spellings,
 // its single percent joiner and its closed list, against the literal coins and rows module-figures-pt.test.ts
 // freezes. Each case states its codes in order; acceptances first, then refusals, closest first.
 const at = 'packages/content/i18n/de/learn/risk-honestly.mdx';
@@ -28,11 +28,11 @@ const ROWS: readonly Row[] = [
   row('BTC', '2013-11-30', '2015-01-14', '87'),
   row('BTC', '2017-12-17', '2018-12-15', '84'),
   row('BTC', '2021-11-10', '2022-11-21', '78'),
-  row('ETH', '2018-01-13', '2018-12-14', '94'),
-  row('ETH', '2021-11-10', '2022-06-18', '82'),
+  row('ETH', '2018-01-20', '2018-12-08', '93'),
+  row('ETH', '2021-12-01', '2022-06-30', '81'),
   row('LINK', '2018-01-08', '2018-06-29', '89'),
   row('LINK', '2021-05-10', '2023-06-10', '91'),
-  row('SOL', '2021-11-06', '2022-12-29', '97'),
+  row('SOL', '2021-11-20', '2022-12-20', '98'),
 ];
 // The verdict's list, character for character.
 const LISTED = [
@@ -49,8 +49,8 @@ const INTRO = [
 const B = (c = 'Bitcoin', n = 4, t = 75, y = '2011 bis 2022') =>
   `Von ${y} hatte ${c} im Diagramm ${k(n, n === 1 ? 'Rückgang' : 'Rückgänge')} um mehr als ${p(t)}.`;
 const BR = B();
-const E_TAIL = `Chainlink um ${p(89)} und ${p(91)} und Solana um ${p(97)}.`;
-const ER = `Ethereum fiel um ${p(94)} und ${p(82)}, ${E_TAIL}`;
+const E_TAIL = `Chainlink um ${p(89)} und ${p(91)} und Solana um ${p(98)}.`;
+const ER = `Ethereum fiel um ${p(93)} und ${p(81)}, ${E_TAIL}`;
 const page = (chart: string, intro = INTRO) =>
   `${intro}\n\n<Chart />\n\n${chart}\n\n## Andere Wege, die Coins zu verlieren\n\nText.\n`;
 const bWith = (s: string) => page(`${s} ${ER}`);
@@ -87,34 +87,34 @@ describe("German's chart section passes", () => {
   it.each<[string, string]>([
     [
       'the real section: the three listed, B and E, wrapped in the source',
-      page(`${BR} Ethereum fiel um\n${p(94)} und ${p(82)}, ${E_TAIL}`),
+      page(`${BR} Ethereum fiel um\n${p(93)} und ${p(81)}, ${E_TAIL}`),
     ],
     [
       'a one-fall B beside the real B',
       page(
-        `${BR} ${B('Solana', 1, 90, '2021 bis 2022')} Ethereum fiel um ${p(94)} und ${p(82)} und Chainlink um ${p(89)} und ${p(91)}.`,
+        `${BR} ${B('Solana', 1, 90, '2021 bis 2022')} Ethereum fiel um ${p(93)} und ${p(81)} und Chainlink um ${p(89)} und ${p(91)}.`,
       ),
     ],
     [
       'a one-year span, then E with three, two and one figures',
       page(
-        `${B('Bitcoin', 1, 90, '2011 bis 2011')} Bitcoin fiel um ${p(87)}, ${p(84)} und ${p(78)}, Ethereum um ${p(94)} und ${p(82)}, ${E_TAIL}`,
+        `${B('Bitcoin', 1, 90, '2011 bis 2011')} Bitcoin fiel um ${p(87)}, ${p(84)} und ${p(78)}, Ethereum um ${p(93)} und ${p(81)}, ${E_TAIL}`,
       ),
     ],
     [
       'E alone, four figures for one coin',
-      page(`Bitcoin fiel um ${p(94)}, ${p(87)}, ${p(84)} und ${p(78)}, Ethereum um ${p(94)} und ${p(82)}, ${E_TAIL}`),
+      page(`Bitcoin fiel um ${p(94)}, ${p(87)}, ${p(84)} und ${p(78)}, Ethereum um ${p(93)} und ${p(81)}, ${E_TAIL}`),
     ],
     [
       'two E sentences',
       page(
-        `${BR} Ethereum fiel um ${p(94)} und ${p(82)}. Chainlink fiel um ${p(89)} und ${p(91)} und Solana um ${p(97)}.`,
+        `${BR} Ethereum fiel um ${p(93)} und ${p(81)}. Chainlink fiel um ${p(89)} und ${p(91)} und Solana um ${p(98)}.`,
       ),
     ],
     [
       'two B sentences, B and E in two paragraphs',
       page(
-        `${BR} ${B('Ethereum', 2, 80, '2018 bis 2022')}\n\nChainlink fiel um ${p(89)} und ${p(91)} und Solana um ${p(97)}.`,
+        `${BR} ${B('Ethereum', 2, 80, '2018 bis 2022')}\n\nChainlink fiel um ${p(89)} und ${p(91)} und Solana um ${p(98)}.`,
       ),
     ],
   ])('%s: []', async (_, source) => {
@@ -139,7 +139,7 @@ describe("German's chart section passes", () => {
 
 describe("German's chart section refuses", () => {
   it.each<[string, string, readonly string[]]>([
-    ['U+0020 before % in E', ET(`Ethereum fiel um 94 % und ${p(82)}`), [FC]],
+    ['U+0020 before % in E', ET(`Ethereum fiel um 93 % und ${p(81)}`), [FC]],
     [
       'U+0020 before % in B',
       bWith(`Von 2011 bis 2022 hatte Bitcoin im Diagramm ${k(4, 'Rückgänge')} um mehr als 75 %.`),
@@ -167,12 +167,12 @@ describe("German's chart section refuses", () => {
     ],
     [
       'a comma before und between coins',
-      eWith(`Ethereum fiel um ${p(94)} und ${p(82)}, Chainlink um ${p(89)} und ${p(91)}, und Solana um ${p(97)}.`),
+      eWith(`Ethereum fiel um ${p(93)} und ${p(81)}, Chainlink um ${p(89)} und ${p(91)}, und Solana um ${p(98)}.`),
       [FC, FU, FU, FU],
     ],
     [
       'a comma before und between figures',
-      page(`Bitcoin fiel um ${p(94)}, ${p(87)}, ${p(84)}, und ${p(78)}, Ethereum um ${p(94)} und ${p(82)}, ${E_TAIL}`),
+      page(`Bitcoin fiel um ${p(94)}, ${p(87)}, ${p(84)}, und ${p(78)}, Ethereum um ${p(93)} und ${p(81)}, ${E_TAIL}`),
       [FC, FU, FU, FU, FU],
     ],
     [
@@ -205,7 +205,7 @@ describe("German's chart section refuses", () => {
       bWith(`Von 2011 bis 2022 hatte der Bitcoin im Diagramm ${k(4, 'Rückgänge')} um mehr als ${p(75)}.`),
       [FC, FU],
     ],
-    ['an article in E', ET(`Das Ethereum fiel um ${p(94)} und ${p(82)}`), [FC, FU, FU, FU]],
+    ['an article in E', ET(`Das Ethereum fiel um ${p(93)} und ${p(81)}`), [FC, FU, FU, FU]],
     [
       'Rückgängen',
       bWith(`Von 2011 bis 2022 hatte Bitcoin im Diagramm ${k(4, 'Rückgängen')} um mehr als ${p(75)}.`),
@@ -219,7 +219,7 @@ describe("German's chart section refuses", () => {
     [
       'Rückgänge with 1',
       page(
-        `${BR} Von 2021 bis 2022 hatte Solana im Diagramm ${k(1, 'Rückgänge')} um mehr als ${p(90)}. Ethereum fiel um ${p(94)} und ${p(82)} und Chainlink um ${p(89)} und ${p(91)}.`,
+        `${BR} Von 2021 bis 2022 hatte Solana im Diagramm ${k(1, 'Rückgänge')} um mehr als ${p(90)}. Ethereum fiel um ${p(93)} und ${p(81)} und Chainlink um ${p(89)} und ${p(91)}.`,
       ),
       [FC, FU],
     ],
@@ -230,37 +230,37 @@ describe("German's chart section refuses", () => {
     ],
     [
       'a bare fiel',
-      eWith(`Ethereum fiel ${p(94)} und ${p(82)}, Chainlink ${p(89)} und ${p(91)} und Solana ${p(97)}.`),
+      eWith(`Ethereum fiel ${p(93)} und ${p(81)}, Chainlink ${p(89)} und ${p(91)} und Solana ${p(98)}.`),
       [FC, FU, FU, FU],
     ],
     [
       'um dropped in a later clause',
-      eWith(`Ethereum fiel um ${p(94)} und ${p(82)}, Chainlink ${p(89)} und ${p(91)} und Solana um ${p(97)}.`),
+      eWith(`Ethereum fiel um ${p(93)} und ${p(81)}, Chainlink ${p(89)} und ${p(91)} und Solana um ${p(98)}.`),
       [FC, FU, FU, FU],
     ],
-    ['um repeated in one coin', ET(`Ethereum fiel um ${p(94)} und um ${p(82)}`), [FC, FU, FU, FU]],
+    ['um repeated in one coin', ET(`Ethereum fiel um ${p(93)} und um ${p(81)}`), [FC, FU, FU, FU]],
     [
       'a second fiel',
-      eWith(`Ethereum fiel um ${p(94)} und ${p(82)}, Chainlink fiel um ${p(89)} und ${p(91)} und Solana um ${p(97)}.`),
+      eWith(`Ethereum fiel um ${p(93)} und ${p(81)}, Chainlink fiel um ${p(89)} und ${p(91)} und Solana um ${p(98)}.`),
       [FC, FU, FU, FU],
     ],
-    ['Ether for ETH', ET(`Ether fiel um ${p(94)} und ${p(82)}`), [FC, FU, FU, FU]],
+    ['Ether for ETH', ET(`Ether fiel um ${p(93)} und ${p(81)}`), [FC, FU, FU, FU]],
     [
       'a lower-case coin in B',
       bWith(`Von 2011 bis 2022 hatte bitcoin im Diagramm ${k(4, 'Rückgänge')} um mehr als ${p(75)}.`),
       [FC, FU],
     ],
     ['a lower-case coin in E', eWith(ER.replace('Chainlink', 'chainlink')), [FC, FU, FU, FU]],
-    ['U+00A0 after a comma', eWith(`Ethereum fiel um ${p(94)} und ${p(82)},${NB}${E_TAIL}`), [FC, FU, FU, FU]],
-    ['U+202F before %', ET(`Ethereum fiel um 94${NNB}% und ${p(82)}`), [FC, FC, FU, FU, FU]],
+    ['U+00A0 after a comma', eWith(`Ethereum fiel um ${p(93)} und ${p(81)},${NB}${E_TAIL}`), [FC, FU, FU, FU]],
+    ['U+202F before %', ET(`Ethereum fiel um 93${NNB}% und ${p(81)}`), [FC, FC, FU, FU, FU]],
     [
       'a decomposed ü and ä',
       bWith(`Von 2011 bis 2022 hatte Bitcoin im Diagramm ${k(4, `Ru${UML}ckga${UML}nge`)} um mehr als ${p(75)}.`),
       [FC, FU],
     ],
-    ["§10's own example with a year", ET(`Ethereum fiel 2018 um ${p(94)} und ${p(82)}`), [FC, FU, FU, FU]],
+    ["§10's own example with a year", ET(`Ethereum fiel 2018 um ${p(93)} und ${p(81)}`), [FC, FU, FU, FU]],
     ['a wrong count', bWith(B('Bitcoin', 3)), [FC]],
-    ['a reversed order', ET(`Ethereum fiel um ${p(82)} und ${p(94)}`), [FC, FC]],
+    ['a reversed order', ET(`Ethereum fiel um ${p(81)} und ${p(93)}`), [FC, FC]],
     [
       'an unlisted first sentence',
       page(`${BR} ${ER}`, `Ein monatlicher Plan legt den Zeitpunkt der Käufe fest. ${LISTED[1]} ${LISTED[2]}`),
@@ -276,9 +276,9 @@ describe("German's chart section refuses", () => {
   });
 
   it('names an ordinary space before % by its code point and the fix as one U+00A0', async () => {
-    const e = `Ethereum fiel um 94 % und ${p(82)}, ${E_TAIL}`;
+    const e = `Ethereum fiel um 93 % und ${p(81)}, ${E_TAIL}`;
     expect(await details(eWith(e))).toEqual([
-      `body: "94U+0020 %" in "${BR} ${e}" joins a figure to a sign; write the figure, one U+00A0, and %${R(5)}`,
+      `body: "93U+0020 %" in "${BR} ${e}" joins a figure to a sign; write the figure, one U+00A0, and %${R(5)}`,
     ]);
   });
 
@@ -341,7 +341,7 @@ describe('the other languages keep their own reading', () => {
     expect(first).toBe(
       `body: "${LISTED[0]}" is not a sentence pt-PT's list holds and matches neither shape of a chart's section; write it as B or E (docs/CONTENT-STYLE.md §9), or ${LIST_IT}${R(5)}`,
     );
-    const pt = (await details(page('O ether caiu 94 % e 82 %.', ''), 'pt-PT')).filter((d) =>
+    const pt = (await details(page('O ether caiu 93 % e 81 %.', ''), 'pt-PT')).filter((d) =>
       d.includes('joins a figure'),
     );
     expect(pt).toEqual([]);

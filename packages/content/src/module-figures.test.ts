@@ -22,11 +22,11 @@ const ROWS = [
   row('BTC', '2013-11-30', '2015-01-14', '87'),
   row('BTC', '2017-12-17', '2018-12-15', '84'),
   row('BTC', '2021-11-10', '2022-11-21', '78'),
-  row('ETH', '2018-01-13', '2018-12-14', '94'),
-  row('ETH', '2021-11-10', '2022-06-18', '82'),
+  row('ETH', '2018-01-20', '2018-12-08', '93'),
+  row('ETH', '2021-12-01', '2022-06-30', '81'),
   row('LINK', '2018-01-08', '2018-06-29', '89'),
   row('LINK', '2021-05-10', '2023-06-10', '91'),
-  row('SOL', '2021-11-06', '2022-12-29', '97'),
+  row('SOL', '2021-11-20', '2022-12-20', '98'),
 ];
 const set = (coin: string, high: string, change: Partial<Row>) =>
   ROWS.map((r) => (r.coin === coin && r.high === high ? { ...r, ...change } : r));
@@ -37,7 +37,7 @@ const without = (coin: string, high?: string) =>
 const ONLY_2021 = ROWS.filter((r) => r.coin !== 'BTC' || r.high === '2021-11-10');
 
 const S1 = 'In the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2022.';
-const S2 = 'Ether fell 94 % and 82 %, Chainlink 89 % and 91 %, and Solana 97 %.';
+const S2 = 'Ether fell 93 % and 81 %, Chainlink 89 % and 91 %, and Solana 98 %.';
 const INTRO =
   'A monthly plan sets when you buy. It does not limit how far a price can fall, and a coin can lose almost all\nof its value. Each bar below is one fall of one coin, from a cycle high to the lowest price after it.';
 const REST = '## Other ways to lose the coins\n\nOn 10 Oct 2025, liquidations passed $19 billion in one day.';
@@ -47,7 +47,7 @@ const body = (chart = `${S1} ${S2}`, { intro = INTRO, rest = REST, raw = false }
   `${intro}\n\n<Chart />\n\n${raw ? chart : nb(chart)}\n\n${rest}\n`;
 const after = (text: string) => body(`${S1} ${S2} ${text}`);
 const para = (text: string) => body(`${S1} ${S2}\n\n${text}`);
-const E = (tail: string) => body(`${S1} Ether fell 94 % and 82 %, Chainlink 89 % and 91 %, ${tail}`);
+const E = (tail: string) => body(`${S1} Ether fell 93 % and 81 %, Chainlink 89 % and 91 %, ${tail}`);
 
 type Options = { readonly chart?: 'drawdowns-bar' | 'halvings-line'; readonly language?: string };
 async function problemsOf(source: string, rows: FigureContext['rows'] = ROWS, options: Options = {}) {
@@ -78,15 +78,15 @@ describe('a chart section passes', () => {
     ],
     [
       '4: a BTC row at 54 stated in E',
-      E('Solana 97 %, and bitcoin 54 %.'),
+      E('Solana 98 %, and bitcoin 54 %.'),
       insert(4, row('BTC', '2025-10-06', '2026-07-01', '54')),
     ],
     [
       '5: an ETH row at 63',
-      body(`${S1} Ether fell 94 %, 82 %, and 63 %, Chainlink 89 % and 91 %, and Solana 97 %.`),
+      body(`${S1} Ether fell 93 %, 81 %, and 63 %, Chainlink 89 % and 91 %, and Solana 98 %.`),
       insert(6, row('ETH', '2024-03-12', '2025-04-09', '63')),
     ],
-    ['6: SOL at 96', E('and Solana 96 %.'), set('SOL', '2021-11-06', { fall: '96' })],
+    ['6: SOL at 96', E('and Solana 96 %.'), set('SOL', '2021-11-20', { fall: '96' })],
     [
       "7: BTC's 2011 high in 2010",
       body(`In the chart, bitcoin had 4 falls of more than 75 % between 2010 and 2022. ${S2}`),
@@ -94,11 +94,11 @@ describe('a chart section passes', () => {
     ],
     [
       '8: LINK 2018 removed',
-      body(`${S1} Ether fell 94 % and 82 %, Chainlink 91 %, and Solana 97 %.`),
+      body(`${S1} Ether fell 93 % and 81 %, Chainlink 91 %, and Solana 98 %.`),
       without('LINK', '2018-01-08'),
     ],
-    ['9: SOL removed', body(`${S1} Ether fell 94 % and 82 %, and Chainlink 89 % and 91 %.`), without('SOL')],
-    ['10: an XRP row at 92', E('Solana 97 %, and XRP 92 %.'), [...ROWS, row('XRP', '2018-01-04', '2018-12-24', '92')]],
+    ['9: SOL removed', body(`${S1} Ether fell 93 % and 81 %, and Chainlink 89 % and 91 %.`), without('SOL')],
+    ['10: an XRP row at 92', E('Solana 98 %, and XRP 92 %.'), [...ROWS, row('XRP', '2018-01-04', '2018-12-24', '92')]],
     [
       '11: BTC 2021 removed',
       body(`In the chart, bitcoin had 3 falls of more than 75 % between 2011 and 2018. ${S2}`),
@@ -112,7 +112,7 @@ describe('a chart section passes', () => {
     [
       '13: a bound on Solana',
       body(
-        `${S1} In the chart, Solana had 1 fall of more than 95 % between 2021 and 2022. Ether fell 94 % and 82 %, and Chainlink 89 % and 91 %.`,
+        `${S1} In the chart, Solana had 1 fall of more than 95 % between 2021 and 2022. Ether fell 93 % and 81 %, and Chainlink 89 % and 91 %.`,
       ),
       ROWS,
     ],
@@ -125,13 +125,13 @@ describe('a chart section passes', () => {
     ['16: a paragraph after the figures', para('Each fall above is history, not a forecast.'), ROWS],
     [
       '17: a BTC row at 63 before 2021',
-      E('Solana 97 %, and bitcoin 63 %.'),
+      E('Solana 98 %, and bitcoin 63 %.'),
       insert(3, row('BTC', '2019-06-26', '2020-03-12', '63')),
     ],
     [
-      '18: ETH 2021 at 94',
-      body(`${S1} Ether fell 94 % and 94 %, Chainlink 89 % and 91 %, and Solana 97 %.`),
-      set('ETH', '2021-11-10', { fall: '94' }),
+      '18: ETH 2021 at 93',
+      body(`${S1} Ether fell 93 % and 93 %, Chainlink 89 % and 91 %, and Solana 98 %.`),
+      set('ETH', '2021-12-01', { fall: '93' }),
     ],
     [
       '19: a second, narrower bound',
@@ -141,7 +141,7 @@ describe('a chart section passes', () => {
     [
       '20: BTC 2021 at 75, stated in E',
       body(
-        'In the chart, bitcoin had 3 falls of more than 75 % between 2011 and 2018. Ether fell 94 % and 82 %, Chainlink 89 % and 91 %, Solana 97 %, and bitcoin 75 %.',
+        'In the chart, bitcoin had 3 falls of more than 75 % between 2011 and 2018. Ether fell 93 % and 81 %, Chainlink 89 % and 91 %, Solana 98 %, and bitcoin 75 %.',
       ),
       set('BTC', '2021-11-10', { fall: '75' }),
     ],
@@ -174,10 +174,10 @@ describe("#343's cases, their fixes and one step past", () => {
   it.each<[string, string, readonly number[], string, string]>([
     [
       'a year beside each figure',
-      body(`${S1} Ether fell 94 % in 2022 and 82 % in 2018. Chainlink fell 89 % and 91 %, and Solana 97 %.`),
+      body(`${S1} Ether fell 93 % in 2022 and 81 % in 2018. Chainlink fell 89 % and 91 %, and Solana 98 %.`),
       [1, 1],
       body(),
-      body(`${S1} Ether fell 94 % in 2018 and 82 %, Chainlink 89 % and 91 %, and Solana 97 %.`),
+      body(`${S1} Ether fell 93 % in 2018 and 81 %, Chainlink 89 % and 91 %, and Solana 98 %.`),
     ],
     [
       'a total after the bound',
@@ -207,10 +207,10 @@ describe("#343's cases, their fixes and one step past", () => {
       body(),
       after('The last count was made in June.'),
     ],
-    ['up to', E('and Solana up to 97 %.'), [1, 3], body(), E('and Solana 97 % at most.')],
-    ['at most', E('and Solana at most 97 %.'), [1, 3], body(), E('and Solana 97 % at most.')],
-    ['almost', E('and Solana almost 97 %.'), [1, 3], body(), E('and Solana 97 % at most.')],
-    ['nearly', E('and Solana nearly 97 %.'), [1, 3], body(), E('and Solana 97 % at most.')],
+    ['up to', E('and Solana up to 98 %.'), [1, 3], body(), E('and Solana 98 % at most.')],
+    ['at most', E('and Solana at most 98 %.'), [1, 3], body(), E('and Solana 98 % at most.')],
+    ['almost', E('and Solana almost 98 %.'), [1, 3], body(), E('and Solana 98 % at most.')],
+    ['nearly', E('and Solana nearly 98 %.'), [1, 3], body(), E('and Solana 98 % at most.')],
     [
       'years wider than the falls',
       body(`In the chart, bitcoin had 4 falls of more than 75 % between 2010 and 2024. ${S2}`),
@@ -218,7 +218,7 @@ describe("#343's cases, their fixes and one step past", () => {
       body(),
       body(`In the chart, bitcoin had 4 falls of more than 75 % between 2011 and 2023. ${S2}`),
     ],
-    ['Solana 96 % against 97', E('and Solana 96 %.'), [1, 0], body(), E('and Solana 98 %.')],
+    ['Solana 96 % against 98', E('and Solana 96 %.'), [1, 0], body(), E('and Solana 99 %.')],
     [
       '5 falls',
       body(`In the chart, bitcoin had 5 falls of more than 75 % between 2011 and 2022. ${S2}`),
@@ -246,16 +246,16 @@ describe('a chart section fails', () => {
     ['a code block without a figure', para('```\nnote\n```'), [1, 0]],
     [
       'It then fell 91 %.',
-      body(`${S1} Ether fell 94 % and 82 %, Chainlink 89 %, and Solana 97 %. It then fell 91 %.`),
+      body(`${S1} Ether fell 93 % and 81 %, Chainlink 89 %, and Solana 98 %. It then fell 91 %.`),
       [1, 1],
     ],
-    ['a projection with a figure', para('Solana could fall 97 % again.'), [1, 0]],
-    ['respectively', body(`${S1} Ether and Chainlink fell 94 % and 89 %, respectively. Solana fell 97 %.`), [1, 2]],
-    ['a figure in words', E('and Solana ninety-seven per cent.'), [1, 3]],
+    ['a projection with a figure', para('Solana could fall 98 % again.'), [1, 0]],
+    ['respectively', body(`${S1} Ether and Chainlink fell 93 % and 89 %, respectively. Solana fell 98 %.`), [1, 2]],
+    ['a figure in words', E('and Solana ninety-eight per cent.'), [1, 3]],
     ['a count of the bars', after('In all, the chart holds 9 falls.'), [1, 0]],
     ['the year of the deepest fall', para('The deepest fall ended in 2022.'), [1, 0]],
-    ['not 97 %', E('and Solana not 97 %.'), [1, 3]],
-    ['only 97 %', E('and Solana only 97 %.'), [1, 3]],
+    ['not 98 %', E('and Solana not 98 %.'), [1, 3]],
+    ['only 98 %', E('and Solana only 98 %.'), [1, 3]],
     ['a BTC row at 52 added, the text kept', body(), [0, 1], insert(4, row('BTC', '2025-10-06', '2026-07-01', '52'))],
     [
       'years reversed',
@@ -263,16 +263,16 @@ describe('a chart section fails', () => {
       [1, 1],
     ],
     ['less than', body(`In the chart, bitcoin had 4 falls of less than 75 % between 2011 and 2022. ${S2}`), [1, 1]],
-    ['97 and a line feed before %', body(`${S1} ${S2.replace('97 %', '97\n%')}`, { raw: true }), [1, 0]],
-    ['97%', body(`${S1} ${S2.replace('97 %', '97%')}`, { raw: true }), [2, 3]],
-    ['97 and U+066A', body(`${S1} ${S2.replace('97 %', '97 ٪')}`, { raw: true }), [2, 3]],
-    ['U+202F before %', body(`${S1} ${S2.replace('97 %', '97 %')}`, { raw: true }), [2, 3]],
-    ['emphasis on a figure', E('and Solana *97* %.'), [1, 4]],
-    ['strong on a figure', body(`${S1} ${S2.replace('94 %', '**94** %')}`), [1, 4]],
-    ['a hard break inside a figure', body(`${S1} ${S2.replace('97 %', '97\\\n%')}`, { raw: true }), [1, 4]],
+    ['98 and a line feed before %', body(`${S1} ${S2.replace('98 %', '98\n%')}`, { raw: true }), [1, 0]],
+    ['98%', body(`${S1} ${S2.replace('98 %', '98%')}`, { raw: true }), [2, 3]],
+    ['98 and U+066A', body(`${S1} ${S2.replace('98 %', '98 ٪')}`, { raw: true }), [2, 3]],
+    ['U+202F before %', body(`${S1} ${S2.replace('98 %', '98 %')}`, { raw: true }), [2, 3]],
+    ['emphasis on a figure', E('and Solana *98* %.'), [1, 4]],
+    ['strong on a figure', body(`${S1} ${S2.replace('93 %', '**93** %')}`), [1, 4]],
+    ['a hard break inside a figure', body(`${S1} ${S2.replace('98 %', '98\\\n%')}`, { raw: true }), [1, 4]],
     ['a hard break between S1 and S2', body(`${S1}\\\n${S2}`), [1, 4]],
-    ['U+200B before the joiner', E('and Solana 97​ %.'), [1, 4]],
-    ['U+00AD inside 97', E('and Solana 9­7 %.'), [1, 4]],
+    ['U+200B before the joiner', E('and Solana 98​ %.'), [1, 4]],
+    ['U+00AD inside 98', E('and Solana 9­8 %.'), [1, 4]],
     [
       'a heading with a figure opens the section',
       body(undefined, { intro: `## 4 falls of bitcoin\n\n${INTRO}` }),
@@ -288,40 +288,40 @@ describe('a chart section fails', () => {
     ['a couple', para('A couple of falls were deeper.'), [1, 0]],
     ['a ticker', para('SOL could fall again.'), [1, 0]],
     ['a percentage word', para('Most coins fell a large percentage.'), [1, 0]],
-    ['97.0 %', E('and Solana 97.0 %.'), [1, 3]],
-    ['SOL 97 %', E('and SOL 97 %.'), [1, 3]],
-    ['Arabic-Indic digits', E('and Solana ٩٧ %.'), [1, 3]],
-    ['Cardano as a fourth clause', E('Solana 97 %, and Cardano 97 %.'), [1, 0]],
-    ['Ether fell 94 % and 94 % against the rows', body(`${S1} ${S2.replace('82', '94')}`), [1, 0]],
+    ['98.0 %', E('and Solana 98.0 %.'), [1, 3]],
+    ['SOL 98 %', E('and SOL 98 %.'), [1, 3]],
+    ['Arabic-Indic digits', E('and Solana ٩٨ %.'), [1, 3]],
+    ['Cardano as a fourth clause', E('Solana 98 %, and Cardano 98 %.'), [1, 0]],
+    ['Ether fell 93 % and 93 % against the rows', body(`${S1} ${S2.replace('81', '93')}`), [1, 0]],
     [
       'the bars counted in the intro',
       body(undefined, { intro: 'Each of the 9 bars below is one fall of one coin.' }),
       [1, 0],
     ],
-    ['a colon list', body(`${S1} Ether: 94 % and 82 %. Chainlink fell 89 % and 91 %, and Solana 97 %.`), [1, 1]],
+    ['a colon list', body(`${S1} Ether: 93 % and 81 %. Chainlink fell 89 % and 91 %, and Solana 98 %.`), [1, 1]],
     ['75 % or more', body(`In the chart, bitcoin had 4 falls of 75 % or more between 2011 and 2022. ${S2}`), [1, 1]],
     ['over 75 %', body(`In the chart, bitcoin had 4 falls of over 75 % between 2011 and 2022. ${S2}`), [1, 1]],
     [
       'no serial comma, SOL removed',
-      body(`${S1} Ether fell 94 % and 82 % and Chainlink 89 % and 91 %.`),
+      body(`${S1} Ether fell 93 % and 81 % and Chainlink 89 % and 91 %.`),
       [1, 2],
       without('SOL'),
     ],
-    ['a clause after a semicolon', E('and Solana 97 %; it may fall that far again.'), [1, 3]],
+    ['a clause after a semicolon', E('and Solana 98 %; it may fall that far again.'), [1, 3]],
     ['a vulgar fraction', para('A ½ share went.'), [1, 0]],
     ['a Roman numeral', para('Cycle Ⅳ ended.'), [1, 0]],
     ['a Roman numeral nine', para('Cycle Ⅸ ended.'), [1, 0]],
     ['50 per cent with U+00A0', para('It fell 50 per cent.'), [1, 0]],
-    ["Ether's figures out of order", body(`${S1} ${S2.replace('94 % and 82 %', '82 % and 94 %')}`), [2, 0]],
+    ["Ether's figures out of order", body(`${S1} ${S2.replace('93 % and 81 %', '81 % and 93 %')}`), [2, 0]],
     [
       'three figures without the serial comma',
-      body(`${S1} Ether fell 94 %, 82 % and 63 %, Chainlink 89 % and 91 %, and Solana 97 %.`),
+      body(`${S1} Ether fell 93 %, 81 % and 63 %, Chainlink 89 % and 91 %, and Solana 98 %.`),
       [1, 3],
       insert(6, row('ETH', '2024-03-12', '2025-04-09', '63')),
     ],
     [
       'three clauses without the serial comma',
-      body(`${S1} Ether fell 94 % and 82 %, Chainlink 89 % and 91 % and Solana 97 %.`),
+      body(`${S1} Ether fell 93 % and 81 %, Chainlink 89 % and 91 % and Solana 98 %.`),
       [1, 3],
     ],
     [
@@ -357,25 +357,25 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
 
   // Brand's round 2 on #365: the join's detail gives its fix like its siblings, and the fix applied passes.
   it.each([
-    ['‰', '97‰', `"97‰" in "${S1} ${S2.replace('97 %', '97‰')}" ${JOIN}`],
-    ['٪', '97 ٪', `"97 ٪" in "${S1} ${S2.replace('97 %', '97 ٪')}" ${JOIN}`],
+    ['‰', '98‰', `"98‰" in "${S1} ${S2.replace('98 %', '98‰')}" ${JOIN}`],
+    ['٪', '98 ٪', `"98 ٪" in "${S1} ${S2.replace('98 %', '98 ٪')}" ${JOIN}`],
     // A gap other than one ordinary or no-break space names each character by its code point, as the overlay check
     // names a gap (ADR-0057's Corrections); the quoted sentence folds the white space CSS folds and names the rest.
-    ['a tab', '97\t%', `"97U+0009 %" in "${S1} ${S2}" ${JOIN}`],
-    ['U+202F', '97 %', `"97U+202F %" in "${S1} ${S2.replace('97 %', '97U+202F %')}" ${JOIN}`],
-    ['U+2009', '97 %', `"97U+2009 %" in "${S1} ${S2.replace('97 %', '97U+2009 %')}" ${JOIN}`],
-    ['U+2007', '97 %', `"97U+2007 %" in "${S1} ${S2.replace('97 %', '97U+2007 %')}" ${JOIN}`],
-    ['U+3000', '97　%', `"97U+3000 %" in "${S1} ${S2.replace('97 %', '97U+3000 %')}" ${JOIN}`],
-    ['two ordinary spaces', '97  %', `"97U+0020 U+0020 %" in "${S1} ${S2}" ${JOIN}`],
+    ['a tab', '98\t%', `"98U+0009 %" in "${S1} ${S2}" ${JOIN}`],
+    ['U+202F', '98 %', `"98U+202F %" in "${S1} ${S2.replace('98 %', '98U+202F %')}" ${JOIN}`],
+    ['U+2009', '98 %', `"98U+2009 %" in "${S1} ${S2.replace('98 %', '98U+2009 %')}" ${JOIN}`],
+    ['U+2007', '98 %', `"98U+2007 %" in "${S1} ${S2.replace('98 %', '98U+2007 %')}" ${JOIN}`],
+    ['U+3000', '98　%', `"98U+3000 %" in "${S1} ${S2.replace('98 %', '98U+3000 %')}" ${JOIN}`],
+    ['two ordinary spaces', '98  %', `"98U+0020 U+0020 %" in "${S1} ${S2}" ${JOIN}`],
     // U+2060 is no white space: the paragraph, shown without it, fails as hidden text, and the join's fix passes it too.
-    ['U+2060', '97⁠%', `the paragraph "${S1} ${S2.replace('97 %', '97%')}" holds a hidden character`],
+    ['U+2060', '98⁠%', `the paragraph "${S1} ${S2.replace('98 %', '98%')}" holds a hidden character`],
   ])('2: a join with %s fails, and the sentence written as its fix says passes', async (_, join, refused) => {
-    const sentence = S2.replace('97 %', join);
+    const sentence = S2.replace('98 %', join);
     const [first] = await details(body(`${S1} ${sentence}`, { raw: true }));
     expect(first?.startsWith(`figure-chart: body: ${refused}`)).toBe(true);
     // The fix: the figure, one ordinary or no-break space, and %, in place of the join.
     for (const space of [' ', ' '])
-      expect(await details(body(`${S1} ${sentence.replace(join, `97${space}%`)}`, { raw: true }))).toEqual([]);
+      expect(await details(body(`${S1} ${sentence.replace(join, `98${space}%`)}`, { raw: true }))).toEqual([]);
   });
   it.each<[string, string, readonly string[], FigureContext['rows']?]>([
     [
@@ -387,8 +387,8 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
     ],
     [
       '2: a wrong join, the whole numeral quoted',
-      body(`${S1} ${S2.replace('97 %', '97\n%')}`, { raw: true }),
-      [`figure-chart: body: "97U+000A %" in "${S1} ${S2}" ${JOIN}${R(5)}`],
+      body(`${S1} ${S2.replace('98 %', '98\n%')}`, { raw: true }),
+      [`figure-chart: body: "98U+000A %" in "${S1} ${S2}" ${JOIN}${R(5)}`],
     ],
     [
       '3: a code block',
@@ -472,28 +472,28 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
     ],
     [
       '11: E on a coin without rows',
-      E('Solana 97 %, and Cardano 97 %.'),
+      E('Solana 98 %, and Cardano 98 %.'),
       [
-        `figure-chart: body: "Cardano" in "Ether fell 94 % and 82 %, Chainlink 89 % and 91 %, Solana 97 %, and Cardano 97 %." names a coin the chart draws no fall of${R(5)}`,
+        `figure-chart: body: "Cardano" in "Ether fell 93 % and 81 %, Chainlink 89 % and 91 %, Solana 98 %, and Cardano 98 %." names a coin the chart draws no fall of${R(5)}`,
       ],
     ],
     [
       '12: a wrong value',
       E('and Solana 96 %.'),
       [
-        `figure-chart: body: "96 %" in "${s2.replace('97', '96')}" is not Solana's fall at that place in the chart's order${R(5)}`,
+        `figure-chart: body: "96 %" in "${s2.replace('98', '96')}" is not Solana's fall at that place in the chart's order${R(5)}`,
       ],
     ],
     [
       '13: beyond the rows',
-      body(`${S1} Ether fell 94 %, 82 %, and 63 %, Chainlink 89 % and 91 %, and Solana 97 %.`),
+      body(`${S1} Ether fell 93 %, 81 %, and 63 %, Chainlink 89 % and 91 %, and Solana 98 %.`),
       [
-        `figure-chart: body: "63 %" in "${nb('Ether fell 94 %, 82 %, and 63 %, Chainlink 89 % and 91 %, and Solana 97 %.')}" names a fall of Ether that the chart does not draw or a B sentence already counts${R(5)}`,
+        `figure-chart: body: "63 %" in "${nb('Ether fell 93 %, 81 %, and 63 %, Chainlink 89 % and 91 %, and Solana 98 %.')}" names a fall of Ether that the chart does not draw or a B sentence already counts${R(5)}`,
       ],
     ],
     [
       '14: a coin no sentence states',
-      body(`${S1} Ether fell 94 % and 82 %, and Chainlink 89 % and 91 %.`),
+      body(`${S1} Ether fell 93 % and 81 %, and Chainlink 89 % and 91 %.`),
       [`figure-unstated: body: the chart draws a fall of Solana that no sentence of its section states${R(5)}`],
     ],
   ])('%s', async (_, source, expected, rows = ROWS) => {
@@ -526,7 +526,7 @@ describe("each detail quotes its sentence and names its figure and rule (§4's l
   it('names a no-break space that sits anywhere but before a percent sign', async () => {
     const found = await details(body(`${S1} ${S2.replace('Ether fell', `Ether${NBSP}fell`)}`));
     const neither = found.find((detail) => detail.includes('matches neither shape'));
-    expect(neither).toContain('"EtherU+00A0 fell 94');
+    expect(neither).toContain('"EtherU+00A0 fell 93');
     expect(neither).not.toContain(`Ether${NBSP}`);
   });
 
