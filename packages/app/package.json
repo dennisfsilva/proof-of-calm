@@ -27,6 +27,7 @@
   "dependencies": {
     "@proofofcalm/content": "workspace:*",
     "@proofofcalm/core": "workspace:*",
+    "@proofofcalm/data": "workspace:*",
     "@proofofcalm/ui": "workspace:*",
     "idb": "catalog:",
     "lucide-react": "catalog:",
