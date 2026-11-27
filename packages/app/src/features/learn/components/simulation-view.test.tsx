@@ -118,9 +118,9 @@ const WEEKS = closes('2026-11-26', 36, () => '100');
 const figureOf = (term: string) => screen.getByText(term, { selector: 'dt' }).nextElementSibling?.textContent;
 
 const CAVEAT =
-  'Past prices are facts; a simulation of them is not a forecast. Taxes, fees, slippage and your own behaviour are not in this chart.';
+  'Past prices are facts; a simulation of them is not a forecast. Taxes, fees, slippage, and your own behaviour are not in this chart.';
 const CAVEAT_FEE =
-  'Past prices are facts; a simulation of them is not a forecast. Taxes, slippage and your own behaviour are not in this chart; fees are in it only as the flat 0.0001% you set.';
+  'Past prices are facts; a simulation of them is not a forecast. Taxes, slippage, and your own behaviour are not in this chart; fees are in it only as the flat 0.0001% you set.';
 
 describe('the simulation view', () => {
   it('reads 1.00× at a constant price', async () => {
