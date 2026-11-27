@@ -30,11 +30,11 @@ describe('fallsSpan', () => {
   it('names daily closes when every row was computed from them', () => {
     const falls = [
       row('ETH', '2021-12-01', '2022-06-30', 'Kraken', 'close'),
-      row('SOL', '2021-11-06', '2022-12-29', 'Kraken', 'close'),
+      row('SOL', '2021-11-20', '2022-12-20', 'Kraken', 'close'),
     ];
     expect(fallsSpan(falls, f)).toMatchObject({ basis: 'close', intraday: '', closes: 'Kraken' });
     expect(sentence(falls)).toBe(
-      "Kraken daily closes in US dollars, 6 Nov 2021 to 29 Dec 2022; the falls are Proof of Calm's own computation.",
+      "Kraken daily closes in US dollars, 20 Nov 2021 to 20 Dec 2022; the falls are Proof of Calm's own computation.",
     );
   });
 
@@ -43,7 +43,7 @@ describe('fallsSpan', () => {
       row('BTC', '2011-06-08', '2011-11-22', 'Bitcoinity (Mt. Gox) and CoinMarketCap'),
       row('BTC', '2017-12-17', '2018-12-15', 'Bitstamp'),
       row('ETH', '2018-01-20', '2018-12-08', 'Kraken', 'close'),
-      row('SOL', '2021-11-06', '2022-12-29', 'Kraken', 'close'),
+      row('SOL', '2021-11-20', '2022-12-20', 'Kraken', 'close'),
       row('LINK', '2018-01-08', '2018-06-29', 'CoinMarketCap'),
     ];
     expect(fallsSpan(falls, f)).toMatchObject({
@@ -53,7 +53,7 @@ describe('fallsSpan', () => {
     });
     expect(sentence(falls)).toBe(
       'Bitcoinity (Mt. Gox), Bitstamp, and CoinMarketCap intraday highs and lows and Kraken daily closes in US dollars, ' +
-        "8 Jun 2011 to 29 Dec 2022; the falls are Proof of Calm's own computation.",
+        "8 Jun 2011 to 20 Dec 2022; the falls are Proof of Calm's own computation.",
     );
   });
 });
