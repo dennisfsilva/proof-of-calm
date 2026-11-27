@@ -20,4 +20,16 @@ describe('loadCycleDrawdowns (docs/DOMAIN.md §3.11)', () => {
     const { publisher: _publisher, ...unsourced } = first ?? {};
     expect(loadCycleDrawdowns({ ...file, drawdowns: [unsourced] }).ok).toBe(false);
   });
+
+  it('reads a row computed from daily closes, and refuses any other basis', () => {
+    const [first, ...rest] = file.drawdowns;
+    const closes = loadCycleDrawdowns({ ...file, drawdowns: [{ ...first, basis: 'close' }, ...rest] });
+    if (!closes.ok) throw new Error(closes.error.join('; '));
+    expect(closes.value[0]?.basis).toBe('close');
+    expect(closes.value[1]?.basis).toBeUndefined();
+    expect(loadCycleDrawdowns({ ...file, drawdowns: [{ ...first, basis: 'intraday' }, ...rest] })).toEqual({
+      ok: false,
+      error: [expect.stringContaining('drawdowns.0.basis')],
+    });
+  });
 });
