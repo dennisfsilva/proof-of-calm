@@ -59,6 +59,13 @@
     "note": "Ihre Notiz an sich selbst",
     "noteLine": "{date}: „{why}“"
   },
+  "simulator": {
+    "title": "Simulator",
+    "unpublished": "Die Kurshistorie, mit der der Simulator rechnet, ist noch nicht veröffentlicht.",
+    "failed": "Die Kurshistorie konnte nicht geladen werden.",
+    "dataFrom": "Daten ab {date}, dem ersten Tag mit Schlusskursen von zwei Börsen.",
+    "credit": "Referenzschlusskurse, abgeleitet aus öffentlichen Daten von Kraken und Bitstamp; Wechselkurse: Referenzkurse der EZB"
+  },
   "sheet": {
     "close": "Schließen"
   },

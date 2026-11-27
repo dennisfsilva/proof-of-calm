@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { lazy, type ReactNode } from 'react';
 import { useTranslations } from 'use-intl';
 import { Link, Redirect, Route, Switch } from '../../../lib/navigation';
 import { useServices } from '../../../lib/services';
@@ -12,6 +12,10 @@ import { FALL_MODULE, ThisFallPage, useFallModel } from './this-fall-page';
 const PAGE = 'mx-auto flex w-full max-w-reading flex-col gap-stack-lg px-gutter py-stack-lg';
 // The index from inside the nest, absolute: `/` here would resolve to `/learn/`, with the trailing slash.
 const INDEX = '~/learn';
+
+// Its own chunk, which holds the dataset's schema: the Learn chunk stays as it was, and the screen suspends to the
+// route table's empty fallback until it arrives (ADR-0045 §9). Its words are in the learn namespace already loaded.
+const SimulatorScreen = lazy(() => import('./simulator-screen').then((m) => ({ default: m.SimulatorScreen })));
 
 const fallLink = (chunks: ReactNode) => (
   <Link href="/fall-under-way" className="text-ink underline underline-offset-4 hover:text-ink-2">
@@ -63,8 +67,18 @@ function IndexRoute() {
   );
 }
 
-// Learn's routes, nested under `/learn` by the route table: the index, the country library and the fall page
-// ahead of the modules' `/:slug`, one module, and back to the index from anything else below it.
+/** The link back to the index, above a page that is not a module's. */
+function BackToIndex() {
+  const t = useTranslations('learn.module');
+  return (
+    <Link href={INDEX} className={BACK_LINK}>
+      {t('back')}
+    </Link>
+  );
+}
+
+// Learn's routes, nested under `/learn` by the route table: the index, the country library, the fall page and the
+// simulator ahead of the modules' `/:slug`, one module, and back to the index from anything else below it.
 export function LearnScreen() {
   return (
     <Switch>
@@ -86,6 +100,12 @@ export function LearnScreen() {
       <Route path="/fall-under-way">
         <div className={PAGE}>
           <ThisFallPage />
+        </div>
+      </Route>
+      <Route path="/simulator">
+        <div className={PAGE}>
+          <BackToIndex />
+          <SimulatorScreen />
         </div>
       </Route>
       <Route path="/:slug">{({ slug }) => <ModuleRoute slug={slug} />}</Route>

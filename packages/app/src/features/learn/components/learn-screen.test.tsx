@@ -5,7 +5,7 @@ import { act, cleanup, render, screen, within } from '@testing-library/react';
 import { Component, type ReactNode, Suspense } from 'react';
 import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 import { I18nProvider } from '../../../lib/i18n';
-import { NavigationProvider, Route } from '../../../lib/navigation';
+import { NavigationProvider, Route, usePathname } from '../../../lib/navigation';
 import { ServicesProvider } from '../../../lib/services';
 import { fixtureSnapshot } from '../../../lib/services/fixtures';
 import { createTestServices, preloadLazyModules } from '../../../lib/services/testing';
@@ -166,5 +166,39 @@ describe('the index on a pt-PT screen', () => {
       ]),
     );
     expect(marked.every((element) => element.tagName === 'SPAN' && element.closest('a') !== null)).toBe(true);
+  });
+});
+
+// The simulator's route (docs/EDUCATION.md §7), ahead of the modules' `/:slug`: its own screen, never a module's
+// route, which would send an unknown slug back to the index.
+describe('/learn/simulator', () => {
+  it('renders the simulator screen, not a module or the redirect to the index', async () => {
+    vi.stubGlobal('fetch', async () => new Response('Not found', { status: 404 }));
+    onTestFinished(() => {
+      vi.unstubAllGlobals();
+    });
+    const services = createTestServices();
+    await services.start();
+    const Path = () => <output data-testid="path">{usePathname()}</output>;
+    await act(async () => {
+      render(
+        <NavigationProvider location="memory" initialPath="/learn/simulator">
+          <ServicesProvider services={services}>
+            <I18nProvider messages={{ countries, learn, shell }}>
+              <Suspense fallback={<p>pending</p>}>
+                <Route path="/learn" nest>
+                  <LearnScreen />
+                </Route>
+              </Suspense>
+              <Path />
+            </I18nProvider>
+          </ServicesProvider>
+        </NavigationProvider>,
+      );
+    });
+    expect(await screen.findByRole('heading', { level: 1, name: 'Simulator' })).toBeTruthy();
+    expect(await screen.findByText('The price history the simulator runs on is not published yet.')).toBeTruthy();
+    expect(screen.getByTestId('path').textContent).toBe('/learn/simulator');
+    expect(screen.getByRole('link', { name: 'Back to Learn' }).getAttribute('href')).toBe('/learn');
   });
 });

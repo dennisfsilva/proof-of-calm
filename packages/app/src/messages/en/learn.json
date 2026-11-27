@@ -59,6 +59,13 @@
     "note": "Your note to yourself",
     "noteLine": "{date}: “{why}”"
   },
+  "simulator": {
+    "title": "Simulator",
+    "unpublished": "The price history the simulator runs on is not published yet.",
+    "failed": "The price history could not be loaded.",
+    "dataFrom": "Data from {date}, the first day with closes from two exchanges.",
+    "credit": "Reference closes derived from Kraken and Bitstamp public data; FX: ECB reference rates"
+  },
   "sheet": {
     "close": "Close"
   },

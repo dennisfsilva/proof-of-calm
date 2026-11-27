@@ -6,7 +6,10 @@ import { type Dataset, DatasetSchema } from '@proofofcalm/data';
 // answers 404, which is the screen's "not published yet", never a failure.
 
 /** Why the closes are not there: not published yet, not reachable now, or not a dataset of this coin. */
-export type ClosesFailure = { readonly kind: 'unpublished' } | { readonly kind: 'offline' } | { readonly kind: 'invalid' };
+export type ClosesFailure =
+  | { readonly kind: 'unpublished' }
+  | { readonly kind: 'offline' }
+  | { readonly kind: 'invalid' };
 
 /** The dataset file of a coin, relative to the site's origin. */
 export const closesPath = (coin: CoinId) => `/data/prices/${coin}-EUR.json`;
