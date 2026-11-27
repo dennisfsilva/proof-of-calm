@@ -7,7 +7,7 @@ import { Link, Redirect } from '../../../lib/navigation';
 import { useClock, useFormatters, useServices, useSnapshot, useToday } from '../../../lib/services';
 import type { PastFall, RedDayModel } from '../../../lib/services/red-day-types';
 import { MODULE_ELEMENTS } from '../lib/body-elements';
-import { fallsSources } from '../lib/falls-basis';
+import { fallsSources, rowPublisher } from '../lib/falls-basis';
 import { BACK_LINK } from './country-library';
 import { WhyLink } from './why-link';
 
@@ -140,7 +140,7 @@ function EarlierFalls({ held, falls }: { held: Held; falls: Falls }) {
                 fall: f.percent(`-${row.fall}` as Decimal, { decimals: 0 }),
                 high: f.date(row.high),
                 low: f.date(row.low),
-                publisher: row.publisher,
+                publisher: rowPublisher(row, f),
               })}
             </li>
           ))}

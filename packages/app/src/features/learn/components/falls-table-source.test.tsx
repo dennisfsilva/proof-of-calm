@@ -4,9 +4,11 @@ import { cleanup, render } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { createFormatters } from '../../../lib/format';
 import { I18nProvider } from '../../../lib/i18n';
-import { localesFor } from '../../../lib/i18n/locale';
+import { localesFor, type UiLanguage } from '../../../lib/i18n/locale';
 import type { PastFall } from '../../../lib/services/red-day-types';
+import learnDe from '../../../messages/de/learn.json';
 import learn from '../../../messages/en/learn.json';
+import learnPt from '../../../messages/pt-PT/learn.json';
 import { DrawdownBars } from './module-chart';
 
 // Learn's "Show the falls as a table" names each row's publisher in a Source column once the rows mix intraday falls
@@ -27,11 +29,13 @@ const KRAKEN = { coin: 'ETH', high: '2018-01-20', low: '2018-12-08', fall: '93',
 
 const falls = (...rows: object[]) => rows as unknown as readonly PastFall[];
 
-const table = (rows: readonly PastFall[]) => {
-  const locales = localesFor('en', null);
+const MESSAGES = { en: learn, 'pt-PT': learnPt, de: learnDe } as const;
+
+const table = (rows: readonly PastFall[], language: UiLanguage = 'en') => {
+  const locales = localesFor(language, null);
   const f = createFormatters(locales.numbers, locales.ui);
   const { container } = render(
-    <I18nProvider messages={{ learn }}>
+    <I18nProvider locale={language} messages={{ learn: MESSAGES[language] }}>
       <DrawdownBars falls={rows} f={f} />
     </I18nProvider>,
   );
@@ -70,5 +74,16 @@ describe('DrawdownBars: the Source column', () => {
       expect(body.every((row) => row.length === 4)).toBe(true);
       cleanup();
     }
+  });
+
+  // A row drawn from two series names both, joined in the page's language (docs/CONTENT-STYLE.md §1 rule 9, §3):
+  // English keeps its "and", pt-PT and German their own word.
+  it.each([
+    ['pt-PT', 'Fonte', 'Bitcoinity (Mt. Gox) e CoinMarketCap'],
+    ['de', 'Quelle', 'Bitcoinity (Mt. Gox) und CoinMarketCap'],
+  ] as const)('a compound publisher in %s joins its names in that language', (language, source, compound) => {
+    const { headers, body, text } = table(falls(BITSTAMP, KRAKEN, BITCOINITY), language);
+    expect(headers.map(text).at(-1)).toBe(source);
+    expect(body.map((row) => row.at(-1))).toEqual(['Bitstamp', 'Kraken', compound]);
   });
 });
