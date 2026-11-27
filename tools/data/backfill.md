@@ -24,7 +24,12 @@ keeps the daily closes only, and the archive is downloaded again when it is need
    `+`; elsewhere `cat` of the parts into one file).
 3. Compare the joined ZIP's SHA-256 (`Get-FileHash -Algorithm SHA256` or `sha256sum`) with the one the
    article publishes; a different digest means a damaged or partial download, so fetch the parts
-   again.
+   again. The article also links a checksum file for the five parts, which finds a damaged part
+   before the join (`sha256sum -c`). It publishes no digest for a quarterly ZIP (checked 2026-11-27,
+   for 2026Q3).
+4. After extracting (below), compare each daily file's CRC-32 and size with its entry in the ZIP's
+   central directory (Python's `zipfile` reads both, from the joined ZIP or from the parts read in
+   order). For a quarterly ZIP this is the only check.
 
 ## Extract the daily files
 
