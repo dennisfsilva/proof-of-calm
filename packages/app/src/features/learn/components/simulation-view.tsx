@@ -21,7 +21,7 @@ import { simulatorGeometry } from '../lib/simulator-chart';
 // of 12 months behind one disclosure, the rows the closes cannot cover said once above it.
 
 /** The chart's viewBox: simulatorGeometry places the paths in it. */
-export const SIMULATION_VIEW_BOX = { width: 300, height: 100 };
+const SIMULATION_VIEW_BOX = { width: 300, height: 100 };
 
 export type SimulationViewProps = {
   readonly simulation: Simulation;
