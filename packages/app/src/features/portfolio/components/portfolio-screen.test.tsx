@@ -340,11 +340,15 @@ describe('PortfolioScreen', { timeout: 15_000 }, () => {
     // (lib/services/testing-modules.ts); under the whole suite's load the press waited on both and once outlasted its
     // wait (#520). One press before the tests resolves them, so the test's findBy waits on renders only.
     // Load (2026-11-27): worst 6,739 ms for this hook in the check runs that timed it; it outlasted 5 s in one more.
+    // The cleanup is in a finally, so a press that times out leaves no screen mounted for the next describe.
     beforeAll(async () => {
-      await renderScreen(fixtureSnapshot(), 'buy');
-      fireEvent.click(screen.getByRole('button', { name: WHY }));
-      await screen.findByRole('dialog', { name: IDEA }, { timeout: 25_000 });
-      cleanup();
+      try {
+        await renderScreen(fixtureSnapshot(), 'buy');
+        fireEvent.click(screen.getByRole('button', { name: WHY }));
+        await screen.findByRole('dialog', { name: IDEA }, { timeout: 25_000 });
+      } finally {
+        cleanup();
+      }
     }, 30_000);
     /**
      * The link sits in the P/L figure's own cell, after the figure. Its 44 px target makes the row taller than the
