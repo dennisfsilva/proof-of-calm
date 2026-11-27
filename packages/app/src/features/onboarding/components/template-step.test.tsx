@@ -309,7 +309,7 @@ describe('TemplateStep', () => {
     mount({ kind: 'template', id: 'cycle-plan' }, createFormatters('de-DE', 'en-GB'));
     const german = (await openPanel()).textContent ?? '';
     expect(german).toContain(`40${NO_BREAK}% Bitcoin, 30${NO_BREAK}% Ethereum`);
-    expect(german).toContain(`Solana fell 97${NO_BREAK}% from`);
+    expect(german).toContain(`Solana fell 96${NO_BREAK}% from`);
     expect(german).not.toMatch(/\d %/);
     cleanup();
     mount({ kind: 'template', id: 'cycle-plan' });
@@ -401,7 +401,7 @@ describe('TemplateStep in pt-PT (ADR-0057)', () => {
     const text = document.body.textContent ?? '';
     const percent = (share: string) => format.percent(decimal(share), { decimals: 0 });
     expect(text).toContain(`${percent('40')} bitcoin, ${percent('30')} Ethereum, ${percent('15')} Solana`);
-    expect(text).toContain(`A Solana caiu ${percent('97')} do máximo`);
+    expect(text).toContain(`A Solana caiu ${percent('96')} do máximo`);
     expect(text).not.toMatch(/\d %/);
   });
 

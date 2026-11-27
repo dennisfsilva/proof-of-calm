@@ -20,11 +20,11 @@ const row = (coin: string, high: string, low: string, publisher: string, basis?:
   ({ coin, high, low, fall: '80', publisher, ...(basis === undefined ? {} : { basis }) }) as unknown as PastFall;
 
 describe('fallsSpan', () => {
-  it("gives today's exact sentence for the cycles file's rows, all intraday", async () => {
+  it("gives today's exact sentence for the cycles file's rows, intraday and Kraken's daily closes", async () => {
     const falls = await createTestServices().redDay.pastFalls(DRAWDOWN_COINS);
-    expect(fallsSpan(falls, f).basis).toBe('intraday');
+    expect(fallsSpan(falls, f).basis).toBe('mixed');
     expect(sentence(falls)).toBe(
-      'Bitcoinity (Mt. Gox), Bitstamp, Coinbase, and CoinMarketCap intraday highs and lows in US dollars, ' +
+      'Bitcoinity (Mt. Gox), Bitstamp, and CoinMarketCap intraday highs and lows, and Kraken daily closes, in US dollars, ' +
         "8 Jun 2011 to 10 Jun 2023; the falls are Proof of Calm's own computation.",
     );
   });

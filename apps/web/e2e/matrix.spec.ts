@@ -51,7 +51,7 @@ const PAGES: readonly Entry[] = [
     name: 'learn-risk-honestly',
     path: '/learn/risk-honestly',
     heading: 'Risk honestly',
-    holds: /intraday highs and lows in US dollars/,
+    holds: /intraday highs and lows, and Kraken daily closes, in US dollars/,
   },
   { name: 'learn-cycles', path: '/learn/cycles', heading: 'Cycles' },
   {
@@ -85,7 +85,7 @@ const PAGES: readonly Entry[] = [
     name: 'site-learn-risk',
     path: '/en/learn/risk-honestly',
     heading: 'Risk honestly',
-    holds: /intraday highs and lows in US dollars/,
+    holds: /intraday highs and lows, and Kraken daily closes, in US dollars/,
   },
   { name: 'site-country-pt', path: '/en/countries/pt', heading: portugal.name },
   { name: 'site-holding-date', path: '/en/holding-date', heading: 'Holding rules by country' },

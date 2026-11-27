@@ -78,10 +78,10 @@ describe('templateFigureProblems: the closed shapes pass (the judge’s must-pas
     });
     expect(named).toEqual([
       'accumulate.json S1 What can go wrong: 20 % of',
-      'accumulate.json F1 Solana fell 97 % from its ',
+      'accumulate.json F1 Solana fell 96 % from its ',
       'btc-only-hold.json F1 Bitcoin fell 78 % from its',
       'cycle-plan.json S4 It splits each monthly amo',
-      'cycle-plan.json F1 Solana fell 97 % from its ',
+      'cycle-plan.json F1 Solana fell 96 % from its ',
       'cycle-plan.json F1 Chainlink fell 91 % from i',
       'two-coins.json F1 Bitcoin fell 78 % from its',
       'two-coins.json F1 Ethereum fell 82 % from it',
@@ -360,11 +360,11 @@ describe('the 25o mutations fail closed on the live templates', () => {
     return problemsOf([{ path: `packages/content/templates/${name}`, json }]).map(({ code }) => code);
   };
   it.each([
-    ['accumulate.json', 'Solana fell 97 %', 'Solana fell approximately 97 %', 'figure-form'],
-    ['accumulate.json', 'Solana fell 97 %', 'Solana fell ~97 %', 'figure-form'],
-    ['accumulate.json', 'Solana fell 97 %', 'Solana fell between 90 and 97 %', 'figure-form'],
-    ['accumulate.json', 'fell 97 % from', 'fell 97 % or so from', 'figure-form'],
-    ['accumulate.json', 'Solana fell 97 %', 'Solana fell approx. 97 %', 'figure-form'],
+    ['accumulate.json', 'Solana fell 96 %', 'Solana fell approximately 96 %', 'figure-form'],
+    ['accumulate.json', 'Solana fell 96 %', 'Solana fell ~96 %', 'figure-form'],
+    ['accumulate.json', 'Solana fell 96 %', 'Solana fell between 90 and 96 %', 'figure-form'],
+    ['accumulate.json', 'fell 96 % from', 'fell 96 % or so from', 'figure-form'],
+    ['accumulate.json', 'Solana fell 96 %', 'Solana fell approx. 96 %', 'figure-form'],
     ['accumulate.json', '20 % of every amount', 'roughly 20 % of every amount', 'figure-unclassed'],
     ['cycle-plan.json', '40 % Bitcoin', '≈40 % Bitcoin', 'figure-unclassed'],
   ])('%s: %s to %s', (name, from, to, code) => {

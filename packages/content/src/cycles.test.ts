@@ -16,13 +16,36 @@ const templates = readdirSync(new URL('templates/', root))
 const row = (each: { coin: string; high: string; low: string; fall: string }) =>
   `${each.coin} ${each.high} ${each.low} ${each.fall}`;
 
+type Cited = {
+  coin: string;
+  high: string;
+  low: string;
+  fall: string;
+  basis?: string | undefined;
+  publisher: string;
+  source: string;
+  lowSource?: string | undefined;
+};
+const CITED = ['basis', 'publisher', 'source', 'lowSource'] as const;
+// Each template row's field that differs from the cycles row with its coin, high, low and fall, as "coin high field".
+const untied = (rows: readonly Cited[], drawdowns: readonly Cited[]) =>
+  drawdowns.flatMap((drawdown) => {
+    const match = rows.find((each) => row(each) === row(drawdown));
+    if (match === undefined) return [`${drawdown.coin} ${drawdown.high} row`];
+    return CITED.filter((field) => match[field] !== drawdown[field]).map(
+      (field) => `${drawdown.coin} ${drawdown.high} ${field}`,
+    );
+  });
+
 // docs/CONTENT-OPS.md §7: facts a and b quote each fall to one decimal on the series they name, and the file rounds
 // it to a whole percent on the series it names. The two series can differ; the fall and its two dates cannot.
 const A = 'a.btc-drawdowns';
 const B = 'b.alt-drawdowns';
 const BITSTAMP = 'Bitstamp';
-const COINBASE = 'Coinbase';
 const CMC = 'CoinMarketCap';
+const KRAKEN = 'Kraken';
+// docs/CONTENT-OPS.md §7: a Kraken figure cites Kraken's OHLCVT archive article, never a request or the private store.
+const KRAKEN_ARTICLE = 'https://support.kraken.com/articles/360047124832';
 // A row of the file as [coin, high, publisher], and the clause that quotes it as [key, opening, figure, series].
 type Fall = {
   readonly row: readonly [string, string, string];
@@ -39,23 +62,46 @@ type Read = (key: string) => string;
 // Each fall opens its own clause of the fact, and the words after `fact`'s key are that opening. A value holds every
 // cycle's dates and figures, so a row is read inside its clause alone.
 const FALLS = [
-  { row: ['BTC', '2011-06-08', `Bitcoinity (Mt. Gox) and ${CMC}`], fact: [A, '2011, from', '−94.0 %', CMC] },
-  { row: ['BTC', '2013-11-30', BITSTAMP], fact: [A, '2013 to 2015,', '−86.9 %', BITSTAMP] },
-  { row: ['BTC', '2017-12-17', BITSTAMP], fact: [A, '2017 to 2018,', '−84.1 %', BITSTAMP] },
-  { row: ['BTC', '2021-11-10', BITSTAMP], fact: [A, '2021 to 2022,', '−77.6 %', BITSTAMP] },
-  { row: ['ETH', '2018-01-13', COINBASE], fact: [B, 'ETH 2018', '−94.3 %', COINBASE] },
-  { row: ['ETH', '2021-11-10', COINBASE], fact: [B, 'ETH 2022', '−81.9 %', COINBASE] },
+  {
+    row: ['BTC', '2011-06-08', `Bitcoinity (Mt. Gox) and ${CMC}`],
+    fact: [A, '2011, from', '−94.0 %', CMC],
+  },
+  {
+    row: ['BTC', '2013-11-30', BITSTAMP],
+    fact: [A, '2013 to 2015,', '−86.9 %', BITSTAMP],
+  },
+  {
+    row: ['BTC', '2017-12-17', BITSTAMP],
+    fact: [A, '2017 to 2018,', '−84.1 %', BITSTAMP],
+  },
+  {
+    row: ['BTC', '2021-11-10', BITSTAMP],
+    fact: [A, '2021 to 2022,', '−77.6 %', BITSTAMP],
+  },
+  {
+    row: ['ETH', '2018-01-13', KRAKEN],
+    fact: [B, 'ETH 2018', '−94.1 %', KRAKEN],
+  },
+  {
+    row: ['ETH', '2021-11-10', BITSTAMP],
+    fact: [B, 'ETH 2021 to 2022', '−82 %', BITSTAMP],
+  },
   { row: ['LINK', '2018-01-08', CMC], fact: [B, 'LINK 2018', '−88.7 %', CMC] },
-  { row: ['LINK', '2021-05-10', BITSTAMP], fact: [B, 'LINK 2021', '−90.7 %', COINBASE] },
-  { row: ['SOL', '2021-11-06', COINBASE], fact: [B, 'SOL (Coinbase)', '−96.9 %', COINBASE] },
+  {
+    row: ['LINK', '2021-05-10', BITSTAMP],
+    fact: [B, 'LINK 2021', '−91 %', BITSTAMP],
+  },
+  {
+    row: ['SOL', '2021-11-06', KRAKEN],
+    fact: [B, 'SOL (Kraken', '−96.3 %', KRAKEN],
+  },
 ] as const satisfies readonly Fall[];
 // A FALLS literal that a merged review replaced, until the log PR writes its new value here (docs/CONTENT-OPS.md §8
 // steps 4 and 5). Each key is the literal's `<coin> <high>`; each value is the whole entry that replaces it. The
 // owner's session PR adds the entry to main, which reads the literal until the review merges and `now` after; the
 // agent's branch cannot change this file (CI's guard). The log PR writes `now` into FALLS and removes the entry. When `now` moves a
 // high, it also writes the new `<coin> <high>` in place of the old one in UNREGAINED_KEYS, which reads the old key
-// through the entry only while the entry stays. The Coinbase rows come from the held falls' publishers, so a changed
-// publisher moves its row in or out of them with the entry and leaves no list to edit.
+// through the entry only while the entry stays.
 const unloggedFalls: ReadonlyMap<string, Fall> = new Map([]);
 // The coins fact b's 16 Oct 2026 line names as still below their high.
 const UNREGAINED_KEYS = ['LINK 2021-05-10'];
@@ -111,10 +157,6 @@ function heldKeys(keys: readonly string[], falls: readonly Fall[], held: readonl
 function strayKeys(keys: readonly string[], falls: readonly Fall[]): string[] {
   return keys.filter((key) => !falls.some((each) => keyOf(each) === key));
 }
-/** The `<coin> <high>` of each held fall on Coinbase's series: the rows the Coinbase test reads its windows from. */
-function coinbaseKeys(held: readonly Fall[]): string[] {
-  return held.filter(({ row }) => row[2] === COINBASE).map(keyOf);
-}
 const held = () => heldFalls(FALLS, CycleDrawdownsSchema.parse(cycles).drawdowns, factValue, unloggedFalls);
 
 /** Each row of `drawdowns` is the fall at its index: the same row, and its fact's clause reads its figure and dates. */
@@ -133,7 +175,10 @@ function expectFallsRead(falls: readonly Fall[], drawdowns: readonly Drawdown[],
 }
 const factValue: Read = (key) => facts.find((each) => each.key === key)?.value ?? '';
 
-const asWritten = new Intl.DateTimeFormat('en-GB', { dateStyle: 'medium', timeZone: 'UTC' });
+const asWritten = new Intl.DateTimeFormat('en-GB', {
+  dateStyle: 'medium',
+  timeZone: 'UTC',
+});
 const written = (date: string) => asWritten.format(new Date(`${date}T00:00:00Z`));
 
 // docs/CONTENT-STYLE.md §4 and docs/DESIGN.md §5: the module's dates are written by hand, so what lib/format does for a
@@ -162,46 +207,43 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
     expect(strayKeys(UNREGAINED_KEYS, FALLS), fix).toEqual([]);
   });
 
-  it("cites Coinbase Exchange's daily candles for each Coinbase row, a request of at most 300 holding its date", () => {
+  // ADR-0036's Readings of 2026-11-27: Kraken's figures are published without the closes behind them, so a Kraken row
+  // or fact cites the archive article alone, and a row is a fall between daily closes. Coinbase's terms bar its data.
+  it("cites Kraken's archive article for each Kraken row and fact, each row on closes, and no Coinbase host", () => {
     const { drawdowns } = CycleDrawdownsSchema.parse(cycles);
-    const day = 86_400_000;
-    const windowOf = (href: string, coin: string) => {
-      const url = new URL(href);
-      const [start = '', end = ''] = ['start', 'end'].map((key) => url.searchParams.get(key) ?? '');
-      const daily = `${url.origin}${url.pathname}` === `https://api.exchange.coinbase.com/products/${coin}-USD/candles`;
-      const midnight = [start, end].every((at) => at.endsWith('T00:00:00Z'));
-      if (!daily || url.searchParams.get('granularity') !== '86400' || !midnight) return { start: '', end: '' };
-      return { start: start.slice(0, 10), end: end.slice(0, 10) };
-    };
-    const holds = (url: string, coin: string, date: string) => {
-      const { start, end } = windowOf(url, coin);
-      return start <= date && date <= end && (Date.parse(end) - Date.parse(start)) / day < 300;
-    };
-    const coinbase = drawdowns.filter(({ publisher }) => publisher === COINBASE);
-    expect(coinbase.map(({ coin, high }) => `${coin} ${high}`)).toEqual(coinbaseKeys(held()));
-    for (const { coin, high, low, source, lowSource } of coinbase) {
-      expect(holds(source, coin, high), source).toBe(true);
-      // One request holds both ends, or the low's window is its own (src/schema/drawdown.ts).
-      const lowUrl = lowSource ?? source;
-      expect(holds(lowUrl, coin, low), lowUrl).toBe(true);
-      if (lowSource) expect(holds(source, coin, low), source).toBe(false);
-    }
+    const rows = [...drawdowns, ...templates.flatMap((template) => template.drawdowns)];
+    const items = [...rows, ...facts];
+    const kraken = items.filter(({ publisher }) => publisher === KRAKEN);
+    expect(kraken.length).toBeGreaterThan(0);
+    const urls = (item: (typeof items)[number]) =>
+      'lowSource' in item ? [item.source, item.lowSource] : [item.source];
+    for (const item of kraken)
+      expect(urls(item).filter((url) => url !== undefined && url !== KRAKEN_ARTICLE)).toEqual([]);
+    const loose = rows.filter(({ publisher, basis }) => publisher === KRAKEN && basis !== 'close');
+    expect(loose.map(({ coin, high }) => `${coin} ${high}`)).toEqual([]);
+    const coinbase = items
+      .flatMap(urls)
+      .filter((url) => url !== undefined && /(^|\.)coinbase\.com$/u.test(new URL(url).hostname));
+    expect(coinbase).toEqual([]);
+    expect(items.filter(({ publisher }) => /coinbase/iu.test(publisher)).map(({ publisher }) => publisher)).toEqual([]);
   });
 
   it('gives a coin that has not regained its high a low window from its low to the day the row was read', () => {
-    // Fact b's line at the 16 Oct 2026 close: LINK is still below its 2021 high, while SOL passed it in Nov 2024.
+    // Fact b's line at the 16 Oct 2026 close: LINK is still below its 2021 high, while SOL passed its highest 2021 close
+    // on 18 Jan 2025 (Kraken's daily closes).
     const unregained = heldKeys(UNREGAINED_KEYS, FALLS, held());
     const isoDay = (ms: number) => new Date(ms).toISOString().slice(0, 10);
-    // The window one request returns: Bitstamp's `limit` candles of `step` seconds from `start`, or Coinbase's start to end.
+    // The window one request returns: Bitstamp's `limit` candles of `step` seconds from `start`.
     const windowOf = (href: string) => {
       const url = new URL(href);
       const param = (key: string) => url.searchParams.get(key) ?? '';
       if (url.hostname === 'www.bitstamp.net') {
         const start = Number(param('start')) * 1000;
-        return { start: isoDay(start), end: isoDay(start + Number(param('step')) * Number(param('limit')) * 1000) };
+        return {
+          start: isoDay(start),
+          end: isoDay(start + Number(param('step')) * Number(param('limit')) * 1000),
+        };
       }
-      if (url.hostname === 'api.exchange.coinbase.com')
-        return { start: param('start').slice(0, 10), end: param('end').slice(0, 10) };
       return { start: '', end: '' };
     };
     const rows = CycleDrawdownsSchema.parse(cycles).drawdowns.filter(({ coin, high }) =>
@@ -220,6 +262,38 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
     for (const template of templates) {
       for (const drawdown of template.drawdowns) expect(rows).toContain(row(drawdown));
     }
+  });
+
+  // docs/DOMAIN.md §5, docs/CONTENT-OPS.md §6: a template row that took a cycles row's figures but kept another
+  // series' source, publisher or basis would state one fall on two series.
+  it('gives every template drawdown its cycles row’s basis, publisher, source and lowSource', () => {
+    const rows = CycleDrawdownsSchema.parse(cycles).drawdowns;
+    expect(
+      untied(
+        rows,
+        templates.flatMap((template) => template.drawdowns),
+      ),
+    ).toEqual([]);
+  });
+
+  it('refuses a template row that keeps another series’ source, publisher or basis', () => {
+    const rows = CycleDrawdownsSchema.parse(cycles).drawdowns;
+    const sol = rows.find(({ coin }) => coin === 'SOL');
+    expect(sol).toBeDefined();
+    if (sol === undefined) return;
+    const { basis: _basis, ...intraday } = sol;
+    const copies = [
+      { ...sol, source: 'https://www.bitstamp.net/api/v2/ohlc/solusd/?step=86400&limit=730&start=1609459200' },
+      { ...sol, publisher: 'Bitstamp' },
+      intraday,
+      { ...sol, lowSource: KRAKEN_ARTICLE },
+    ];
+    expect(untied(rows, copies)).toEqual([
+      'SOL 2021-11-06 source',
+      'SOL 2021-11-06 publisher',
+      'SOL 2021-11-06 basis',
+      'SOL 2021-11-06 lowSource',
+    ]);
   });
 
   it('in the Cycles module a figure stays with its unit and a date stays whole', () => {
@@ -267,21 +341,45 @@ describe('the cycles file (docs/EDUCATION.md §2 and §6)', () => {
 
 // Literal rows, clauses and entries, never the live files: a review may change any of those.
 describe('a FALLS literal with a pending entry (docs/CONTENT-OPS.md §8 steps 4 and 5)', () => {
-  const btc: Fall = { row: ['BTC', '2017-12-17', BITSTAMP], fact: ['x.one', '2017 to 2018,', '−84.1 %', BITSTAMP] };
-  const link: Fall = { row: ['LINK', '2021-05-10', BITSTAMP], fact: ['x.one', 'LINK 2021', '−90.7 %', COINBASE] };
+  const btc: Fall = {
+    row: ['BTC', '2017-12-17', BITSTAMP],
+    fact: ['x.one', '2017 to 2018,', '−84.1 %', BITSTAMP],
+  };
+  const link: Fall = {
+    row: ['LINK', '2021-05-10', BITSTAMP],
+    fact: ['x.one', 'LINK 2021', '−90.7 %', BITSTAMP],
+  };
   const falls = [btc, link];
   // A review moves BTC's clause to −84.2 % (its row's fall stays 84), or LINK's high a day on.
-  const btcNow: Fall = { row: btc.row, fact: ['x.one', '2017 to 2018,', '−84.2 %', BITSTAMP] };
-  const linkNow: Fall = { row: ['LINK', '2021-05-11', BITSTAMP], fact: link.fact };
+  const btcNow: Fall = {
+    row: btc.row,
+    fact: ['x.one', '2017 to 2018,', '−84.2 %', BITSTAMP],
+  };
+  const linkNow: Fall = {
+    row: ['LINK', '2021-05-11', BITSTAMP],
+    fact: link.fact,
+  };
   const file = (linkHigh = '2021-05-10'): Drawdown[] => [
-    { coin: 'BTC', high: '2017-12-17', low: '2018-12-15', fall: '84', publisher: BITSTAMP },
-    { coin: 'LINK', high: linkHigh, low: '2023-06-10', fall: '91', publisher: BITSTAMP },
+    {
+      coin: 'BTC',
+      high: '2017-12-17',
+      low: '2018-12-15',
+      fall: '84',
+      publisher: BITSTAMP,
+    },
+    {
+      coin: 'LINK',
+      high: linkHigh,
+      low: '2023-06-10',
+      fall: '91',
+      publisher: BITSTAMP,
+    },
   ];
   const clauses =
     (figure: string, linkHigh = '10 May 2021'): Read =>
     () =>
       `2017 to 2018, Bitstamp: 17 Dec 2017 to 15 Dec 2018, ${figure}. ` +
-      `LINK 2021, Coinbase: ${linkHigh} to 10 Jun 2023, −90.7 %. At the close on 16 Oct 2026, nothing.`;
+      `LINK 2021, Bitstamp: ${linkHigh} to 10 Jun 2023, −90.7 %. At the close on 16 Oct 2026, nothing.`;
   const none: ReadonlyMap<string, Fall> = new Map();
   const pending = (...entries: [string, Fall][]): ReadonlyMap<string, Fall> => new Map(entries);
   const check =
@@ -343,42 +441,60 @@ describe('a FALLS literal with a pending entry (docs/CONTENT-OPS.md §8 steps 4 
   });
 });
 
-// A review moves ETH's 2021 row from Coinbase's series to Bitstamp's, or LINK's 2021 row from Bitstamp's to Coinbase's.
+// A review moves ETH's 2021 row from CoinMarketCap's series to Bitstamp's, or LINK's 2021 row from Bitstamp's to
+// CoinMarketCap's.
 // Main stays green in each state: main with the entry, the merged review (the flip changes no row or clause), and the
 // log PR, which writes `now` into the literals and removes the entry.
 describe('a publisher change through an entry (docs/CONTENT-OPS.md §8 steps 4 and 5)', () => {
-  const eth: Fall = { row: ['ETH', '2021-11-10', COINBASE], fact: ['x.two', 'ETH 2022', '−81.9 %', COINBASE] };
-  const link: Fall = { row: ['LINK', '2021-05-10', BITSTAMP], fact: ['x.two', 'LINK 2021', '−90.7 %', COINBASE] };
-  const ethNow: Fall = { row: ['ETH', '2021-11-10', BITSTAMP], fact: ['x.two', 'ETH 2022', '−81.9 %', BITSTAMP] };
-  const linkNow: Fall = { row: ['LINK', '2021-05-10', COINBASE], fact: link.fact };
+  const eth: Fall = {
+    row: ['ETH', '2021-11-10', CMC],
+    fact: ['x.two', 'ETH 2022', '−81.9 %', CMC],
+  };
+  const link: Fall = {
+    row: ['LINK', '2021-05-10', BITSTAMP],
+    fact: ['x.two', 'LINK 2021', '−90.7 %', CMC],
+  };
+  const ethNow: Fall = {
+    row: ['ETH', '2021-11-10', BITSTAMP],
+    fact: ['x.two', 'ETH 2022', '−81.9 %', BITSTAMP],
+  };
+  const linkNow: Fall = { row: ['LINK', '2021-05-10', CMC], fact: link.fact };
   const file = (ethOn: string, linkOn: string): Drawdown[] => [
-    { coin: 'ETH', high: '2021-11-10', low: '2022-06-18', fall: '82', publisher: ethOn },
-    { coin: 'LINK', high: '2021-05-10', low: '2023-06-10', fall: '91', publisher: linkOn },
+    {
+      coin: 'ETH',
+      high: '2021-11-10',
+      low: '2022-06-18',
+      fall: '82',
+      publisher: ethOn,
+    },
+    {
+      coin: 'LINK',
+      high: '2021-05-10',
+      low: '2023-06-10',
+      fall: '91',
+      publisher: linkOn,
+    },
   ];
   const clauses =
     (ethSeries: string): Read =>
     () =>
       `ETH 2022 (${ethSeries}): 10 Nov 2021 to 18 Jun 2022, −81.9 %. ` +
-      'LINK 2021 (Coinbase): 10 May 2021 to 10 Jun 2023, −90.7 %. At the close on 16 Oct 2026, nothing.';
+      'LINK 2021 (CoinMarketCap): 10 May 2021 to 10 Jun 2023, −90.7 %. At the close on 16 Oct 2026, nothing.';
   const ethMoves: ReadonlyMap<string, Fall> = new Map([['ETH 2021-11-10', ethNow]]);
   const linkMoves: ReadonlyMap<string, Fall> = new Map([['LINK 2021-05-10', linkNow]]);
   const none: ReadonlyMap<string, Fall> = new Map();
-  /** The cycles tests' reads of one state: the whole-array tie, the stale check and the Coinbase rows' keys. */
+  /** The cycles tests' reads of one state: the whole-array tie and the stale check. */
   const route = (rows: Drawdown[], read: Read, entries: ReadonlyMap<string, Fall>, literals: readonly Fall[]) => {
     const held = heldFalls(literals, rows, read, entries);
     expectFallsRead(held, rows, read);
     expect(staleFalls(literals, entries)).toEqual([]);
-    const onCoinbase = rows
-      .filter(({ publisher }) => publisher === COINBASE)
-      .map(({ coin, high }) => `${coin} ${high}`);
-    expect(onCoinbase).toEqual(coinbaseKeys(held));
   };
 
   it.each([
     {
       state: 'ETH to Bitstamp: main with the entry',
-      rows: file(COINBASE, BITSTAMP),
-      series: COINBASE,
+      rows: file(CMC, BITSTAMP),
+      series: CMC,
       entries: ethMoves,
       literals: [eth, link],
     },
@@ -397,23 +513,23 @@ describe('a publisher change through an entry (docs/CONTENT-OPS.md §8 steps 4 a
       literals: [ethNow, link],
     },
     {
-      state: 'LINK to Coinbase: main with the entry',
-      rows: file(COINBASE, BITSTAMP),
-      series: COINBASE,
+      state: 'LINK to CoinMarketCap: main with the entry',
+      rows: file(CMC, BITSTAMP),
+      series: CMC,
       entries: linkMoves,
       literals: [eth, link],
     },
     {
-      state: 'LINK to Coinbase: the merged review',
-      rows: file(COINBASE, COINBASE),
-      series: COINBASE,
+      state: 'LINK to CoinMarketCap: the merged review',
+      rows: file(CMC, CMC),
+      series: CMC,
       entries: linkMoves,
       literals: [eth, link],
     },
     {
-      state: 'LINK to Coinbase: the log PR',
-      rows: file(COINBASE, COINBASE),
-      series: COINBASE,
+      state: 'LINK to CoinMarketCap: the log PR',
+      rows: file(CMC, CMC),
+      series: CMC,
       entries: none,
       literals: [eth, linkNow],
     },
@@ -423,6 +539,6 @@ describe('a publisher change through an entry (docs/CONTENT-OPS.md §8 steps 4 a
 
   it('a publisher change with no entry fails the whole-array comparison', () => {
     expect(() => route(file(BITSTAMP, BITSTAMP), clauses(BITSTAMP), none, [eth, link])).toThrow(/to deeply equal/u);
-    expect(() => route(file(COINBASE, COINBASE), clauses(COINBASE), none, [eth, link])).toThrow(/to deeply equal/u);
+    expect(() => route(file(CMC, CMC), clauses(CMC), none, [eth, link])).toThrow(/to deeply equal/u);
   });
 });

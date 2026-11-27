@@ -284,7 +284,7 @@ change but never as the sole evidence for one.
 | GB | `gov.uk`, `legislation.gov.uk`, `assets.publishing.service.gov.uk`, `fca.org.uk` |
 | US | `irs.gov`, `congress.gov`, `federalregister.gov`, `treasury.gov`, `taxfoundation.org` (state rates only) |
 | EU | `eur-lex.europa.eu`, `esma.europa.eu`, `ecb.europa.eu`, `taxation-customs.ec.europa.eu` |
-| Education facts | `mempool.space`, `blockchain.com`, `bitstamp.net`, `exchange.coinbase.com`, `api.coingecko.com`, `coinmarketcap.com`, `bitcoinity.org` (the Mt. Gox daily export, the only series for the 2011 high), `alternative.me`, `coinglass.com`, `cftc.gov` and `mtgox.com` (the company's and the regulator's own documents on a failure, one source each; a provider named only as the subject of a dated event its customers suffered, `docs/LEGAL.md` §6 Q4), `bis.org`, `esma.europa.eu`, `fca.org.uk`; for the tax-rule changes (`docs/EDUCATION.md` §9 row k), `diariodarepublica.pt`, `recht.bund.de`, `normattiva.it`, `ejustice.just.fgov.be`, `gov.uk`, `revenue.ie`, `oireachtas.ie` |
+| Education facts | `mempool.space`, `blockchain.com`, `bitstamp.net`, `support.kraken.com`, `api.coingecko.com`, `coinmarketcap.com`, `bitcoinity.org` (the Mt. Gox daily export, the only series for the 2011 high), `alternative.me`, `coinglass.com`, `cftc.gov` and `mtgox.com` (the company's and the regulator's own documents on a failure, one source each; a provider named only as the subject of a dated event its customers suffered, `docs/LEGAL.md` §6 Q4), `bis.org`, `esma.europa.eu`, `fca.org.uk`; for the tax-rule changes (`docs/EDUCATION.md` §9 row k), `diariodarepublica.pt`, `recht.bund.de`, `normattiva.it`, `ejustice.just.fgov.be`, `gov.uk`, `revenue.ie`, `oireachtas.ie` |
 
 A bill, a case or a draft appears in a `docs/JURISDICTIONS.md` §7 row or a research row only beside
 the source that reported it, named inline with its date (for instance "named by Freshfields,
@@ -301,10 +301,9 @@ Dutch 2027 and 2028 decisions, Spain's post-election bills, Portugal's OE2027 an
 the verification queues left by the research of 2026-10-16 (unread primary PDFs, law numbers to
 confirm, penalty figures to quote).
 
-The templates' ETH rows for the 2021–22 fall cite Bitstamp, while `packages/content/cycles/drawdowns.json`
-cites Coinbase for the same fall. Until the session PR of #577 merges, no review settles that: the
-review reads no Coinbase row (§7), and that PR moves the cycles row onto the templates' Bitstamp
-row.
+The ETH row for the 2021–22 fall in `packages/content/cycles/drawdowns.json` stands on the templates'
+Bitstamp row for it, the same request, so the review reads one series for that fall (since the
+session PR of #577, 2026-11-27).
 
 ## 7. Education facts
 
@@ -318,27 +317,35 @@ content test fails when a module cites a key that does not exist or whose `lastR
 than twelve months; the owner's manual review (§3) re-reads the sources and proposes updates.
 Templates carry `lastReviewed` too (the Cycle plan's dates age). The chart rows of the risk module
 and the Red day page live in `packages/content/cycles/drawdowns.json`. `docs/EDUCATION.md` §9 a and b
-quote the same falls to one decimal, each on the series it names; the file rounds them to the
+quote the same falls to one decimal, each on the series it names (fact b's two Bitstamp clauses,
+ETH 2021 to 2022 and LINK 2021 to 2023, quote their rows' whole percent); the file rounds them to the
 nearest whole percent (96.923 % is 97, never 96), and a template's own `drawdowns` copy of a row
 holds the same high, low and fall, tied only by `packages/content/src/cycles.test.ts`. A fall runs to the lowest low before the coin regains its high; a coin that has not regained it, as LINK on 2 Nov 2026,
 is read again at every review, because its low can still move.
 The review fetches no request on a Coinbase or Kraken host and computes no window for one:
 Coinbase's market-data terms bar an agent session from its data (their §3.E), and Kraken's closes
 are read from a private store (`docs/ADR/0036-market-data-providers.md`, the Readings of
-2026-11-27). Until the session PR of #577 merges, three facts cite Coinbase Exchange's daily
-candles (`b.alt-drawdowns`, `o.dca-windows-eth` and `p.simulator-examples-eth`, each by the one
-request `packages/content/src/fact-windows.test.ts` holds), as do the cycles file's ETH rows and
-the SOL rows of the cycles file and the templates, and the review changes none of them: each
-takes the note `not fetched, left to the session PR of #577`, since that PR re-sources or removes
-each figure (ETH 2018 and SOL from Kraken's daily closes, the ETH 2021–22 row onto the templates'
-Bitstamp row, §6).
+2026-11-27). No fact, cycles row or template row cites Coinbase: the session PR of #577
+(2026-11-27) re-sourced ETH 2018, SOL and the ETH facts (`b.alt-drawdowns`, `o.dca-windows-eth`,
+`p.simulator-examples-eth`) from Kraken's daily closes without a price, and put the cycles file's
+ETH 2021–22 row on the templates' Bitstamp row (§6). `packages/content/src/cycles.test.ts` fails on
+a Coinbase host or publisher in any of them, and on a Kraken row or fact that cites anything but
+the archive article below or a Kraken row not on closes (`basis: 'close'`).
 An item that cites Kraken takes `not fetched, recompute for the owner (docs/CONTENT-OPS.md §7)`, and
 the owner recomputes it by the method below (§8 step 4; the skill's §4 step 1).
 
-A fall from Kraken's daily closes takes the highest close within 45 days of the row's high date and
-the lowest close after it, before the first close at or above that high; fall = 1 − low ÷ high,
-which a fact quotes to one decimal and a row rounds to the nearest whole percent (96.923 % is 97,
-never 96). A Kraken figure cites Kraken's OHLCVT archive article, support article 360047124832
+A Kraken figure reads Kraken's daily closes on the USD pair, the series every row and fact names
+(ETH/USD, SOL/USD). A fall's high is the highest close from 45 days before to 45 days after the
+row's `high` date (calendar days, both ends included; a day without a close is skipped, since
+Kraken's archive leaves out a day without trades, `tools/data/backfill.md`). Its low is the lowest
+close after the high's day, up to the day before the first close at or above the high, or up to the
+latest close for a coin that has not regained it. The row's and the fact's dates are those two
+closes' days. Fall = 1 − low ÷ high, rounded half up from the exact decimal: a fact to one decimal
+and a row to the nearest whole percent (96.923 % is 97, never 96). Fact b's line at a dated close
+gives 1 − that day's close ÷ the coin's highest close in the calendar year the line names (UTC
+days), rounded half up to the nearest whole percent; `o.dca-windows-eth` and
+`p.simulator-examples-eth` are computed by `docs/EDUCATION.md` §8's method on the same closes. A
+Kraken figure cites Kraken's OHLCVT archive article, support article 360047124832
 (`https://support.kraken.com/articles/360047124832`, `tools/data/backfill.md` step 1); a day after
 2026-09-30 is checked at Kraken's public OHLC endpoint (`interval=1440`, its latest 720 days) until
 the archive's next quarterly file is published. The private store is never cited.
@@ -418,10 +425,10 @@ the archive's next quarterly file is published. The private store is never cited
    gap, else in a pull request of your own. A chart row note
    that ends `keeps its series, unregained` (a coin of `UNREGAINED_KEYS`) asks no data change: record
    its reading in the log (step 5) and leave the row, since `packages/content/src/cycles.test.ts`
-   reads that coin's low window, from its low to the row's `accessed`, only from a Bitstamp or
-   Coinbase request, and a review moves no row to Coinbase (§7). A
-   `not fetched, left to the session PR of #577` note asks nothing: that pull request re-sources
-   the item (§7), and its file's review stays partial, so its `lastReviewed` stays. A
+   reads that coin's low window, from its low to the row's `accessed`, only from a Bitstamp
+   request, and a review moves no row to Coinbase or Kraken (§7). The skill's
+   `not fetched, left to the session PR of #577` note applies to no item since that pull request
+   re-sourced each Coinbase item (§7). A
    `not fetched, recompute for the owner (docs/CONTENT-OPS.md §7)` note asks you to recompute the
    item from Kraken's daily closes in the private store's clone (`tools/data/backfill.md`) by §7's
    method before you set its file's `lastReviewed`: a figure that matches counts as that source
@@ -441,19 +448,15 @@ the archive's next quarterly file is published. The private store is never cited
    merged review changed, and removes each updated fact's `unlogged` entry (step 4), since the facts
    test fails while one stays. When a row moved to a publisher fact b's opening did not name, the
    review added it there in the order the clauses first name each publisher, with a serial comma
-   from three on (`Coinbase Exchange, Bitstamp, and CoinMarketCap`), and removed a publisher no
-   clause names any more (decided 2026-11-18); §9 row b takes that opening as written. Until the
-   session PR of #577 merges, no review moves the cycles file's ETH row for the 2021–22 fall (§7);
-   that PR moves it to Bitstamp with the places that still describe its old series: §6's paragraph
-   on the templates' ETH rows and the cycles file, and the comment above `DATED` in
-   `packages/content/src/fact-windows.test.ts`, which calls fact b's window its cycles row's. The
+   from three on (`Kraken, Bitstamp, and CoinMarketCap`), and removed a publisher no
+   clause names any more (decided 2026-11-18); §9 row b takes that opening as written. The
    log PR also writes each `unloggedFalls` entry's `now` into `FALLS` in
    `packages/content/src/cycles.test.ts` in place of its literal and removes the entry, since that
    test's stale check fails on an entry whose literal reads `now` or is gone. When `now` moves a
    row's high, it also writes the new `<coin> <high>` in place of the old one in that test's
    `UNREGAINED_KEYS`, which reads the old key through the entry only while it stays (its check
    names a key no `FALLS` literal holds). A changed publisher needs no such edit, since the test
-   reads its Coinbase rows from the held falls, `FALLS` read through any entry. A review moves no
+   reads each row's publisher from the data and from `FALLS` read through any entry. A review moves no
    row to Coinbase or Kraken (§7); a row of a coin of `UNREGAINED_KEYS` that a review would move to
    another publisher stays, with a `chart row for the owner:` note that ends
    `keeps its series, unregained`, whose reading the log records (step 4). The log PR writes

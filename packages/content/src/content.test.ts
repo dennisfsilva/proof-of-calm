@@ -81,7 +81,7 @@ describe('the content files (docs/CONTENT-OPS.md §1)', () => {
       ].map(([url]) => ({ path, url })),
     );
     expect(new Set(ohlc.map(({ path }) => path.split('/')[0]))).toEqual(new Set(['cycles', 'facts', 'templates']));
-    expect(ohlc).toHaveLength(22);
+    expect(ohlc).toHaveLength(23);
     const limit = (source: string) => Number(new URL(source).searchParams.get('limit'));
     const unanswered = ohlc.filter(
       ({ url }) => !(Number.isInteger(limit(url)) && limit(url) >= 1 && limit(url) <= 1000),

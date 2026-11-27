@@ -64,11 +64,12 @@ describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
     expect(data.learn.falls.length).toBeGreaterThan(0);
     expect(rows).toHaveLength(data.learn.falls.length);
     // The cycles file (packages/content/cycles/drawdowns.json): Bitcoin's first fall, Solana's, and Chainlink's last.
+    // Its rows mix intraday falls and falls between Kraken's closes, so each row ends with its publisher (Source).
     for (const row of [
-      /^BTC[-−]94 ?%8 Jun 201122 Nov 2011$/,
-      /^ETH[-−]94 ?%13 Jan 201814 Dec 2018$/,
-      /^SOL[-−]97 ?%6 Nov 202129 Dec 2022$/,
-      /^LINK[-−]91 ?%10 May 202110 Jun 2023$/,
+      /^BTC[-−]94 ?%8 Jun 201122 Nov 2011Bitcoinity \(Mt\. Gox\) and CoinMarketCap$/,
+      /^ETH[-−]94 ?%13 Jan 201815 Dec 2018Kraken$/,
+      /^SOL[-−]96 ?%6 Nov 202129 Dec 2022Kraken$/,
+      /^LINK[-−]91 ?%10 May 202110 Jun 2023Bitstamp$/,
     ]) {
       expect(
         rows.some((candidate) => row.test(candidate)),
@@ -80,7 +81,9 @@ describe('the Risk disclosure (docs/LEGAL.md §5)', () => {
   it('sets the source line and past-performance line right after the falls', () => {
     const falls = section(main('risk'), 'falls');
     const after = text(falls.slice(falls.indexOf('</table>')));
-    expect(after).toMatch(/^ ?.*intraday highs and lows in US dollars, 8 Jun 2011 to 10 Jun 2023; the falls are/);
+    expect(after).toMatch(
+      /^ ?.*intraday highs and lows, and Kraken daily closes, in US dollars, 8 Jun 2011 to 10 Jun 2023; the falls are/,
+    );
     expect(after.trim().endsWith(learnMessages.module.pastPerformance)).toBe(true);
   });
 
