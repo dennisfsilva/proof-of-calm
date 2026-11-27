@@ -67,7 +67,7 @@
     "addCoin": "Add {coin}",
     "limit": "A plan holds at most {max} coins.",
     "issue": {
-      "split-sum": "Make the shares add up to 100 %.",
+      "split-sum": "Make the shares add up to 100 %.",
       "split-precision": "Use at most 4 decimal places."
     }
   },

@@ -72,9 +72,9 @@
         "invalid-fee": "Geben Sie eine Gebühr unter 100 % mit höchstens 4 Nachkommastellen ein.",
         "invalid-buy-day": "Wählen Sie einen Kauftag von 1 bis 28.",
         "invalid-dates": "Wählen Sie ein Ende am oder nach dem Start.",
-        "history-missing": "Für {coin} gibt es noch keine Referenzschlusskurse.",
-        "history-starts-later": "Die Referenzschlusskurse für {coin} beginnen am {date}. Wählen Sie einen Start an diesem Tag oder später.",
-        "history-ends-earlier": "Die Referenzschlusskurse für {coin} enden am {date}. Wählen Sie ein Ende an diesem Tag oder früher.",
+        "history-missing": "Für {coin} gibt es noch keine Referenzschlusskurse. Setzen Sie den Anteil auf 0, um die anderen Coins zu simulieren.",
+        "history-starts-later": "Die Referenzschlusskurse für {coin} beginnen am {date}. Wählen Sie einen Start am oder nach diesem Tag.",
+        "history-ends-earlier": "Die Referenzschlusskurse für {coin} enden am {date}. Wählen Sie ein Ende am oder vor diesem Tag.",
         "date-required": "Wählen Sie ein vollständiges Datum: Tag, Monat und Jahr."
       }
     },
