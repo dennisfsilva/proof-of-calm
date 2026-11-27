@@ -219,6 +219,7 @@
           "other-currency": "The simulator works in euros for now; type the amount in euros.",
           "no-monthly": "Your plan has no monthly amount; type one."
         },
+        "loading": "The reference closes for {coin} are still loading.",
         "start": "Start",
         "end": "End",
         "fee": "Fee (%)",

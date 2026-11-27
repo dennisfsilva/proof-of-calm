@@ -158,9 +158,11 @@ export function SimulatorForm({ closes, window, plan, onCoins, onRun, onEdit }: 
   };
   const shares = readShares(draft.split, numberInput);
   const notes = Object.fromEntries(
-    draft.split.coins.flatMap((coin) =>
-      closes[coin.id] === 'none' ? [[coin.id, t('errors.history-missing', { coin: coin.name })]] : [],
-    ),
+    draft.split.coins.flatMap((coin) => {
+      const range = closes[coin.id];
+      const key = range === undefined ? 'loading' : range === 'none' ? 'errors.history-missing' : null;
+      return key === null ? [] : [[coin.id, t(key, { coin: coin.name })]];
+    }),
   );
 
   const text = (field: 'amount' | 'fee', label: string, hint: string | null) => {
@@ -194,13 +196,9 @@ export function SimulatorForm({ closes, window, plan, onCoins, onRun, onEdit }: 
     );
   };
 
+  const percent = (share: Percent) => f.percent(share, { decimals: decimalPlaces(share) });
   const split = (from: Plan) =>
-    from.coins
-      .map((coin) => {
-        const share = from.split[coin.id] ?? ('0' as Percent);
-        return `${coin.id} ${f.percent(share, { decimals: decimalPlaces(share) })}`;
-      })
-      .join(', ');
+    from.coins.map((coin) => `${coin.id} ${percent(from.split[coin.id] ?? ('0' as Percent))}`).join(', ');
 
   return (
     <form

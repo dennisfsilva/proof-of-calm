@@ -62,6 +62,18 @@ export const NoCloses: Story = {
   },
 };
 
+/** Filled from the plan while Ethereum's closes still load: its row says so, and a run is refused there. */
+export const Loading: Story = {
+  args: props({ ['BTC' as CoinId]: RANGE }),
+  play: async ({ canvas, args }) => {
+    await userEvent.click(canvas.getByRole('button', { name: 'Fill in from your plan' }));
+    await expect(canvas.getByText('The reference closes for Ethereum are still loading.')).toBeVisible();
+    await userEvent.click(canvas.getByRole('button', { name: 'Run the simulation' }));
+    await expect(args.onRun).not.toHaveBeenCalled();
+    await expect(canvas.getByRole('textbox', { name: 'Ethereum share (%)' })).toHaveFocus();
+  },
+};
+
 /** Filled from the plan with every coin's closes: the run hands its inputs over. */
 export const Filled: Story = {
   args: props({ ['BTC' as CoinId]: RANGE, ['ETH' as CoinId]: RANGE }),

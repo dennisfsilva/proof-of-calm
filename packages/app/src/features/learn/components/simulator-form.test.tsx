@@ -219,6 +219,22 @@ describe('SimulatorForm', () => {
     expect(document.activeElement).toBe(share('Ethereum'));
   });
 
+  it('notes a coin whose closes still load, focuses its row on a refused run, and drops the note on arrival', async () => {
+    const { props, rerender } = mount({ closes: { [id('BTC')]: RANGE } });
+    fill();
+    run();
+    await act(async () => undefined);
+    expect(props.onRun).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(share('Ethereum'));
+    const loading = 'The reference closes for Ethereum are still loading.';
+    expect(share('Ethereum').getAttribute('aria-describedby')).toContain(screen.getByText(loading).id);
+    rerender({ closes: { [id('BTC')]: RANGE, [id('ETH')]: 'none' } });
+    expect(screen.queryByText(loading)).toBeNull();
+    expect(screen.getByText(/^No reference closes for Ethereum yet\./)).toBeDefined();
+    rerender({ closes: CLOSES });
+    expect(screen.queryByText(/reference closes for Ethereum/)).toBeNull();
+  });
+
   it('focuses the first Add button when no coin is chosen', async () => {
     mount();
     run();
