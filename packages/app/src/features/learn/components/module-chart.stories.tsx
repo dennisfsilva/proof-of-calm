@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { expect } from 'storybook/test';
+import { expect, waitFor } from 'storybook/test';
 import { useFormatters } from '../../../lib/services';
 import type { PastFall } from '../../../lib/services/red-day-types';
 import { DrawdownBars, ModuleChart } from './module-chart';
@@ -55,5 +55,20 @@ export const MixedBases: Story = {
       .map((row) => row.lastElementChild?.textContent);
     await expect(cells).toEqual(['Bitstamp', 'Kraken']);
     await expect(canvas.getByText(/intraday highs and lows, and Kraken daily closes/)).toBeVisible();
+  },
+};
+
+// The narrowest phone: the table stacks, and each publisher shows the column's name above it (docs/DESIGN.md §8).
+export const MixedBasesStacked: Story = {
+  ...MixedBases,
+  globals: { viewport: { value: 'android-small', isRotated: false } },
+  play: async ({ canvas, canvasElement, userEvent }) => {
+    await userEvent.click(canvas.getByText('Show the falls as a table'));
+    const table = canvasElement.querySelector('details table');
+    await waitFor(() => expect(table).toHaveAttribute('data-stacked'));
+    const sources = [...canvasElement.querySelectorAll('details tbody tr')].map((row) => row.lastElementChild);
+    await expect(sources.map((cell) => cell?.textContent)).toEqual(['Bitstamp', 'Kraken']);
+    for (const cell of sources)
+      await expect(cell === null ? 'missing' : getComputedStyle(cell, '::before').content).toMatch(/^"Source"/);
   },
 };

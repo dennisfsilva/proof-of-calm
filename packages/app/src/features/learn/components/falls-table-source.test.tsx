@@ -86,4 +86,23 @@ describe('DrawdownBars: the Source column', () => {
     expect(headers.map(text).at(-1)).toBe(source);
     expect(body.map((row) => row.at(-1))).toEqual(['Bitstamp', 'Kraken', compound]);
   });
+
+  // Stacked, each Source cell shows the column's name above the publisher, from an attribute the stylesheet reads
+  // (docs/DESIGN.md §8), so the cell's text stays the publisher alone.
+  it.each([
+    ['en', 'Source'],
+    ['pt-PT', 'Fonte'],
+    ['de', 'Quelle'],
+  ] as const)('a mixed set labels each Source cell in %s, and only those', (language, source) => {
+    const { container } = table(falls(BITSTAMP, KRAKEN), language);
+    const labelled = [...container.querySelectorAll('[data-label]')];
+    expect(labelled.map((cell) => cell.getAttribute('data-label'))).toEqual([source, source]);
+    expect(labelled.map((cell) => cell.textContent)).toEqual(['Bitstamp', 'Kraken']);
+    expect(labelled.every((cell) => cell.tagName === 'TD' && cell === cell.parentElement?.lastElementChild)).toBe(true);
+  });
+
+  it('rows of one basis label no cell', () => {
+    const { container } = table(falls(BITSTAMP, BITCOINITY));
+    expect(container.querySelector('[data-label]')).toBeNull();
+  });
 });

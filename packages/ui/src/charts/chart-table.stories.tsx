@@ -108,6 +108,52 @@ export const InsideATableCell: Story = {
   },
 };
 
+// A labelled column's cells show its name above the value while the rows stack, as generated text with empty alt
+// text, so the cells' text and what assistive technology reads stay the same (docs/DESIGN.md §8).
+const labelled = {
+  summary: 'Show the dates as a table',
+  columns,
+  rows: [
+    ['Buying', date('28 de fevereiro de 2026'), date('28 de fevereiro de 2027')],
+    ['Holding', date('28 de fevereiro de 2027'), date('20 de setembro de 2028')],
+  ],
+  labelledColumns: [2],
+};
+
+/** The `::before` content of the first body row's Phase and To cells. */
+function labels(table: HTMLTableElement) {
+  const row = table.querySelector('tbody tr');
+  return [row?.children[0], row?.children[2]].map((cell) =>
+    cell === undefined ? 'missing' : getComputedStyle(cell, '::before').content,
+  );
+}
+
+export const LabelledStacked: Story = {
+  args: labelled,
+  globals: { viewport: { value: 'android-small', isRotated: false } },
+  play: async ({ canvas, canvasElement }) => {
+    const table = await open(canvas, canvasElement);
+    await waitFor(() => expect(table).toHaveAttribute('data-stacked'));
+    const [phase, to] = labels(table);
+    await expect(to).toMatch(/^"To"/);
+    await expect(phase).toBe('none');
+    await expect(table.querySelector('tbody td:last-child')?.textContent).toBe(date('28 de fevereiro de 2027'));
+  },
+};
+
+export const LabelledSideBySide: Story = {
+  args: labelled,
+  globals: { viewport: { value: 'desktop', isRotated: false } },
+  play: async ({ canvas, canvasElement }) => {
+    await userEvent.click(canvas.getByText('Show the dates as a table'));
+    const table = canvasElement.querySelector('table');
+    if (table === null) throw new Error('the story renders the table view');
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    await expect(table).not.toHaveAttribute('data-stacked');
+    await expect(labels(table)).toEqual(['none', 'none']);
+  },
+};
+
 /** Opens the table view in a 328 px column and returns its table. */
 async function open(
   canvas: Parameters<NonNullable<Story['play']>>[0]['canvas'],
