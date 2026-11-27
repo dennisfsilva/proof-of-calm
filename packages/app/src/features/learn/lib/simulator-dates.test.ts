@@ -40,18 +40,14 @@ describe('defaultWindow', () => {
     expect(from('2026-05-31')?.start).toBe('2027-05-01');
   });
 
-  it.each([
-    '2026-01-28',
-    '2026-03-29',
-    '2026-03-31',
-    '2027-03-29',
-    '2027-03-31',
-    '2026-05-31',
-  ])('takes the earliest start whose table of 12 rows stays within closes from %s', (first) => {
-    const start = from(first)?.start as CalendarDate;
-    expect(addMonthsClamped(start, -11) >= first).toBe(true);
-    expect(addMonthsClamped(addDays(start, -1), -11) < first).toBe(true);
-  });
+  it.each(['2026-01-28', '2026-03-29', '2026-03-31', '2027-03-29', '2027-03-31', '2026-05-31'])(
+    'takes the earliest start whose table of 12 rows stays within closes from %s',
+    (first) => {
+      const start = from(first)?.start as CalendarDate;
+      expect(addMonthsClamped(start, -11) >= first).toBe(true);
+      expect(addMonthsClamped(addDays(start, -1), -11) < first).toBe(true);
+    },
+  );
 
   it.each([
     [-1, '2026-03-31'],
