@@ -66,7 +66,11 @@ describe('publisherProblems', () => {
     ['three names', 'A and B and C', MORE],
     ['a join inside parentheses that makes three names', 'Foo (Bar and Baz) and CoinMarketCap', MORE],
     ['a join inside parentheses', 'Foo (Bar and Baz)', named('Foo (Bar', UNCLOSED)],
-    ['a join inside square brackets', 'CoinMarketCap [Bitstamp and Kraken]', named('CoinMarketCap [Bitstamp', SIGN('['))],
+    [
+      'a join inside square brackets',
+      'CoinMarketCap [Bitstamp and Kraken]',
+      named('CoinMarketCap [Bitstamp', SIGN('[')),
+    ],
     ['a join inside curly brackets', 'Foo {Bar and Baz}', named('Foo {Bar', SIGN('{'))],
     ['a join inside quotes', 'Kaiko "Bitstamp and Kraken"', named('Kaiko "Bitstamp', SIGN('"'))],
     ['a join inside typographic quotes', 'Kaiko “Bitstamp and Kraken”', named('Kaiko “Bitstamp', SIGN('“'))],
@@ -79,9 +83,17 @@ describe('publisherProblems', () => {
     ['brackets before a second "and"', 'Foo [Bar and and Baz]', named('Foo [Bar', SIGN('['))],
     ['a space at an edge before a second "and"', 'A and and B ', named('and B ', EDGE)],
     // Taken by the deny-list, which balanced brackets and quotes; the grammar takes neither.
-    ['two names, one with its series in square brackets', 'CoinMarketCap [Bitstamp] and Kraken', named('CoinMarketCap [Bitstamp]', SIGN('['))],
+    [
+      'two names, one with its series in square brackets',
+      'CoinMarketCap [Bitstamp] and Kraken',
+      named('CoinMarketCap [Bitstamp]', SIGN('[')),
+    ],
     ['two names, one with a quoted series', 'Kaiko "Index" and Kraken', named('Kaiko "Index"', SIGN('"'))],
-    ['two names, one with a series in typographic quotes', 'Kaiko “Index” and Kraken', named('Kaiko “Index”', SIGN('“'))],
+    [
+      'two names, one with a series in typographic quotes',
+      'Kaiko “Index” and Kraken',
+      named('Kaiko “Index”', SIGN('“')),
+    ],
     // Each sign outside the grammar, in one name and in two.
     ['a comma', 'Bitstamp, Kraken', SIGN(',')],
     ['a comma in the second name', 'Bitstamp and Kraken, Pro', named('Kraken, Pro', SIGN(','))],
