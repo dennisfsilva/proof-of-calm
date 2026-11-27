@@ -84,7 +84,8 @@ const reviewedOn = (snapshot: Snapshot, day: string): Snapshot => ({
   prefs: { ...snapshot.prefs, reviewedAt: `${day}T10:00:00Z` as Instant },
 });
 
-describe('TodayScreen', () => {
+// Load (2026-11-27): worst 3,377 ms in three forced pnpm check runs; seen past 5 s on a busier one, so 3 × 5 s.
+describe('TodayScreen', { timeout: 15_000 }, () => {
   // Entries a newer build wrote (ADR-0019 Readings, "Row shape"): the line stands under the heading, where a tab
   // navigation puts the focus, then the set-aside line, then the action card (docs/DESIGN.md §8).
   it('puts the newer-entries line after the heading', async () => {
