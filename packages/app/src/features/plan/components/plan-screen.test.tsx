@@ -45,7 +45,8 @@ function view(services: Services) {
   );
 }
 
-describe('PlanScreen', () => {
+// Load (2026-11-27): worst 1,194 ms in six forced pnpm check runs; seen past 5 s on busier ones, so 3 × 5 s.
+describe('PlanScreen', { timeout: 15_000 }, () => {
   it('in the buy phase: the reference, the totals, the holding line once, no sellable lines', async () => {
     await mount('buy');
     expect(screen.getByRole('heading', { level: 1, name: 'Plan' })).toBeDefined();

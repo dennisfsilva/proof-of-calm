@@ -87,7 +87,8 @@ const PRICES_AS_OF: Record<FixturePhase, string> = {
   sell: 'Prices as of 10:00, 15 Mar 2030 · Price data by CoinGecko',
 };
 
-describe('PortfolioScreen', () => {
+// Load (2026-11-27): worst 3,437 ms in six forced pnpm check runs; seen past 5 s on busier ones, so 3 × 5 s.
+describe('PortfolioScreen', { timeout: 15_000 }, () => {
   for (const phase of Object.keys(FIXTURE_DATES) as FixturePhase[]) {
     it(`shows the value and P/L of the fixture plan on ${FIXTURE_DATES[phase]}, fees not in P/L`, async () => {
       await renderScreen(fixtureSnapshot(), phase);
@@ -336,10 +337,11 @@ describe('PortfolioScreen', () => {
     // render through an import() that under Vitest is a round trip to the main process even for a loaded module
     // (lib/services/testing-modules.ts); under the whole suite's load the press waited on both and once outlasted its
     // wait (#520). One press before the tests resolves them, so the test's findBy waits on renders only.
+    // Load (2026-11-27): this hook took 6,739 ms at worst in six forced pnpm check runs, over 5 s in two.
     beforeAll(async () => {
       await renderScreen(fixtureSnapshot(), 'buy');
       fireEvent.click(screen.getByRole('button', { name: WHY }));
-      await screen.findByRole('dialog', { name: IDEA }, { timeout: 5_000 });
+      await screen.findByRole('dialog', { name: IDEA }, { timeout: 25_000 });
       cleanup();
     }, 30_000);
     /**

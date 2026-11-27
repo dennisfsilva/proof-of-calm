@@ -83,7 +83,10 @@ const cardNames = () =>
     .slice(0, -1)
     .map((title) => title.textContent ?? '');
 
-describe('OnboardingScreen: the template texts in the UI language (ADR-0057)', () => {
+// Load (2026-11-27): worst 1,116 ms in six forced pnpm check runs; seen past 5 s on busier ones, so 3 × 5 s.
+const LOADED = { timeout: 15_000 };
+
+describe('OnboardingScreen: the template texts in the UI language (ADR-0057)', LOADED, () => {
   it('in English, lists the templates on the first render after the country, with no load', async () => {
     await mount('en');
     await confirm('Continue with Portugal');
@@ -119,7 +122,7 @@ describe('OnboardingScreen: the template texts in the UI language (ADR-0057)', (
   });
 });
 
-describe('OnboardingScreen: a draft reopened on the summary in pt-PT (ADR-0057)', () => {
+describe('OnboardingScreen: a draft reopened on the summary in pt-PT (ADR-0057)', LOADED, () => {
   const TWO_COINS = 'Two coins, no sell window';
   const click = (name: string) => act(() => fireEvent.click(screen.getByRole('button', { name })));
   const type = (label: RegExp, value: string) =>
@@ -196,7 +199,7 @@ describe('OnboardingScreen: a draft reopened on the summary in pt-PT (ADR-0057)'
   });
 });
 
-describe("OnboardingScreen: the early window's conditions in pt-PT (ADR-0057)", () => {
+describe("OnboardingScreen: the early window's conditions in pt-PT (ADR-0057)", LOADED, () => {
   /** The pt-PT flow to the Cycle plan's numbers in Germany, where its early window shows, under these profiles. */
   async function earlyWindowIn(profiles: Awaited<ReturnType<typeof loadProfiles>>) {
     vi.mocked(loadProfiles).mockResolvedValueOnce(profiles);
@@ -234,7 +237,7 @@ describe("OnboardingScreen: the early window's conditions in pt-PT (ADR-0057)", 
   });
 });
 
-describe("OnboardingScreen in German: Germany's German profile (ADR-0057, Corrections of 2026-11-25)", () => {
+describe("OnboardingScreen in German: Germany's German profile (ADR-0057, Corrections of 2026-11-25)", LOADED, () => {
   const click = (name: string) => act(() => fireEvent.click(screen.getByRole('button', { name })));
   const type = (label: RegExp, value: string) =>
     act(() => fireEvent.change(screen.getByLabelText(label), { target: { value } }));

@@ -87,8 +87,10 @@ const mount = (props?: Partial<ComponentProps<typeof ModuleSheet>>) => render(tr
 // (lib/services/testing-modules.ts). The preload above spares the transform, not that round trip, and under the whole
 // suite's load it outlasted the 1 s a findBy waits: the first test to show the tax module found no dialog (#520). One
 // render of each sheet before the tests resolves them, so a test's findBy waits on React's renders only.
-const PRIMING = { timeout: 5_000 };
+// Load (2026-11-27): worst 1,823 ms a priming hook, 491 ms a test, in six forced pnpm check runs; tests get 3 × 5 s.
+const PRIMING = { timeout: 10_000 };
 const PRIMING_HOOK = 30_000;
+const LOADED = { timeout: 15_000 };
 beforeAll(async () => {
   for (const slug of ['start-here', 'when-the-market-drops', 'risk-honestly'] as const) {
     mount({ slug });
@@ -97,7 +99,7 @@ beforeAll(async () => {
   }
 }, PRIMING_HOOK);
 
-describe('ModuleSheet', () => {
+describe('ModuleSheet', LOADED, () => {
   it("the sheet's title is the module's idea, with the last-reviewed line under it", async () => {
     mount();
     const dialog = await screen.findByRole('dialog', { name: IDEA });
@@ -182,7 +184,7 @@ class Boundary extends Component<{ children: ReactNode }, { failed: boolean }> {
 
 // The tax module leads with the card of the rules the plan's country runs on (docs/EDUCATION.md §4); the sheet shows
 // the card and no list of countries.
-describe('ModuleSheet: the tax module', () => {
+describe('ModuleSheet: the tax module', LOADED, () => {
   type Options = Parameters<typeof createTestServices>[0];
   const sheetAt = async (
     country: string | null,
@@ -309,7 +311,7 @@ describe('ModuleSheet: the tax module', () => {
 // no plan, German's, `−94 %` with a no-break space, as the route shows it (module-chart.test.tsx). The module's text
 // beside it takes the joiner of the same formatter, as a module with a chart does (`moduleJoiner`), so its written
 // `75 %` reads `75%` under the Portuguese plan. The language is passed, never read from the device.
-describe('ModuleSheet: a chart under a plan', () => {
+describe('ModuleSheet: a chart under a plan', LOADED, () => {
   it.each([
     ['a plan in Portugal', 'PT', ''],
     ['no plan', null, ' '],
