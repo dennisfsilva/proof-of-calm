@@ -8,7 +8,7 @@ import { type CoinSplitValue, splitValueOf } from './split';
 // date: the type holds none, so a fill cannot set one. It reads the plan and writes nothing.
 
 /** The fill's line: the plan pays in another currency than the closes', or has no monthly amount. */
-export type PlanFillLine = 'other-currency' | 'no-monthly';
+type PlanFillLine = 'other-currency' | 'no-monthly';
 
 export type PlanFill = {
   /** The plan's coins in its order, each share written in the formatting locale. */

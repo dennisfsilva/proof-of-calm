@@ -41,7 +41,7 @@ export type SimulatorFields = {
 
 export type SimulatorInputs = Omit<SimulationInput, 'histories'>;
 
-export type FieldErrorCode = SplitIssue['code'] | NumberInputError['code'] | SimulationError['code'] | 'date-required';
+type FieldErrorCode = SplitIssue['code'] | NumberInputError['code'] | SimulationError['code'] | 'date-required';
 
 export type FieldError = {
   readonly field: 'split' | 'amount' | 'buyDay' | 'start' | 'end' | 'fee';
