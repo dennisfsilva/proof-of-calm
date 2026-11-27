@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, symlinkSync } from 'node:fs';
 import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, parse } from 'node:path';
+import { dirname, join, parse } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { afterEach, beforeEach, expect, it } from 'vitest';
 
@@ -212,13 +212,15 @@ it.runIf(process.platform === 'win32')(
   },
 );
 
-// A folder named like the repository with a suffix, beside it: the guard lets it through, so the next
+// A folder named like the repository with a suffix, beside its main working tree (a linked worktree may
+// sit inside that tree, where the guard refuses): the guard lets it through, so the next
 // check speaks. The suffix is one no clone could carry (a store's clone sits beside the repository as
 // <name>-closes), the folder must be absent before the run, and --dry writes nothing even if it
 // appeared in between, so the test can never merge into a real folder.
 it('lets a store beside the repository past the guard', { timeout: 30_000 }, async () => {
   const full = await archive('full', { XBTEUR: daily([[DAY[0], CLOSES[0]]]) });
-  const beside = `${root.replace(/[\\/]+$/, '')}-backfill-guard-probe`;
+  const common = spawnSync('git', ['rev-parse', '--path-format=absolute', '--git-common-dir'], { cwd: root });
+  const beside = `${dirname(common.stdout.toString().trim())}-backfill-guard-probe`;
   expect(existsSync(beside), `${beside} exists; remove it before running this test`).toBe(false);
   const result = run('--source', 'kraken-bulk', '--dir', full, '--store', beside, '--dry');
   expect(result.status).toBe(1);
