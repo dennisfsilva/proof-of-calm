@@ -425,10 +425,10 @@ the archive's next quarterly file is published. The private store is never cited
    gap, else in a pull request of your own. A chart row note
    that ends `keeps its series, unregained` (a coin of `UNREGAINED_KEYS`) asks no data change: record
    its reading in the log (step 5) and leave the row, since `packages/content/src/cycles.test.ts`
-   reads that coin's low window, from its low to the row's `accessed`, only from a Bitstamp or
-   Coinbase request, and a review moves no row to Coinbase (§7). A
-   `not fetched, left to the session PR of #577` note asks nothing: that pull request re-sources
-   the item (§7), and its file's review stays partial, so its `lastReviewed` stays. A
+   reads that coin's low window, from its low to the row's `accessed`, only from a Bitstamp
+   request, and a review moves no row to Coinbase or Kraken (§7). The skill's
+   `not fetched, left to the session PR of #577` note applies to no item since that pull request
+   re-sourced each Coinbase item (§7). A
    `not fetched, recompute for the owner (docs/CONTENT-OPS.md §7)` note asks you to recompute the
    item from Kraken's daily closes in the private store's clone (`tools/data/backfill.md`) by §7's
    method before you set its file's `lastReviewed`: a figure that matches counts as that source
@@ -448,19 +448,15 @@ the archive's next quarterly file is published. The private store is never cited
    merged review changed, and removes each updated fact's `unlogged` entry (step 4), since the facts
    test fails while one stays. When a row moved to a publisher fact b's opening did not name, the
    review added it there in the order the clauses first name each publisher, with a serial comma
-   from three on (`Coinbase Exchange, Bitstamp, and CoinMarketCap`), and removed a publisher no
-   clause names any more (decided 2026-11-18); §9 row b takes that opening as written. Until the
-   session PR of #577 merges, no review moves the cycles file's ETH row for the 2021–22 fall (§7);
-   that PR moves it to Bitstamp with the places that still describe its old series: §6's paragraph
-   on the templates' ETH rows and the cycles file, and the comment above `DATED` in
-   `packages/content/src/fact-windows.test.ts`, which calls fact b's window its cycles row's. The
+   from three on (`Kraken, Bitstamp, and CoinMarketCap`), and removed a publisher no
+   clause names any more (decided 2026-11-18); §9 row b takes that opening as written. The
    log PR also writes each `unloggedFalls` entry's `now` into `FALLS` in
    `packages/content/src/cycles.test.ts` in place of its literal and removes the entry, since that
    test's stale check fails on an entry whose literal reads `now` or is gone. When `now` moves a
    row's high, it also writes the new `<coin> <high>` in place of the old one in that test's
    `UNREGAINED_KEYS`, which reads the old key through the entry only while it stays (its check
    names a key no `FALLS` literal holds). A changed publisher needs no such edit, since the test
-   reads its Coinbase rows from the held falls, `FALLS` read through any entry. A review moves no
+   reads each row's publisher from the data and from `FALLS` read through any entry. A review moves no
    row to Coinbase or Kraken (§7); a row of a coin of `UNREGAINED_KEYS` that a review would move to
    another publisher stays, with a `chart row for the owner:` note that ends
    `keeps its series, unregained`, whose reading the log records (step 4). The log PR writes
