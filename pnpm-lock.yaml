@@ -514,6 +514,9 @@ importers:
       '@proofofcalm/core':
         specifier: workspace:*
         version: link:../core
+      '@proofofcalm/data':
+        specifier: workspace:*
+        version: link:../data
       '@proofofcalm/ui':
         specifier: workspace:*
         version: link:../ui
