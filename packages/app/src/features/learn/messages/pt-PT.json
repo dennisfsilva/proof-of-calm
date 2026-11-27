@@ -59,6 +59,13 @@
     "note": "A nota que escreveu para si",
     "noteLine": "{date}: «{why}»"
   },
+  "simulator": {
+    "title": "Simulador",
+    "unpublished": "O histórico de preços em que o simulador se baseia ainda não está publicado.",
+    "failed": "Não foi possível carregar o histórico de preços.",
+    "dataFrom": "Dados desde {date}, o primeiro dia com fechos de duas plataformas de negociação.",
+    "credit": "Fechos de referência derivados de dados públicos da Kraken e da Bitstamp; câmbio: taxas de referência do BCE"
+  },
   "sheet": {
     "close": "Fechar"
   },
