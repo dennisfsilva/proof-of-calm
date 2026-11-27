@@ -1,4 +1,4 @@
-// The exchanges' readers of daily closes, one per exchange, each `null` until it is built (planned: M2).
+// The exchanges' readers of daily closes, one per exchange; Coinbase's stays `null` (README.md).
 // A reader takes the clock, the network and the wait from its caller, so its tests need neither.
 import type { CalendarDate } from '@proofofcalm/core';
 import type { Exchange, StoreRow } from '@proofofcalm/data';
