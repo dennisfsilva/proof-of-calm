@@ -1,6 +1,7 @@
 // Synthetic values only (ADR-0036, Reading of 2026-11-27): made-up timestamps and closes in the
 // archive's shape, never a real Kraken figure. One node start per case, as hooks.test.ts runs.
 import { spawnSync } from 'node:child_process';
+import { symlinkSync } from 'node:fs';
 import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -156,4 +157,28 @@ it('refuses a store inside this repository', { timeout: 30_000 }, async () => {
   expect(result.status).toBe(1);
   expect(result.stdout).toBe('');
   expect(result.stderr).toBe('kraken-bulk refused: --store is inside this repository\n');
+});
+
+// A junction on Windows (no admin rights needed), a directory symlink on Linux, pointing at a fresh
+// folder under the repository's gitignored node_modules, so the working tree stays clean.
+it('refuses a store reached through a link into this repository', { timeout: 60_000 }, async () => {
+  const target = await mkdtemp(join(root, 'node_modules', '.backfill-'));
+  try {
+    await mkdir(join(target, 'sub'));
+    const link = join(base, 'link');
+    symlinkSync(target, link, 'junction');
+    const full = await archive('full', { XBTEUR: daily([[DAY[0], CLOSES[0]]]) });
+    // An existing folder below the link, and one whose last parts do not exist yet.
+    for (const below of [join(link, 'sub'), join(link, 'sub', 'not', 'yet')]) {
+      const result = run('--source', 'kraken-bulk', '--dir', full, '--store', below);
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe('');
+      expect(result.stderr).toBe('kraken-bulk refused: --store is inside this repository\n');
+    }
+    expect(await readdir(join(target, 'sub'))).toEqual([]);
+  } finally {
+    // The link itself first, never followed; then the folder it pointed at.
+    await rm(join(base, 'link'), { force: true });
+    await rm(target, { recursive: true, force: true });
+  }
 });
