@@ -4,8 +4,9 @@
 // store. Every line it prints, on every path, is one of the closed set below: names, statuses and
 // whole-number counts, never a close. So that a module failing to load prints from that set too, the
 // pipeline's modules load inside the guard, after the handlers.
+import { realpathSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
-import { isAbsolute, relative, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import type { StoreRow } from '@proofofcalm/data';
@@ -57,11 +58,29 @@ function options() {
 
 const isFolder = async (path: string) => (await stat(path).catch(() => undefined))?.isDirectory() === true;
 
-// The store never lives in this repository (ADR-0036): a path inside it is refused before any read.
+// The path with every link followed (a junction, a symlink, an 8.3 short name, a subst drive): the
+// nearest existing ancestor is resolved and the parts below it that do not exist yet are appended.
+function real(path: string): string {
+  let current = resolve(path);
+  const rest: string[] = [];
+  for (;;) {
+    try {
+      return join(realpathSync.native(current), ...rest);
+    } catch {
+      const parent = dirname(current);
+      if (parent === current) return resolve(path);
+      rest.unshift(basename(current));
+      current = parent;
+    }
+  }
+}
+
+// The store never lives in this repository (ADR-0036): a path inside it, also through a link, is
+// refused before any read.
 async function checkFolders(dirs: readonly string[], store: string): Promise<void> {
   const fold = (path: string) => (process.platform === 'win32' ? path.toLowerCase() : path);
   const repository = fileURLToPath(new URL('../..', import.meta.url));
-  const inside = relative(fold(resolve(repository)), fold(resolve(store)));
+  const inside = relative(fold(real(repository)), fold(real(store)));
   if (inside !== '..' && !inside.startsWith(`..${sep}`) && !isAbsolute(inside)) {
     throw new Refusal('--store is inside this repository');
   }
