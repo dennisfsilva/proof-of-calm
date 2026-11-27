@@ -375,8 +375,10 @@ Decided:
 - The Decision's Coinbase Exchange ticker fallback is not built, like Kraken's: the last good copy
   stays the fallback.
 - A letter is needed: `docs/research/letters/coinbase.md` asks marketdata@coinbase.com for written
-  consent to each use, item by item. It waits for the owner to send it from the owner's address and
-  joins the owner's list; the answer is recorded here.
+  consent to each use, item by item, naming §2, §3.B, §3.C and §3.D, since §12 lets the terms
+  control any agreement that conflicts with them. It waits for the owner to send it from the owner's
+  address once the lessons no longer cite Coinbase (below; the tracker says when), and joins the
+  owner's list; the answer is recorded here.
 - With Coinbase off and Bitstamp's history waiting (the Reading of 2026-11-23), every day before the
   pipeline's first run has Kraken's close alone. Until Kraken's fourth yes, Bitstamp's history or
   Coinbase's consent, each coin's published series starts on the pipeline's first day with both
@@ -386,14 +388,27 @@ Decided:
   off, the line reads "Reference closes derived from Kraken and Bitstamp public data; FX: ECB
   reference rates".
 - The dated figures computed from Coinbase Exchange candles and shown to anyone are Derived Works
-  displayed outside the project: the drawdowns and monthly-purchase results in
+  displayed outside the project (§3.B): the drawdowns and monthly-purchase results in
   `packages/content/facts/education.json`, `packages/content/cycles/drawdowns.json`,
-  `packages/content/templates/accumulate.json` and `packages/content/templates/cycle-plan.json`. A
-  content branch re-sources each from Bitstamp's public candles, with Bitstamp named, where Bitstamp
-  has the days, and removes it with the copy that depends on it where none does; counsel and brand
-  read the change. The letter asks whether the figures may stay; a yes brings them back.
+  `packages/content/templates/accumulate.json` and `packages/content/templates/cycle-plan.json`. The
+  display bar already applied when they were computed, since the capture of 2025-12-05 has the same
+  §3.B. This replaces the Coinbase half of the Kraken Reading's line "The dated Bitstamp and Coinbase
+  figures already in the Learn facts stay"; its Bitstamp half stands.
+- The next content change of the repository takes those figures down or re-sources them from
+  Kraken's daily closes, not from Bitstamp's past candles, which the Reading of 2026-11-23 leaves
+  unread; the Kraken Reading allows figures computed from Kraken's closes (per cent changes,
+  drawdowns, with their dates) published without the closes behind them. So the per cent falls with
+  their high and low dates, and the purchase-result ratios, counts and day counts, are recomputed
+  from Kraken's daily closes, with Kraken named as their source; the dollar prices and any close
+  shown (for example the "$2,420" close the ETH result is valued at) are removed, since they would
+  give Kraken's closes back; and any figure Kraken's days cannot carry is removed with the copy that
+  depends on it. Counsel and brand read the change. The letter asks whether Coinbase-derived figures
+  may be shown; a yes may bring them back.
 - If Coinbase consents, the pipeline reads its public candles at most once a second per address,
   well inside the stated 10, and the conditions of the consent are recorded here.
+- Before a paid tier launches, Coinbase is written to again, whatever it allows for the free app, as
+  Kraken is (Kraken's Reading of 2026-11-27 above), and no Coinbase-derived figure is used in a paid
+  tier until Coinbase has reviewed that use.
 
 ## Disagreement
 
