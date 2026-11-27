@@ -62,7 +62,7 @@ wallets, a test transaction first, a request for it is a warning sign of a scam,
 `e.seed-phrase-requests` and `e.impersonation`).
 **Chart**: one bar chart of maximum drawdowns per asset and cycle (categorical by asset, with values
 labelled, from `packages/content/cycles`). Directly under the chart sits the first-view sentence for
-historic data of `docs/LEGAL.md` §4 in its intraday form, since the bars are falls from intraday highs to
+historic data of `docs/LEGAL.md` §4, in its intraday form for the rows that are falls from intraday highs to
 intraday lows: "[Source] intraday highs and lows in US dollars, [first date] to [last date]; the falls are
 Proof of Calm's own computation. Past performance is not a reliable indicator of future results.", as §6
 says for the Red day page; a row with `basis: 'close'` in the cycles file, a fall from the highest to the lowest
