@@ -13,7 +13,7 @@
   },
   {
     "key": "b.alt-drawdowns",
-    "value": "Proof of Calm's own computation (Kraken daily closes, Bitstamp and CoinMarketCap intraday prices) of ETH, SOL, and LINK drawdowns from cycle highs. ETH 2018 (Kraken closes): 13 Jan 2018 to 15 Dec 2018, −94.1 %. ETH 2021 to 2022 (Bitstamp intraday): 10 Nov 2021 to 18 Jun 2022, −82 %. SOL (Kraken closes): 6 Nov 2021 to 29 Dec 2022, −96.3 %. LINK 2018 (CoinMarketCap series only): 8 Jan 2018 to 29 Jun 2018, −88.7 %. LINK 2021 to 2023 (Bitstamp intraday): 10 May 2021 to 10 Jun 2023, −91 %. At the close on 16 Oct 2026 (Kraken), LINK was 76 % and SOL 60 % below their highest 2021 closes.",
+    "value": "Proof of Calm's own computation (Kraken daily closes, and Bitstamp and CoinMarketCap intraday prices) of ETH, SOL, and LINK drawdowns from cycle highs. ETH 2018 (Kraken closes): 13 Jan 2018 to 15 Dec 2018, −94.1 %. ETH 2021 to 2022 (Bitstamp intraday): 10 Nov 2021 to 18 Jun 2022, −82 %. SOL (Kraken closes): 6 Nov 2021 to 29 Dec 2022, −96.3 %. LINK 2018 (CoinMarketCap series only): 8 Jan 2018 to 29 Jun 2018, −88.7 %. LINK 2021 to 2023 (Bitstamp intraday): 10 May 2021 to 10 Jun 2023, −91 %. At the close on 16 Oct 2026 (Kraken), LINK was 76 % and SOL 60 % below their highest 2021 closes.",
     "unit": "% from cycle high",
     "date": "2026-10-16",
     "source": "https://support.kraken.com/articles/360047124832",
