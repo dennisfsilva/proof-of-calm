@@ -71,6 +71,29 @@ const cells = (row: string) =>
   [...row.matchAll(/<t[hd][^>]*>(.*?)<\/t[hd]>/g)].map((match) => (match[1] ?? '').replace(/\s/gu, ' '));
 const header = (markup: string) => markup.match(/<thead>(.*?)<\/thead>/)?.[1] ?? '';
 
+// What main rendered for BITCOINITY and BITSTAMP, the row and cell classes included.
+const ONE_BASIS = [
+  '<div class="relative -m-[calc(var(--focus-offset)+var(--focus-width))] overflow-x-auto p-[calc(var(--focus-offset)+var(--focus-width))]" tabindex="0" role="region" aria-labelledby="_R_0_">',
+  '<table class="w-full border-collapse text-14">',
+  '<caption id="_R_0_" class="pb-2 text-left text-13 text-ink-2">Falls from each high to the lowest low after it for BTC, 9\u00a0Jun\u00a02011 to 16\u00a0Dec\u00a02018</caption>',
+  '<thead><tr class="border-line-2 border-b">',
+  '<th scope="col" class="px-2 py-2 font-medium text-13 text-ink-2 text-left">Coin</th>',
+  '<th scope="col" class="px-2 py-2 font-medium text-13 text-ink-2 text-right">Fall</th>',
+  '<th scope="col" class="px-2 py-2 font-medium text-13 text-ink-2 text-left">Date of high</th>',
+  '<th scope="col" class="px-2 py-2 font-medium text-13 text-ink-2 text-left">Date of low</th>',
+  '</tr></thead><tbody>',
+  '<tr class="border-line border-b"><th scope="row" class="px-2 py-2 text-ink text-left font-normal">BTC</th>',
+  '<td class="px-2 py-2 text-ink nums text-right">−93%</td>',
+  '<td class="px-2 py-2 text-ink">9\u00a0Jun\u00a02011</td><td class="px-2 py-2 text-ink">21\u00a0Nov\u00a02011</td></tr>',
+  '<tr class="border-line border-b"><th scope="row" class="px-2 py-2 text-ink text-left font-normal">BTC</th>',
+  '<td class="px-2 py-2 text-ink nums text-right">−83%</td>',
+  '<td class="px-2 py-2 text-ink">18\u00a0Dec\u00a02017</td><td class="px-2 py-2 text-ink">16\u00a0Dec\u00a02018</td></tr>',
+  '</tbody></table></div>',
+  '<p class="text-16">Bitcoinity (Mt. Gox), Bitstamp, and CoinMarketCap intraday highs and lows in US dollars,',
+  ' 9\u00a0Jun\u00a02011 to 16\u00a0Dec\u00a02018; the falls are Proof of Calm&#x27;s own computation.',
+  ' Past performance is not a reliable indicator of future results.</p>',
+].join('');
+
 describe('SiteFalls: the Source column', () => {
   const { columns } = learn.chart;
 
@@ -99,6 +122,23 @@ describe('SiteFalls: the Source column', () => {
       ).toBe(true);
       expect(markup).not.toContain(columns.source);
     }
+  });
+
+  // Rows of one basis render byte for byte what main rendered before the mixed table's layout changed (captured on
+  // 634c26b1d), so the one-basis pages and their visual baselines stay as they are.
+  it('rows of one basis render the markup they rendered before', () => {
+    expect(html(falls(BITCOINITY, BITSTAMP))).toBe(ONE_BASIS);
+  });
+
+  // The page's text test reads each row as coin, fall, high, low and publisher run together (apps/web/src/site/legal.test.ts),
+  // so a stacked label or a class adds no text to a row.
+  it('a mixed row reads as coin, fall, high, low and publisher, with nothing between them', () => {
+    const text = (row: string) => row.replace(/<[^>]*>/g, '').replace(/\s/gu, ' ');
+    expect(rows(html(falls(BITCOINITY, BITSTAMP, KRAKEN))).map(text)).toEqual([
+      'BTC−93%9 Jun 201121 Nov 2011Bitcoinity (Mt. Gox) and CoinMarketCap',
+      'BTC−83%18 Dec 201716 Dec 2018Bitstamp',
+      'ETH−93%20 Jan 20188 Dec 2018Kraken',
+    ]);
   });
 
   // A row drawn from two series names both, joined in the page's language (docs/CONTENT-STYLE.md §1 rule 9, §3):
