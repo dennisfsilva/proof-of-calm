@@ -1,0 +1,27 @@
+{
+  "name": "@proofofcalm/data",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The price history's schemas and publish switch; the reference closes once Kraken allows them (ADR-0036).",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "test": "vitest run --coverage",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@proofofcalm/core": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@proofofcalm/config": "workspace:*",
+    "@vitest/coverage-v8": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
