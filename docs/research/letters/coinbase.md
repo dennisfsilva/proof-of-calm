@@ -1,7 +1,7 @@
 # Letter to Coinbase's market data address: consent for derived daily closes
 
 Note for the owner, not part of the letter: send it only after the app's lessons no longer cite
-Coinbase, since its paragraph on the figures already shown tells Coinbase that they are being
+Coinbase, since its paragraph on the figures already shown tells Coinbase that they have been
 replaced; the tracker says when that content change has merged.
 
 Drafted on 2026-11-27 and not sent: it waits for the owner to send it from the owner's address to
@@ -23,8 +23,9 @@ answer is recorded. Until the answer, the pipeline reads no Coinbase data.
 Hello,
 
 Your Market Data Terms of Use name this address for questions about Market Data. I am asking for
-the written consent the terms require, under their sections 2, 3.B, 3.C and 3.D, before the uses
-below, or for the licence and conditions that would cover them, and their cost.
+the written consent sections 3.B, 3.C and 3.D require, and a licence beyond section 2's personal or
+research purposes, before the uses below, or for the licence and conditions that would cover them,
+and their cost.
 
 I am building Proof of Calm, a planner and log for people who buy crypto assets once a month on a
 fixed date. People log their own purchases, by hand or from their own exchange's export file. It
@@ -56,7 +57,7 @@ of these uses only with your consent:
 **Figures already shown.** A few dated figures in the app's lessons (past drawdowns of ETH, SOL and
 LINK from their highs, and the results of past monthly purchases of ETH) were computed from Coinbase
 Exchange daily candles and shown, with Coinbase Exchange named as their source, before I had read
-the terms; the app has not launched, and these figures are being replaced by figures computed from
+the terms; the app has not launched, and these figures have been replaced by figures computed from
 other exchanges' data. May figures derived from Coinbase market data be shown in the lessons?
 
 Nothing is presented as Coinbase data, used as a benchmark for any financial product or contract,
