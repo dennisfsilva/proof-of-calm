@@ -1,8 +1,9 @@
 // The private store of per-exchange daily closes (ADR-0036, Reading of 2026-11-27; README.md): one CSV
 // per exchange and pair, `closes/<exchange>/<COIN>-<QUOTE>.csv` under the store's directory. A stored
-// close is never overwritten; a revised one is only counted. Every error names the file and nothing
-// else, so no close reaches a log.
-import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
+// close is never overwritten; a revised one is only counted. Every error names the store-relative
+// file and, for a file-system failure, its error code, and nothing else, so neither a close nor the
+// store's location reaches a log.
+import { mkdir, readFile, rename, rm, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { compare, compareDates } from '@proofofcalm/core';
 import { type Exchange, ExchangeSchema, STORE_HEADER, type StoreRow, StoreRowsSchema } from '@proofofcalm/data';
@@ -36,19 +37,31 @@ export function formatStore(rows: readonly StoreRow[]): string {
   return [STORE_HEADER, ...rows.map((row) => `${row.date},${row.close}`)].map((line) => `${line}\n`).join('');
 }
 
+// A file-system error's code (`EISDIR`), or `UNKNOWN` for anything else: Node's message names the
+// absolute path, so only the code reaches the refusal, and the original error is not kept as a cause.
+const fsCode = (error: unknown): string => {
+  const code = (error as { code?: unknown } | null)?.code;
+  return typeof code === 'string' && /^[A-Z][A-Z0-9_]{0,31}$/.test(code) ? code : 'UNKNOWN';
+};
+
 /** The stored rows of one exchange and pair; a pair with no file yet starts empty. */
 export async function readStore(dir: string, exchange: Exchange, pair: string): Promise<StoreRow[]> {
+  const path = storePath(dir, exchange, pair);
   let text: string;
   try {
-    text = await readFile(storePath(dir, exchange, pair), 'utf8');
+    text = await readFile(path, 'utf8');
   } catch (error) {
-    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return [];
-    throw error;
+    const code = fsCode(error);
+    if (code === 'ENOENT') return [];
+    throw new Error(`refused: ${fileName(exchange, pair)} cannot be read (${code})`);
   }
   return parseStore(text, exchange, pair);
 }
 
-/** Writes the rows whole, through a temporary file renamed over the old one; bad rows write nothing. */
+/**
+ * Writes the rows whole, through a temporary file renamed over the old one; bad rows write nothing,
+ * and a failed write removes its temporary file.
+ */
 export async function writeStore(
   dir: string,
   exchange: Exchange,
@@ -59,9 +72,15 @@ export async function writeStore(
   if (!StoreRowsSchema.safeParse(rows).success) {
     throw new Error(`refused: ${fileName(exchange, pair)} rows are malformed`);
   }
-  await mkdir(dirname(path), { recursive: true });
-  await writeFile(`${path}.tmp`, formatStore(rows), 'utf8');
-  await rename(`${path}.tmp`, path);
+  const temporary = `${path}.tmp`;
+  try {
+    await mkdir(dirname(path), { recursive: true });
+    await writeFile(temporary, formatStore(rows), 'utf8');
+    await rename(temporary, path);
+  } catch (error) {
+    await rm(temporary, { force: true }).catch(() => undefined);
+    throw new Error(`refused: ${fileName(exchange, pair)} cannot be written (${fsCode(error)})`);
+  }
 }
 
 /**
