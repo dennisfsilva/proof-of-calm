@@ -1,9 +1,12 @@
 // Bitstamp's reader of its public daily closes (ADR-0036, Reading of 2026-11-23): yesterday's candle
-// only, once a day per pair, and no candle dated before the pipeline's first run, so a missed day is
-// not caught up. API v2's OHLC endpoint (www.bitstamp.net/api, OHLC data) with `step=86400`,
-// `limit=1`, `start` at the window's day and the open candle excluded. The runner's window names the
-// day; the real clock only bounds it, so a window of more than one day, or a day other than yesterday
-// or the day before (a run that passed midnight after it started), is refused as a failure, unread.
+// only, once a day per pair, so a missed day is not caught up, and the first run reads the previous
+// day's candle and nothing older (the Reading of 2026-11-27 on Bitstamp's first run). API v2's OHLC
+// endpoint (www.bitstamp.net/api, OHLC data) with `step=86400`, `limit=1`, `start` at the window's day
+// and the open candle excluded. The runner's window names the day; the real clock only bounds it: the
+// window is one day, and that day is yesterday, or the day before yesterday while the clock is less
+// than `MIDNIGHT_ALLOWANCE_MINUTES` past 00:00 UTC (a daily step that passed midnight after it started).
+// Any other window is refused as a failure, unread, so a `--today` in the past fails every pair, except
+// a `--today` of yesterday within that allowance after 00:00 UTC.
 import { addDays, compareDates } from '@proofofcalm/core';
 import type { StoreRow } from '@proofofcalm/data';
 import * as z from 'zod/mini';
@@ -13,6 +16,13 @@ import type { Source } from './source.ts';
 // A url_symbol of the trading-pairs listing (`btceur`), so nothing else reaches the URL.
 const SYMBOL = /^[a-z0-9]{2,16}$/;
 const SECONDS = /^\d{1,12}$/;
+
+/**
+ * The daily step's `timeout-minutes` in `closes-store.yml`: the longest a step started before midnight
+ * can still be reading, so the day before yesterday is a window only this long after 00:00 UTC.
+ * `workflow.test.ts` pins it to the template.
+ */
+export const MIDNIGHT_ALLOWANCE_MINUTES = 8;
 
 const BodySchema = z.object({
   data: z.object({ ohlc: z.array(z.object({ timestamp: z.string(), close: z.unknown() })) }),
@@ -28,8 +38,12 @@ export const bitstamp: Source = {
   exchange: 'bitstamp',
   async closes(pair, from, to, io) {
     if (!SYMBOL.test(pair)) throw new Error('refused: bitstamp unknown pair');
-    const yesterday = addDays(utcToday(io.now()), -1);
-    const known = from === yesterday || from === addDays(yesterday, -1);
+    const now = io.now();
+    const today = utcToday(now);
+    const yesterday = addDays(today, -1);
+    const pastMidnight = now.getTime() - dayStart(today) * 1000;
+    const allowed = pastMidnight < MIDNIGHT_ALLOWANCE_MINUTES * 60_000;
+    const known = from === yesterday || (allowed && from === addDays(yesterday, -1));
     if (compareDates(from, to) !== 0 || !known) throw refused('bitstamp', pair, 'out of window');
     const query = new URLSearchParams({
       step: '86400',

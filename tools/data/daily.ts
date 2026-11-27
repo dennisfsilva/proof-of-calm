@@ -20,12 +20,18 @@ const WINDOW_DAYS: Record<Exchange, number | null> = {
 };
 
 /**
+ * Whether an exchange's window heals a missed day, so a run of unreachable pairs may stop it (`STOP_AFTER`).
+ * Bitstamp's window is yesterday only and cannot be read again: its unreachable pairs fail one at a time.
+ */
+const HEALS: Record<Exchange, boolean> = { kraken: true, bitstamp: false, coinbase: false };
+
+/**
  * The order the exchanges run in: first the one whose day cannot be read again (Bitstamp: yesterday
  * only), then Kraken, whose window heals a missed day, so a slow or failing Kraken never costs Bitstamp's.
  */
 const ORDER: readonly Exchange[] = ['bitstamp', 'kraken', 'coinbase'];
 
-/** Consecutive unreachable pairs after which an exchange's remaining pairs fail unread. */
+/** Consecutive unreachable pairs after which a healing exchange's remaining pairs fail unread. */
 const STOP_AFTER = 3;
 
 /** The least time between two requests to one exchange (Kraken: one a second per address). */
@@ -56,7 +62,8 @@ export function line(error: unknown): string {
 
 /**
  * Runs every exchange's pairs into the store, in `ORDER`; false when a pair failed. A store refusal stops
- * the run; `STOP_AFTER` unreachable pairs in a row stop that exchange, its remaining pairs failed unread.
+ * the run; `STOP_AFTER` unreachable pairs in a row stop an exchange that `HEALS`, its remaining pairs
+ * failed unread, and never stop one that does not.
  */
 export async function runDaily(
   options: DailyOptions,
@@ -81,7 +88,9 @@ export async function runDaily(
     const paced = pace(PACE_MS, io);
     const from = addDays(options.today, -days);
     const to = addDays(options.today, -1);
-    // Unreachable pairs in a row, across both quotes: an outage costs STOP_AFTER timeouts, not one per pair.
+    // Unreachable pairs in a row, across both quotes: an outage of a healing exchange costs STOP_AFTER
+    // timeouts, not one per pair; one that cannot heal tries every pair.
+    const stopAfter = HEALS[exchange] ? STOP_AFTER : Number.POSITIVE_INFINITY;
     let unreachable = 0;
     for (const quote of QUOTES) {
       const pairs = Object.entries(PAIRS).flatMap(([coin, venues]) => {
@@ -92,7 +101,7 @@ export async function runDaily(
       let revised = 0;
       let failed = 0;
       for (const { pair, symbol } of pairs) {
-        if (unreachable >= STOP_AFTER) {
+        if (unreachable >= stopAfter) {
           failed += 1;
           continue;
         }
@@ -107,7 +116,7 @@ export async function runDaily(
           const closed = READER_REFUSAL.test(refusal);
           print.err(closed ? refusal : `refused: ${exchange} ${symbol} unexpected error`);
           unreachable = closed && refusal.endsWith(' unreachable') ? unreachable + 1 : 0;
-          if (unreachable === STOP_AFTER) print.err(`${exchange}: stopped after ${STOP_AFTER} unreachable`);
+          if (unreachable === stopAfter) print.err(`${exchange}: stopped after ${STOP_AFTER} unreachable`);
           continue;
         }
         const merged = mergeAppend(stored, fresh);
