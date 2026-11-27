@@ -41,8 +41,10 @@ changes with it. While `repository` is `false`, nothing writes into this package
 
 - Each exchange's daily closes are collected in EUR and in USD where it lists the pair; the reference
   close is computed in EUR only, and USD is converted from it at the ECB rate.
-- A reference day is the mean of the closes the pipeline has for that day (one, two or three), never
-  one of two, and records how many sources it used (`sources`).
+- A reference day takes the closes the pipeline has for that day: on a day with Kraken's and
+  Bitstamp's, the mean of the two, never one of them, and it records how many sources it used
+  (`sources`). The schema also allows three sources, for the day Coinbase consents in writing
+  (ADR-0036's Reading of Coinbase's terms); a day with three closes would take the middle one.
 
 ## The private store
 

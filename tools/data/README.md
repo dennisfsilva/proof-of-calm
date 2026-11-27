@@ -58,7 +58,8 @@ agent reads its endpoints, `pairs.json` has no Coinbase entry, and its reader st
 A close is kept as the exact decimal string the exchange sent; exponent notation is converted by
 moving its digits, and a JSON number, which has already become a float, is refused. `pace.ts` wraps
 one exchange's io for a whole run: at least `minMs` between two requests (1,000 ms: Kraken asks for
-one a second per address), and on HTTP 429 or Kraken's `EAPI:Rate limit exceeded` it waits 2, 4 and
+one a second per address), and on HTTP 429 or Kraken's `EAPI:Rate limit exceeded` (or
+`EGeneral:Too many requests`) it waits 2, 4 and
 8 times `minMs` before the next try, giving up with `RateLimited` after the fourth. Each try carries
 its own 30-second timeout (`REQUEST_TIMEOUT_MS`), made from the io's `timeout` when the try is sent,
 so waiting for a slot or backing off never counts against it. The readers set no timeout of their
