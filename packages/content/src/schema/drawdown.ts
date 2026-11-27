@@ -1,5 +1,6 @@
-// One coin's fall from its intraday high to its intraday low (ADR-0009's check, docs/DOMAIN.md §5), shared by
-// the templates' dated bands and the cycles file (docs/EDUCATION.md §2 and §6).
+// One coin's fall from its high to its low (ADR-0009's check, docs/DOMAIN.md §5), shared by the templates' dated
+// bands and the cycles file (docs/EDUCATION.md §2 and §6): intraday high to intraday low, or highest to lowest
+// daily close where `basis` says so.
 import * as z from 'zod/mini';
 import { CalendarDateSchema, DecimalSchema } from './common.ts';
 
@@ -14,6 +15,8 @@ export const DrawdownSchema = z.strictObject({
   low: CalendarDateSchema,
   /** Whole percent, as the card's band shows it. */
   fall: DecimalSchema,
+  /** Absent: intraday high to intraday low; 'close': highest daily close to the lowest daily close after it. */
+  basis: z.optional(z.literal('close')),
   source: z.url(),
   lowSource: z.optional(z.url()),
   publisher: z.string().check(z.minLength(1)),

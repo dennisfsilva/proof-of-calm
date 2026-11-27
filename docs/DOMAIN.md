@@ -1660,7 +1660,8 @@ pick it, what can go wrong; paragraphs separated by a blank line, at most five s
 `firstBuy`, `startingAmount` are always the user's.
 
 `drawdowns` holds one fall per coin, in the order of `coins` (`drawdown-coins`), each a coin's intraday high to its intraday low
-(`coin`, `high`, `low`, `fall` in whole percent) with its `source` on the facts allow-list (and a
+(`coin`, `high`, `low`, `fall` in whole percent; `basis: 'close'` when the fall runs from its highest to its lowest
+daily close instead, the schema shared with the cycles file) with its `source` on the facts allow-list (and a
 `lowSource` when one request to that series cannot reach both ends, or to run to today for a coin
 that has not regained its high), its `publisher` and its
 `accessed` date, no later than `lastReviewed` once the owner signs the template off
