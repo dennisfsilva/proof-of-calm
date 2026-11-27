@@ -379,10 +379,10 @@ Decided:
 - The Decision's Coinbase Exchange ticker fallback is not built, like Kraken's: the last good copy
   stays the fallback.
 - A letter is needed: `docs/research/letters/coinbase.md` asks marketdata@coinbase.com for written
-  consent to each use, item by item, naming §2, §3.B, §3.C and §3.D, since §12 lets the terms
-  control any agreement that conflicts with them. It waits for the owner to send it from the owner's
-  address once the lessons no longer cite Coinbase (below; the tracker says when), and joins the
-  owner's list; the answer is recorded here.
+  consent to each use, item by item, under §3.B, §3.C and §3.D, and for a licence beyond §2's
+  personal or research purposes, since §12 lets the terms control any agreement that conflicts with
+  them. It waits for the owner to send it from the owner's address once the lessons no longer cite
+  Coinbase (below; the tracker says when), and joins the owner's list; the answer is recorded here.
 - With Coinbase off and Bitstamp's history waiting (the Reading of 2026-11-23), every day before the
   pipeline's first run has Kraken's close alone. Until Kraken's fourth yes, Bitstamp's history or
   Coinbase's consent, each coin's published series starts on the pipeline's first day with both
