@@ -301,10 +301,9 @@ Dutch 2027 and 2028 decisions, Spain's post-election bills, Portugal's OE2027 an
 the verification queues left by the research of 2026-10-16 (unread primary PDFs, law numbers to
 confirm, penalty figures to quote).
 
-The templates' ETH rows for the 2021–22 fall cite Bitstamp, while `packages/content/cycles/drawdowns.json`
-cites Coinbase for the same fall. Until the session PR of #577 merges, no review settles that: the
-review reads no Coinbase row (§7), and that PR moves the cycles row onto the templates' Bitstamp
-row.
+The ETH row for the 2021–22 fall in `packages/content/cycles/drawdowns.json` stands on the templates'
+Bitstamp row for it, the same request, so the review reads one series for that fall (since the
+session PR of #577, 2026-11-27).
 
 ## 7. Education facts
 
