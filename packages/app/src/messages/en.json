@@ -213,7 +213,17 @@
           "history-starts-later": "The reference closes for {coin} begin on {date}. Choose a start on or after that day.",
           "history-ends-earlier": "The reference closes for {coin} end on {date}. Choose an end on or before that day.",
           "date-required": "Choose a full date: day, month, and year."
-        }
+        },
+        "fill": "Fill in from your plan",
+        "fillLine": {
+          "other-currency": "The simulator works in euros for now; type the amount in euros.",
+          "no-monthly": "Your plan has no monthly amount; type one."
+        },
+        "start": "Start",
+        "end": "End",
+        "fee": "Fee (%)",
+        "feeHint": "A flat percentage of each buy. Enter 0 for none.",
+        "run": "Run the simulation"
       },
       "result": {
         "legend": {

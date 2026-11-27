@@ -76,7 +76,17 @@
         "history-starts-later": "Die Referenzschlusskurse für {coin} beginnen am {date}. Wählen Sie einen Start am oder nach diesem Tag.",
         "history-ends-earlier": "Die Referenzschlusskurse für {coin} enden am {date}. Wählen Sie ein Ende am oder vor diesem Tag.",
         "date-required": "Wählen Sie ein vollständiges Datum: Tag, Monat und Jahr."
-      }
+      },
+      "fill": "Aus dem Plan übernehmen",
+      "fillLine": {
+        "other-currency": "Der Simulator rechnet vorerst in Euro; geben Sie den Betrag in Euro ein.",
+        "no-monthly": "Ihr Plan hat keinen monatlichen Betrag; geben Sie einen ein."
+      },
+      "start": "Start",
+      "end": "Ende",
+      "fee": "Gebühr (%)",
+      "feeHint": "Ein fester Prozentsatz jedes Kaufs. Geben Sie 0 ein, wenn es keine gibt.",
+      "run": "Simulation starten"
     },
     "result": {
       "legend": {

@@ -76,7 +76,17 @@
         "history-starts-later": "Os fechos de referência de {coin} começam em {date}. Escolha um início a partir desse dia.",
         "history-ends-earlier": "Os fechos de referência de {coin} terminam em {date}. Escolha um fim até esse dia.",
         "date-required": "Escolha uma data completa: dia, mês e ano."
-      }
+      },
+      "fill": "Preencher a partir do seu plano",
+      "fillLine": {
+        "other-currency": "Por agora, o simulador funciona em euros; introduza o montante em euros.",
+        "no-monthly": "O seu plano não tem montante mensal; introduza um."
+      },
+      "start": "Início",
+      "end": "Fim",
+      "fee": "Comissão (%)",
+      "feeHint": "Uma percentagem fixa de cada compra. Introduza 0 para nenhuma.",
+      "run": "Executar a simulação"
     },
     "result": {
       "legend": {
