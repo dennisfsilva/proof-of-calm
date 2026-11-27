@@ -66,7 +66,7 @@ The decision stands but for one sentence; this is for the owner's sign-off at th
   "suggested language" in a country profile is not built.
 
 **2026-11-23, the outcome: the deviation stands.** It was decided on the owner's delegation of
-2026-11-18 ("have it decide the Needs you items and have it decide them for me") by the session that
+2026-11-18 by the session that
 delegation started; the owner's own sign-off is not given, and the decision is on the list the owner
 confirms at the end of M2 (#409). An audit of main at c5bea4df on 2026-11-19 (#271, the outcome
 comment) found the code as the entry and ADR-0023's default say: both hosts call `readLanguage`

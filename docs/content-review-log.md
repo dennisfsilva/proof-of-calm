@@ -7,8 +7,8 @@ next draft can check for.
 
 ## 2026-11-23: the English facts, a review made on the owner's delegation
 
-The owner delegated the tracker's Needs-you items on 2026-11-18 ("have it decide the Needs you items and
-have it decide them for me") and allowed the deciding session to merge its content fixes (record: #409;
+The owner delegated the tracker's Needs-you items on 2026-11-18 and allowed the deciding session to
+merge its content fixes (record: #409;
 ADR-0015 Deviations). `reviewedBy: owner` on facts `k.it-2026`, `b.alt-drawdowns`, `o.dca-windows-eth` and
 `p.simulator-examples-eth` records that delegation; no person opened the sources. An agent opened each
 source on 2026-11-23 (WET = UTC): at 08:33 Coinbase Exchange's daily candles (26 requests for ETH-USD,
