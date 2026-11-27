@@ -417,6 +417,21 @@ Decided:
   Kraken is (Kraken's Reading of 2026-11-27 above), and no Coinbase-derived figure is used in a paid
   tier until Coinbase has reviewed that use.
 
+### Reading of 2026-11-27: Bitstamp's first run reads the day before it
+
+The Reading of 2026-11-23 says both that the pipeline reads no Bitstamp candle dated before its first
+run and that from that run on it reads the previous day's candle once a day per pair. The two
+sentences disagree on the first run only, whose previous day falls before it. The letter described a
+daily read of the previous day's candle, and Bitstamp's answer allowed its public APIs for that use
+while leaving its history for later.
+
+Decided:
+
+- The first run reads the previous day's candle, like every later run, and nothing older. No Bitstamp
+  candle older than the day before the pipeline's first run is read until Bitstamp says its history
+  is possible.
+- `tools/data/sources/bitstamp.ts`'s header says so from its next change.
+
 ## Disagreement
 
 None beyond the source change recorded in ADR-0006.
