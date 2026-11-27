@@ -101,7 +101,7 @@ const template = (overrides: Record<string, unknown> = {}) => ({
   split: { BTC: '70', ETH: '30' },
   sellWindow: null,
   references: {},
-  drawdowns: [drawdown('BTC', '2022-11-21', '78'), drawdown('ETH', '2022-06-18', '82')],
+  drawdowns: [drawdown('BTC', '2022-11-21', '78'), drawdown('ETH', '2022-06-30', '83')],
   lastReviewed: '2026-10-16',
   reviewedBy: 'owner',
   ...overrides,
@@ -464,8 +464,8 @@ describe('validateContent: templates (docs/DOMAIN.md §5)', () => {
     expect(codes([file(path, template({ riskBand: 'Fell 78 %' }))])).toEqual([expect.stringMatching(/^schema: /)]);
     const drawdowns = [
       drawdown('BTC', '2022-11-21', '78', { source: 'https://news.example/btc', accessed: '2026-10-17' }),
-      drawdown('ETH', '2022-06-18', '81', { source: 'http://www.bitstamp.net/api/' }),
-      drawdown('ETH', '2022-06-18', '82', { lowSource: 'https://news.example/eth' }),
+      drawdown('ETH', '2022-06-30', '81', { source: 'http://www.bitstamp.net/api/' }),
+      drawdown('ETH', '2022-06-30', '83', { lowSource: 'https://news.example/eth' }),
     ];
     expect(codes([file(path, template({ drawdowns }))])).toEqual([
       'source-not-allowed: https://news.example/btc',
@@ -479,29 +479,29 @@ describe('validateContent: templates (docs/DOMAIN.md §5)', () => {
   it('refuses a fall whose low comes before its high, whose coin the template does not buy, or outside 0 to 100', () => {
     const wrong = [
       drawdown('BTC', '2021-11-09', '78'),
-      drawdown('SOL', '2022-12-29', '97'),
-      drawdown('ETH', '2022-06-18', '780'),
+      drawdown('SOL', '2022-12-20', '98'),
+      drawdown('ETH', '2022-06-30', '780'),
     ];
     expect(codes([file(path, template({ drawdowns: wrong }))])).toEqual([
       'drawdown-low-before-high: drawdowns.0 high 2021-11-10, low 2021-11-09',
       'drawdown-unknown-coin: drawdowns.1 SOL',
       'drawdown-fall-out-of-range: drawdowns.2 fall 780',
     ]);
-    const edges = [drawdown('BTC', '2022-11-21', '0'), drawdown('ETH', '2022-06-18', '100.01')];
+    const edges = [drawdown('BTC', '2022-11-21', '0'), drawdown('ETH', '2022-06-30', '100.01')];
     expect(codes([file(path, template({ drawdowns: edges }))])).toEqual([
       'drawdown-fall-out-of-range: drawdowns.0 fall 0',
       'drawdown-fall-out-of-range: drawdowns.1 fall 100.01',
     ]);
-    const bounds = [drawdown('BTC', '2021-11-10', '100.00'), drawdown('ETH', '2022-06-18', '0.5')];
+    const bounds = [drawdown('BTC', '2021-11-10', '100.00'), drawdown('ETH', '2022-06-30', '0.5')];
     expect(codes([file(path, template({ drawdowns: bounds }))])).toEqual([]);
   });
 
   it('takes a second source for a low that the high’s series does not reach, from the facts list too', () => {
-    const coinbase = 'https://api.exchange.coinbase.com/products/SOL-USD/candles?granularity=86400';
-    const sol = drawdown('SOL', '2022-12-29', '97', {
-      high: '2021-11-06',
-      source: `${coinbase}&start=2021-10-01T00:00:00Z&end=2022-07-27T00:00:00Z`,
-      lowSource: `${coinbase}&start=2022-07-27T00:00:00Z&end=2023-01-31T00:00:00Z`,
+    const series = 'https://www.bitstamp.net/api/v2/ohlc/solusd/?step=86400&limit=300';
+    const sol = drawdown('SOL', '2022-12-20', '98', {
+      high: '2021-11-20',
+      source: `${series}&start=1635811200`,
+      lowSource: `${series}&start=1661990400`,
     });
     const coins = [{ id: 'SOL', name: 'Solana', geckoId: 'solana', decimals: 4 }];
     const solana = (each: Record<string, unknown>) => template({ coins, split: { SOL: '100' }, drawdowns: [each] });
@@ -523,7 +523,7 @@ describe('validateContent: templates (docs/DOMAIN.md §5)', () => {
       { id: 'SOL', name: 'Solana', geckoId: 'solana', decimals: 4 },
     ];
     const split = { BTC: '50', ETH: '30', SOL: '20' };
-    const drawdowns = [...template().drawdowns, drawdown('SOL', '2022-12-29', '97')];
+    const drawdowns = [...template().drawdowns, drawdown('SOL', '2022-12-20', '98')];
     expect(codes([catalogue, file(path, template({ coins, split, drawdowns }))])).toEqual([
       'coin-differs-from-catalogue: BTC',
       'coin-not-in-catalogue: SOL',
@@ -636,7 +636,7 @@ describe('validateContent: cycles (docs/EDUCATION.md §2 and §6)', () => {
   const rows = [
     cycle('BTC', '2017-12-17', '2018-12-15', '84'),
     cycle('BTC', '2021-11-10', '2022-11-21', '78'),
-    cycle('ETH', '2021-11-10', '2022-06-18', '82', { confidence: 'medium' }),
+    cycle('ETH', '2021-12-01', '2022-06-30', '83', { confidence: 'medium' }),
   ];
 
   it('passes reviewed rows in catalogue order with whole falls from the facts list', () => {
@@ -654,9 +654,9 @@ describe('validateContent: cycles (docs/EDUCATION.md §2 and §6)', () => {
   it('reports a low before its high, a coin the catalogue lacks, a fall outside 0 to 100 or not whole, a source off the facts list, and accessed after the review', () => {
     const wrong = [
       cycle('BTC', '2021-11-10', '2021-11-09', '78', { source: 'https://news.example/btc' }),
-      cycle('ETH', '2021-11-10', '2022-06-18', '100.5'),
-      cycle('ETH', '2021-11-11', '2022-06-18', '81.9', { accessed: '2026-10-17' }),
-      cycle('SOL', '2021-11-06', '2022-12-29', '97'),
+      cycle('ETH', '2021-12-01', '2022-06-30', '100.5'),
+      cycle('ETH', '2021-12-02', '2022-06-30', '81.9', { accessed: '2026-10-17' }),
+      cycle('SOL', '2021-11-20', '2022-12-20', '98'),
     ];
     expect(codes([catalogue, file(path, cycles(wrong))])).toEqual([
       'source-not-allowed: https://news.example/btc',
@@ -671,13 +671,13 @@ describe('validateContent: cycles (docs/EDUCATION.md §2 and §6)', () => {
 
   it('reports rows out of catalogue order or two rows with one coin and high', () => {
     expect(codes([catalogue, file(path, cycles([rows[2], rows[0], rows[1]]))])).toEqual([
-      'cycles-out-of-order: drawdowns.1 BTC 2017-12-17 after ETH 2021-11-10',
+      'cycles-out-of-order: drawdowns.1 BTC 2017-12-17 after ETH 2021-12-01',
     ]);
     expect(codes([catalogue, file(path, cycles([rows[1], rows[0], rows[2]]))])).toEqual([
       'cycles-out-of-order: drawdowns.1 BTC 2017-12-17 after BTC 2021-11-10',
     ]);
-    const twice = [...rows, cycle('ETH', '2021-11-10', '2022-06-19', '81')];
-    expect(codes([catalogue, file(path, cycles(twice))])).toEqual(['cycles-duplicate: drawdowns.3 ETH 2021-11-10']);
+    const twice = [...rows, cycle('ETH', '2021-12-01', '2022-07-01', '81')];
+    expect(codes([catalogue, file(path, cycles(twice))])).toEqual(['cycles-duplicate: drawdowns.3 ETH 2021-12-01']);
   });
 
   it("wants the owner's sign-off and the file name drawdowns.json", () => {
@@ -693,7 +693,7 @@ describe('validateContent: cycles (docs/EDUCATION.md §2 and §6)', () => {
   });
 
   it('skips the coin check when the catalogue does not parse', () => {
-    const sol = [cycle('SOL', '2021-11-06', '2022-12-29', '97')];
+    const sol = [cycle('SOL', '2021-11-20', '2022-12-20', '98')];
     expect(codes([file('packages/content/coins.json', { coins: [] }), file(path, cycles(sol))])).toEqual([
       expect.stringMatching(/^schema: /),
     ]);
