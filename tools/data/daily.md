@@ -13,7 +13,9 @@ node --import ./tools/data/hooks.ts tools/data/daily.ts --store <dir> [--dry] [-
 is written (as it is, through a junction or symlink, or through a loopback share such as
 `\\localhost\P$\`), by comparing the device and inode of the store's nearest existing folder and its
 ancestors with the repository root's. `--today` names the UTC day the windows count from; without
-it the job reads the clock once, at its start.
+it the job reads the clock once, at its start, for the windows. The readers read the real clock only
+to bound a window: Kraken's drops the running candle, and Bitstamp's refuses a window whose day is not
+yesterday or the day before (Windows), so a `--today` in the past fails every Bitstamp pair.
 
 ## Where it runs
 
@@ -22,9 +24,13 @@ dennisfsilva/proof-of-calm-closes. Its workflow is a byte-for-byte copy of
 `tools/data/closes-store.yml`. The job checks out its own repository into `store/` and this
 repository's `main` into `app/` with no credential kept, fails at its first step while the two
 copies differ (`cmp`), installs the tools package, runs the daily job with `--store ../store`, and
-then commits `closes/` as `github-actions[bot]` with the message `data: closes of <UTC date>` when
-anything changed. The commit step runs after a failed pair too, so the other pairs' closes are kept.
-It keeps no cache and uploads no artifact.
+then commits the store's files, `closes/<exchange>/*.csv` and never the `.tmp` file a killed write
+leaves (`store.ts`), as `github-actions[bot]` with the message `data: closes of <UTC date>` when
+anything changed. The daily step has its own 8-minute timeout inside the job's 15: a step timeout
+fails that step without cancelling the job (GitHub's runner marks the step failed), so the commit
+step, which runs unless the run was cancelled, keeps what a slow or failed run wrote. The commit step
+runs after a failed pair too, so the other pairs' closes are kept. It keeps no cache and uploads no
+artifact.
 
 The copy rule: when a merged pull request changes `tools/data/closes-store.yml`, the session copies
 it into the private repository the same day, with git from a clone under `P:\dev\sandbox` (ADR-0058,
@@ -35,13 +41,17 @@ Decision 2), since the job fails while the two differ and that day's closes beco
 | Exchange | From | To | Why |
 |---|---|---|---|
 | Kraken | today minus 720 days | yesterday | every complete day of the endpoint's latest 720 candles, so the first run fills Kraken's last two years and a missed day heals on the next run |
-| Bitstamp | yesterday | yesterday | yesterday's close only, with no catch-up (ADR-0036, Reading of 2026-11-23), so its store starts from the job's first run |
+| Bitstamp | yesterday | yesterday | yesterday's close only, with no catch-up (ADR-0036, Reading of 2026-11-23), so its store starts from the job's first run; the reader reads the window's day only when the real clock puts it at yesterday or the day before (a run that passed midnight after it started), and refuses any other window as a failure |
 | Coinbase | none | none | off until it consents in writing (ADR-0036); no request |
 
-For each exchange in `SOURCES` order (`sources/index.ts`) and each quote, EUR then USD, the job reads
-each pair's stored rows, asks the reader for the window, merges with `mergeAppend` and writes the file
-only when it gained rows, never under `--dry`. Each exchange's requests go through one pacer for the
-whole run (`pace.ts`): one request a second, each with its own 30-second timeout.
+The exchanges run in a fixed order, `ORDER` in `daily.ts`: Bitstamp first, since its day cannot be
+read again, then Kraken, whose window heals a missed day, then Coinbase (off). For each exchange and
+each quote, EUR then USD, the job reads each pair's stored rows, asks the reader for the window,
+merges with `mergeAppend` and writes the file only when it gained rows, never under `--dry`. Each
+exchange's requests go through one pacer for the whole run (`pace.ts`): one request a second, each
+with its own 30-second timeout. After 3 pairs in a row refused as `unreachable`, across both quotes,
+the job stops that exchange: its remaining pairs count as failed, unread, so an outage costs about
+90 seconds instead of one timeout per pair, and the next exchange still runs.
 
 ## Output
 
@@ -54,6 +64,7 @@ close, a price or an exchange's response:
 | `coinbase: off` | stdout | the exchange with no reader |
 | `refused: <exchange> <symbol> <status>` | stderr | a reader's refusal (`README.md`, Output), and the pair counts as failed |
 | `refused: <exchange> <symbol> unexpected error` | stderr | any other error of a reader, and the pair counts as failed |
+| `<exchange>: stopped after 3 unreachable` | stderr | after the third pair in a row refused as `unreachable`: the exchange's remaining pairs count as failed, unread |
 | `refused: closes/<exchange>/<COIN>-<QUOTE>.csv <reason>` | stderr | a store file that is malformed or cannot be read or written: the run stops |
 | `daily refused: usage` | stderr | a missing `--store`, an unknown flag or argument, a `--today` that is not a date |
 | `daily refused: --store is inside this repository` | stderr | the guard's refusal, before any request |
